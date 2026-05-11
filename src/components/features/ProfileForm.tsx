@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { updateProfile, updatePassword, exportUserData, deleteUserAccount } from "@/lib/actions/profile"
 import { signOut } from "next-auth/react"
+import { useToast } from "@/context/ToastContext"
 
 interface ProfileFormProps {
   user: {
@@ -14,17 +15,17 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {
+  const { showToast } = useToast()
+  
   // Profile Form States
   const [name, setName] = useState(user.name)
   const [bio, setBio] = useState(user.bio)
-  const [profileMessage, setProfileMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [isSavingProfile, setIsSavingProfile] = useState(false)
 
   // Password Form States
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [passwordMessage, setPasswordMessage] = useState<{ type: "success" | "error"; text: string } | null>(null)
   const [isSavingPassword, setIsSavingPassword] = useState(false)
 
   // DSGVO / GDPR states
@@ -46,8 +47,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
       document.body.appendChild(downloadAnchor)
       downloadAnchor.click()
       downloadAnchor.remove()
+      showToast("Ihre Daten wurden erfolgreich exportiert!", "success")
     } catch (err: any) {
-      alert("Fehler beim Exportieren der Daten: " + err.message)
+      showToast("Fehler beim Exportieren: " + err.message, "error")
     } finally {
       setIsExporting(false)
     }
@@ -60,21 +62,20 @@ export function ProfileForm({ user }: ProfileFormProps) {
       await deleteUserAccount()
       await signOut({ callbackUrl: "/login?loggedout=true" })
     } catch (err: any) {
-      alert("Fehler beim Löschen des Kontos: " + err.message)
+      showToast("Fehler beim Löschen des Kontos: " + err.message, "error")
       setIsDeleting(false)
     }
   }
 
   const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setProfileMessage(null)
     setIsSavingProfile(true)
 
     try {
       await updateProfile({ name, bio })
-      setProfileMessage({ type: "success", text: "Profil erfolgreich aktualisiert." })
+      showToast("Profil erfolgreich aktualisiert!", "success")
     } catch (err: any) {
-      setProfileMessage({ type: "error", text: err.message || "Fehler beim Speichern." })
+      showToast(err.message || "Fehler beim Speichern.", "error")
     } finally {
       setIsSavingProfile(false)
     }
@@ -82,10 +83,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setPasswordMessage(null)
 
     if (newPassword !== confirmPassword) {
-      setPasswordMessage({ type: "error", text: "Die neuen Passwörter stimmen nicht überein." })
+      showToast("Die neuen Passwörter stimmen nicht überein.", "warning")
       return
     }
 
@@ -93,12 +93,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
     try {
       await updatePassword({ currentPassword, newPassword, confirmPassword })
-      setPasswordMessage({ type: "success", text: "Passwort erfolgreich geändert." })
+      showToast("Passwort erfolgreich geändert!", "success")
       setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
     } catch (err: any) {
-      setPasswordMessage({ type: "error", text: err.message || "Fehler beim Ändern des Passworts." })
+      showToast(err.message || "Fehler beim Ändern des Passworts.", "error")
     } finally {
       setIsSavingPassword(false)
     }
@@ -134,17 +134,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
           </div>
 
           <form onSubmit={handleProfileSubmit} className="space-y-4">
-            {profileMessage && (
-              <div className={`p-4 rounded-xl text-xs font-bold border flex items-center gap-2.5 ${
-                profileMessage.type === "success" 
-                  ? "bg-success/10 border-success/20 text-success" 
-                  : "bg-danger/10 border-danger/20 text-danger"
-              }`}>
-                <i className={`ph-fill ${profileMessage.type === "success" ? "ph-check-circle" : "ph-x-circle"} text-lg`}></i>
-                <span>{profileMessage.text}</span>
-              </div>
-            )}
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted uppercase">Anzeigename</label>
@@ -204,17 +193,6 @@ export function ProfileForm({ user }: ProfileFormProps) {
           </div>
 
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            {passwordMessage && (
-              <div className={`p-4 rounded-xl text-xs font-bold border flex items-center gap-2.5 ${
-                passwordMessage.type === "success" 
-                  ? "bg-success/10 border-success/20 text-success" 
-                  : "bg-danger/10 border-danger/20 text-danger"
-              }`}>
-                <i className={`ph-fill ${passwordMessage.type === "success" ? "ph-check-circle" : "ph-x-circle"} text-lg`}></i>
-                <span className="leading-snug">{passwordMessage.text}</span>
-              </div>
-            )}
-
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted uppercase">Aktuelles Passwort</label>
               <input

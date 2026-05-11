@@ -8,6 +8,7 @@ import rehypeRaw from "rehype-raw"
 import { Playground } from "@/components/features/Playground"
 import { completeLesson, undoCompleteLesson } from "@/lib/actions/progress"
 import { toggleBookmark, saveLessonNote } from "@/lib/actions/learning"
+import { useToast } from "@/context/ToastContext"
 
 interface LessonReaderProps {
   lesson: {
@@ -33,6 +34,7 @@ export function LessonReader({
   isBookmarked,
   initialNote 
 }: LessonReaderProps) {
+  const { showToast } = useToast()
   const [isZenMode, setIsZenMode] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [successState, setSuccessState] = useState(isCompleted)
@@ -96,8 +98,10 @@ export function LessonReader({
     try {
       await completeLesson(lesson.id)
       setSuccessState(true)
+      showToast("Lektion erfolgreich abgeschlossen! 🎓", "success")
     } catch (err) {
       console.error("Fehler beim Abschließen der Lektion:", err)
+      showToast("Abschluss fehlgeschlagen.", "error")
     } finally {
       setIsSaving(false)
     }
@@ -108,8 +112,10 @@ export function LessonReader({
     try {
       await undoCompleteLesson(lesson.id)
       setSuccessState(false)
+      showToast("Lernfortschritt zurückgesetzt.", "info")
     } catch (err) {
       console.error("Fehler beim Zurücksetzen der Lektion:", err)
+      showToast("Zurücksetzen fehlgeschlagen.", "error")
     } finally {
       setIsSaving(false)
     }
@@ -119,8 +125,14 @@ export function LessonReader({
     try {
       const res = await toggleBookmark(lesson.id)
       setBookmarked(res.bookmarked)
+      if (res.bookmarked) {
+        showToast("Lesezeichen hinzugefügt!", "success")
+      } else {
+        showToast("Lesezeichen entfernt.", "info")
+      }
     } catch (err) {
       console.error("Fehler beim Lesezeichen setzen:", err)
+      showToast("Fehler beim Verwalten des Lesezeichens.", "error")
     }
   }
 
@@ -130,10 +142,12 @@ export function LessonReader({
     try {
       await saveLessonNote(lesson.id, noteContent)
       setNoteSavedSuccess(true)
+      showToast("Deine Notiz wurde gespeichert!", "success")
       // Reset success indicator after 3 seconds
       setTimeout(() => setNoteSavedSuccess(false), 3000)
     } catch (err) {
       console.error("Fehler beim Speichern der Notiz:", err)
+      showToast("Fehler beim Speichern der Notiz.", "error")
     } finally {
       setIsSavingNote(false)
     }
