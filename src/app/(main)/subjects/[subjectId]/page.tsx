@@ -23,7 +23,6 @@ export default async function SubjectLessonsPage({ params }: PageProps) {
   const subject = await prisma.subject.findUnique({
     where: {
       id: subjectId,
-      userId, // Ensure the subject belongs to the logged-in user (multi-tenancy)
     },
     include: {
       lessons: {

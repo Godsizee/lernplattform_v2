@@ -13,18 +13,21 @@ export default async function DashboardPage() {
 
   const userId = session.user.id
 
-  // Ensure tenant database subjects and lessons are initialized for the user
-  await initUserTenant(userId)
-
   // Fetch user data
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { name: true }
   })
 
+  // Find the master curriculum owner (Admin user)
+  const admin = await prisma.user.findFirst({
+    where: { role: "admin" }
+  })
+  const curriculumUserId = admin ? admin.id : userId
+
   // Fetch subjects with lessons and user progress
   const subjects = await prisma.subject.findMany({
-    where: { userId },
+    where: { userId: curriculumUserId },
     include: {
       lessons: {
         where: { status: "published" },

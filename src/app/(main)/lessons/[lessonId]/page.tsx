@@ -32,7 +32,7 @@ export default async function LessonDetailPage({ params }: PageProps) {
     }
   })
 
-  if (!lesson || lesson.subject.userId !== userId) {
+  if (!lesson) {
     notFound()
   }
 

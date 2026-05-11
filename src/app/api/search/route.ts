@@ -18,10 +18,15 @@ export async function GET(req: NextRequest) {
 
     const userId = session.user.id
 
+    const admin = await prisma.user.findFirst({
+      where: { role: "admin" }
+    })
+    const curriculumUserId = admin ? admin.id : userId
+
     // Search subjects
     const subjects = await prisma.subject.findMany({
       where: {
-        userId,
+        userId: curriculumUserId,
         title: {
           contains: query
         }
@@ -39,7 +44,7 @@ export async function GET(req: NextRequest) {
     const lessons = await prisma.lesson.findMany({
       where: {
         subject: {
-          userId
+          userId: curriculumUserId
         },
         status: "published",
         OR: [
