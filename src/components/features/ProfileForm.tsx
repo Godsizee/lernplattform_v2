@@ -58,7 +58,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     setIsDeleting(true)
     try {
       await deleteUserAccount()
-      await signOut({ callbackUrl: "/login" })
+      await signOut({ callbackUrl: "/login?loggedout=true" })
     } catch (err: any) {
       alert("Fehler beim Löschen des Kontos: " + err.message)
       setIsDeleting(false)

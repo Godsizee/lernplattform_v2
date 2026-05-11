@@ -31,7 +31,7 @@ export default function RegisterPage() {
       if (!res.ok) {
         setError(data.error || "Registrierung fehlgeschlagen")
       } else {
-        router.push("/login")
+        router.push("/login?registered=true")
       }
     } catch (err) {
       setError("Ein unerwarteter Fehler ist aufgetreten")

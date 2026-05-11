@@ -158,7 +158,7 @@ export function Sidebar({
         
         {!isCollapsed && (
           <button 
-            onClick={() => signOut({ callbackUrl: "/login" })}
+            onClick={() => signOut({ callbackUrl: "/login?loggedout=true" })}
             className="w-9 h-9 flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 rounded-xl transition-all shrink-0 border border-transparent hover:border-danger/10 cursor-pointer"
             title="Abmelden"
           >

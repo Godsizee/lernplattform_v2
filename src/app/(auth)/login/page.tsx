@@ -1,12 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const registered = searchParams.get("registered") === "true"
+  const loggedout = searchParams.get("loggedout") === "true"
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
@@ -51,6 +54,20 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Willkommen zurück</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2">Logge dich in deinen Account ein</p>
         </div>
+
+        {registered && (
+          <div className="mb-6 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 p-4 rounded-xl text-xs font-bold border border-emerald-100 dark:border-emerald-800/50 flex items-center gap-2.5 animate-fade-in">
+            <i className="ph-fill ph-check-circle text-lg"></i>
+            <span>Registrierung erfolgreich! Logge dich jetzt ein.</span>
+          </div>
+        )}
+
+        {loggedout && (
+          <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-4 rounded-xl text-xs font-bold border border-blue-100 dark:border-blue-800/50 flex items-center gap-2.5 animate-fade-in">
+            <i className="ph-fill ph-info text-lg"></i>
+            <span>Erfolgreich abgemeldet. Bis bald!</span>
+          </div>
+        )}
 
         {error && (
           <div className="mb-6 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-4 rounded-lg text-sm border border-red-100 dark:border-red-800/50">
@@ -102,5 +119,17 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 px-4">
+        <div className="text-sm font-semibold text-muted">Laden...</div>
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   )
 }
