@@ -1,6 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { Sidebar } from "./Sidebar"
 import { Topbar } from "./Topbar"
 
@@ -17,8 +19,15 @@ interface AppShellProps {
 }
 
 export function AppShell({ user, announcement, children }: AppShellProps) {
+  const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
+  const navItems = [
+    { href: "/", label: "Dashboard", icon: "ph-squares-four" },
+    { href: "/learning", label: "Lernen", icon: "ph-book-open" },
+    { href: "/profile", label: "Profil", icon: "ph-user" },
+  ]
 
   // Hydrate collapsed state from localStorage on mount
   useEffect(() => {
@@ -62,7 +71,7 @@ export function AppShell({ user, announcement, children }: AppShellProps) {
       )}
 
       {/* Main Content Area */}
-      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${
+      <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 pb-20 lg:pb-0 ${
         isSidebarCollapsed ? "lg:pl-[80px]" : "lg:pl-[280px]"
       }`}>
         <Topbar 
@@ -122,6 +131,27 @@ export function AppShell({ user, announcement, children }: AppShellProps) {
 
           {children}
         </main>
+      </div>
+
+      {/* Floating Capsule Mobile Bottom Navigation Bar */}
+      <div className="fixed bottom-4 left-4 right-4 z-40 bg-surface/90 dark:bg-gray-900/95 border border-border/80 dark:border-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl py-2 px-6 flex items-center justify-around lg:hidden">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href))
+          return (
+            <Link 
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center justify-center gap-1 py-1 px-3 rounded-xl transition-all duration-300 ${
+                isActive 
+                  ? "text-primary scale-105" 
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              <i className={`${isActive ? "ph-fill" : "ph"} ${item.icon} text-xl`}></i>
+              <span className="text-[10px] font-bold tracking-tight">{item.label}</span>
+            </Link>
+          )
+        })}
       </div>
     </div>
   )

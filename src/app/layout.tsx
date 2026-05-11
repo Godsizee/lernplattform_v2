@@ -12,6 +12,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Code & Cash | Lernplattform",
   description: "Die moderne Lernplattform für Code & Cash.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Code&Cash",
+  },
 };
 
 export default function RootLayout({
