@@ -53,7 +53,7 @@ model Lesson {
   authorId   String?
   title      String
   content    String   @db.Text   // Gerendertes HTML
-  contentRaw String   @default("") @db.Text  // Markdown / Quiz-JSON
+  contentRaw String   @db.Text  // Markdown / Quiz-JSON
   type       String   @default("article")  // "article" | "quiz"
   status     String   @default("published")  // "draft" | "published"
   sortOrder  Int      @default(0)

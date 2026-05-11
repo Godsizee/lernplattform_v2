@@ -265,22 +265,7 @@ async function run() {
 
   // 5. Migrate Audit Logs
   console.log("\nMigriere System-Audit-Protokolle...")
-  let auditCount = 0
-  for (const row of rowsByTable.audit_logs) {
-    const mappedUserId = userMap[row.user_id] || adminUserId
-
-    await prisma.auditLog.create({
-      data: {
-        id: makeId("a"),
-        userId: mappedUserId,
-        action: row.action,
-        details: row.details || "",
-        createdAt: row.created_at ? new Date(row.created_at) : new Date()
-      }
-    })
-    auditCount++
-  }
-  console.log(`  Erfolgreich ${auditCount} Audit-Protokolle importiert.`)
+  console.log("  -> Übersprungen (wie gewünscht, nicht benötigt für neues Setup).")
 
   console.log("\n=== MIGRATION ERFOLGREICH ABGESCHLOSSEN ===")
 }
