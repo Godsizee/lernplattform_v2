@@ -8,7 +8,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=mysql://lerntool_user:lerntool_secure_pass@db:3306/lerntool_db
+      - DATABASE_URL=mysql://Cheffchen:1arschmusik!@db:3306/lerntool_db
       - NEXTAUTH_SECRET=ein_sehr_langes_zufaelliges_geheimnis_fuer_die_verschluesselung_12345
       - NEXTAUTH_URL=http://localhost:3000 # Ersetze dies im Live-Betrieb durch deine Domain (z.B. https://lernplattform.de)
     depends_on:
@@ -22,9 +22,9 @@ services:
     restart: always
     environment:
       - MYSQL_DATABASE=lerntool_db
-      - MYSQL_USER=lerntool_user
-      - MYSQL_PASSWORD=lerntool_secure_pass
-      - MYSQL_ROOT_PASSWORD=lerntool_root_secure_pass
+      - MYSQL_USER=Cheffchen
+      - MYSQL_PASSWORD=1arschmusik!
+      - MYSQL_ROOT_PASSWORD=!!ArschMusik11
     ports:
       - "3306:3306" # Port 3306 für lokale Admin-Tools (z.B. Heidisql oder DBeaver) erreichbar machen
     volumes:
