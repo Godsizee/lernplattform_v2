@@ -1,6 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback } from "react"
+import React, { createContext, useContext, useState, useCallback, useEffect, Suspense } from "react"
+import { useSearchParams } from "next/navigation"
 
 export type ToastType = "success" | "error" | "info" | "warning"
 
@@ -15,6 +16,45 @@ interface ToastContextType {
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined)
+
+// Separate Client component to listen to Query Parameters and trigger Toasts
+// Wrapped in Suspense to prevent Next.js build-time de-optimization of the root layout.
+function QueryParamsToastListener({ showToast }: { showToast: (msg: string, type: ToastType) => void }) {
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const successParam = searchParams.get("success")
+    const errorParam = searchParams.get("error")
+
+    if (successParam) {
+      if (successParam === "login") {
+        showToast("Erfolgreich angemeldet. Willkommen zurück! 👋", "success")
+      } else if (successParam === "register") {
+        showToast("Registrierung erfolgreich! Bitte logge dich ein. 🎉", "success")
+      } else if (successParam === "logout") {
+        showToast("Erfolgreich abgemeldet. Bis zum nächsten Mal! 🔵", "info")
+      }
+
+      // Clean up URL query parameters instantly without causing page reload
+      const url = new URL(window.location.href)
+      url.searchParams.delete("success")
+      window.history.replaceState({}, "", url.pathname + url.search)
+    }
+
+    if (errorParam) {
+      if (errorParam === "auth") {
+        showToast("Anmeldung fehlgeschlagen. Bitte überprüfe deine Zugangsdaten.", "error")
+      }
+
+      // Clean up URL query parameters instantly without causing page reload
+      const url = new URL(window.location.href)
+      url.searchParams.delete("error")
+      window.history.replaceState({}, "", url.pathname + url.search)
+    }
+  }, [searchParams, showToast])
+
+  return null
+}
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
@@ -36,6 +76,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
+      
+      {/* Suspensed Query Listener */}
+      <Suspense fallback={null}>
+        <QueryParamsToastListener showToast={showToast} />
+      </Suspense>
+
       {/* Toast Overlay Container */}
       <div className="fixed bottom-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
         {toasts.map((toast) => (

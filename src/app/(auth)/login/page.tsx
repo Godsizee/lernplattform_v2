@@ -7,11 +7,9 @@ import Link from "next/link"
 
 function LoginForm() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const registered = searchParams.get("registered") === "true"
-  const loggedout = searchParams.get("loggedout") === "true"
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -30,9 +28,9 @@ function LoginForm() {
       })
 
       if (res?.error) {
-        setError("Ungültige E-Mail oder Passwort")
+        setError("Ungültige Zugangsdaten (E-Mail, Benutzername oder Passwort)")
       } else {
-        router.push("/")
+        router.push("/?success=login")
         router.refresh()
       }
     } catch (err) {
@@ -55,20 +53,6 @@ function LoginForm() {
           <p className="text-gray-500 dark:text-gray-400 mt-2">Logge dich in deinen Account ein</p>
         </div>
 
-        {registered && (
-          <div className="mb-6 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 p-4 rounded-xl text-xs font-bold border border-emerald-100 dark:border-emerald-800/50 flex items-center gap-2.5 animate-fade-in">
-            <i className="ph-fill ph-check-circle text-lg"></i>
-            <span>Registrierung erfolgreich! Logge dich jetzt ein.</span>
-          </div>
-        )}
-
-        {loggedout && (
-          <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 p-4 rounded-xl text-xs font-bold border border-blue-100 dark:border-blue-800/50 flex items-center gap-2.5 animate-fade-in">
-            <i className="ph-fill ph-info text-lg"></i>
-            <span>Erfolgreich abgemeldet. Bis bald!</span>
-          </div>
-        )}
-
         {error && (
           <div className="mb-6 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 p-4 rounded-lg text-sm border border-red-100 dark:border-red-800/50">
             {error}
@@ -78,14 +62,14 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              E-Mail
+              Benutzername oder E-Mail
             </label>
             <input
-              type="email"
+              type="text"
               name="email"
               required
               className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
-              placeholder="deine@email.de"
+              placeholder="Nutzername oder E-Mail"
             />
           </div>
 
@@ -93,13 +77,22 @@ function LoginForm() {
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Passwort
             </label>
-            <input
-              type="password"
-              name="password"
-              required
-              className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                required
+                className="w-full pr-12 pl-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition p-1 cursor-pointer flex items-center justify-center"
+              >
+                <i className={`ph text-lg ${showPassword ? "ph-eye-closed" : "ph-eye"}`}></i>
+              </button>
+            </div>
           </div>
 
           <button

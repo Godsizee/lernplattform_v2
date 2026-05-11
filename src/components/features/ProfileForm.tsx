@@ -28,6 +28,16 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [isSavingPassword, setIsSavingPassword] = useState(false)
 
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // Real-time password validations
+  const hasMinLength = newPassword.length >= 8
+  const hasNumber = /[0-9]/.test(newPassword)
+  const hasSpecialChar = /[^A-Za-z0-9]/.test(newPassword)
+  const isNewPasswordValid = hasMinLength && hasNumber && hasSpecialChar
+
   // DSGVO / GDPR states
   const [isExporting, setIsExporting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -60,7 +70,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     setIsDeleting(true)
     try {
       await deleteUserAccount()
-      await signOut({ callbackUrl: "/login?loggedout=true" })
+      await signOut({ callbackUrl: "/login?success=logout" })
     } catch (err: any) {
       showToast("Fehler beim Löschen des Kontos: " + err.message, "error")
       setIsDeleting(false)
@@ -86,6 +96,11 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
     if (newPassword !== confirmPassword) {
       showToast("Die neuen Passwörter stimmen nicht überein.", "warning")
+      return
+    }
+
+    if (!isNewPasswordValid) {
+      showToast("Das neue Passwort erfüllt nicht die Sicherheitsanforderungen.", "warning")
       return
     }
 
@@ -195,35 +210,80 @@ export function ProfileForm({ user }: ProfileFormProps) {
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted uppercase">Aktuelles Passwort</label>
-              <input
-                type="password"
-                required
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all"
-              />
+              <div className="relative">
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  required
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full bg-background border border-border rounded-xl pr-12 pl-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all font-semibold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition p-1 cursor-pointer flex items-center justify-center"
+                >
+                  <i className={`ph text-lg ${showCurrentPassword ? "ph-eye-closed" : "ph-eye"}`}></i>
+                </button>
+              </div>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted uppercase">Neues Passwort</label>
-              <input
-                type="password"
-                required
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all"
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  required
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full bg-background border border-border rounded-xl pr-12 pl-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all font-semibold"
+                  placeholder="Mindestens 8 Zeichen"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition p-1 cursor-pointer flex items-center justify-center"
+                >
+                  <i className={`ph text-lg ${showNewPassword ? "ph-eye-closed" : "ph-eye"}`}></i>
+                </button>
+              </div>
+
+              {/* Realtime Checklist */}
+              <div className="mt-2.5 p-3 bg-background/50 rounded-xl border border-border/80 space-y-2 text-xs font-semibold">
+                <p className="text-[10px] text-muted uppercase tracking-wider mb-1">Sicherheitsanforderungen:</p>
+                <div className="flex items-center gap-2">
+                  <i className={`ph-fill ${hasMinLength ? "ph-check-circle text-success" : "ph-warning-circle text-muted"} text-base`}></i>
+                  <span className={hasMinLength ? "text-success" : "text-muted"}>Mindestens 8 Zeichen</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className={`ph-fill ${hasNumber ? "ph-check-circle text-success" : "ph-warning-circle text-muted"} text-base`}></i>
+                  <span className={hasNumber ? "text-success" : "text-muted"}>Mindestens 1 Zahl</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <i className={`ph-fill ${hasSpecialChar ? "ph-check-circle text-success" : "ph-warning-circle text-muted"} text-base`}></i>
+                  <span className={hasSpecialChar ? "text-success" : "text-muted"}>Mindestens 1 Sonderzeichen</span>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-muted uppercase">Passwort bestätigen</label>
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all"
-              />
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full bg-background border border-border rounded-xl pr-12 pl-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all font-semibold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-foreground transition p-1 cursor-pointer flex items-center justify-center"
+                >
+                  <i className={`ph text-lg ${showConfirmPassword ? "ph-eye-closed" : "ph-eye"}`}></i>
+                </button>
+              </div>
             </div>
 
             <div className="pt-2">
