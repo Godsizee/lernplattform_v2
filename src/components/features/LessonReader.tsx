@@ -440,8 +440,8 @@ export function LessonReader({
             </ReactMarkdown>
           )}
 
-          {/* Collapsible Mobile-Only Notes Widget (hidden on XL screen with sidebar unless Zen Mode is active) */}
-          {(isZenMode || tocEntries.length === 0) ? (
+          {/* Collapsible Mobile-Only Notes Widget (rendered on mobile/tablet or in Zen Mode) */}
+          {isZenMode ? (
             <div className="pt-8">
               <NotesWidget />
             </div>
