@@ -36,6 +36,15 @@ export default async function LessonDetailPage({ params }: PageProps) {
     notFound()
   }
 
+  // Log action in AuditLog
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: "VIEW_LESSON",
+      details: `Lektion geöffnet: "${lesson.title}"`
+    }
+  }).catch(console.error)
+
   const isCompleted = lesson.progress.some(p => p.status === "completed")
 
   // For quizzes, render the Quiz Engine

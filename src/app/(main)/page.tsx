@@ -13,6 +13,15 @@ export default async function DashboardPage() {
 
   const userId = session.user.id
 
+  // Log action in AuditLog
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: "VIEW_DASHBOARD",
+      details: "Benutzer-Dashboard geöffnet"
+    }
+  }).catch(console.error)
+
   // Fetch user data
   const user = await prisma.user.findUnique({
     where: { id: userId },

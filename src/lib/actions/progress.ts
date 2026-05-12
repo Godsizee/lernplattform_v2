@@ -33,10 +33,21 @@ export async function completeLesson(lessonId: string, score?: number) {
   revalidatePath("/")
   const lesson = await prisma.lesson.findUnique({
     where: { id: lessonId },
-    select: { subjectId: true }
+    select: { title: true, type: true, subjectId: true }
   })
+
   if (lesson) {
     revalidatePath(`/subjects/${lesson.subjectId}`)
+    
+    // Log action in AuditLog
+    const isQuiz = lesson.type === "quiz"
+    await prisma.auditLog.create({
+      data: {
+        userId,
+        action: isQuiz ? "COMPLETED_QUIZ" : "COMPLETED_LESSON",
+        details: `Lektion: "${lesson.title}"${score !== undefined ? ` (Ergebnis: ${score}%)` : ""}`
+      }
+    }).catch(console.error)
   }
 
   return { success: true }

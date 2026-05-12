@@ -10,6 +10,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 Tage
   },
+  events: {
+    async signIn({ user }) {
+      if (user?.id) {
+        await prisma.auditLog.create({
+          data: {
+            userId: user.id,
+            action: "LOGIN",
+            details: "Erfolgreich angemeldet"
+          }
+        }).catch(console.error)
+      }
+    },
+    async signOut(message) {
+      const token = "token" in message ? (message as any).token : null
+      const uid = (token?.id || token?.sub) as string
+      if (uid) {
+        await prisma.auditLog.create({
+          data: {
+            userId: uid,
+            action: "LOGOUT",
+            details: "Sitzung beendet"
+          }
+        }).catch(console.error)
+      }
+    }
+  },
   providers: [
     CredentialsProvider({
       name: "Credentials",

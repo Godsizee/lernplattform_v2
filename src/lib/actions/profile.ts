@@ -21,10 +21,35 @@ export async function updateProfile(rawData: any) {
 
   const { name, bio } = validation.data
 
+  const oldUser = await prisma.user.findUnique({
+    where: { id: userId }
+  })
+
   await prisma.user.update({
     where: { id: userId },
     data: { name, bio }
   })
+
+  if (oldUser) {
+    if (oldUser.name !== name) {
+      await prisma.auditLog.create({
+        data: {
+          userId,
+          action: "UPDATE_NAME",
+          details: `Geändert von "${oldUser.name}" zu "${name}"`
+        }
+      }).catch(console.error)
+    }
+    if (oldUser.bio !== bio) {
+      await prisma.auditLog.create({
+        data: {
+          userId,
+          action: "UPDATE_BIO",
+          details: "Biografie geändert"
+        }
+      }).catch(console.error)
+    }
+  }
 
   revalidatePath("/")
   revalidatePath("/profile")
@@ -68,6 +93,15 @@ export async function updatePassword(rawData: any) {
     where: { id: userId },
     data: { password: hashedNewPassword }
   })
+
+  // Log in AuditLog
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: "CHANGE_PASSWORD",
+      details: "Kennwort geändert"
+    }
+  }).catch(console.error)
 
   return { success: true }
 }
