@@ -54,4 +54,4 @@ jobs:
       # Nutzt standardmäßig den bereitgestellten Deploy-Webhook.
       - name: Trigger Coolify Webhook
         run: |
-          curl -i -X GET "${{ secrets.COOLIFY_WEBHOOK || 'https://coolify.godsize.info/api/v1/deploy?uuid=ff0tu5gud7xqo0ggu0de74ei&force=false' }}"
+          curl -i -X GET "${{ secrets.COOLIFY_WEBHOOK || 'https://coolify.godsize.info/api/v1/deploy?uuid=ff0tu5gud7xqo0ggu0de74ei&force=true' }}"
