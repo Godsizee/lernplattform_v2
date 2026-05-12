@@ -1,4 +1,4 @@
-name: Deploy Lernplattform to Portainer
+name: Deploy Lernplattform to Coolify
 
 on:
   push:
@@ -50,14 +50,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Optionaler Webhook-Trigger zur automatischen Neu-Bereitstellung in Coolify oder Portainer!
-      # Trage die entsprechende URL als GitHub Secret (COOLIFY_WEBHOOK oder PORTAINER_WEBHOOK) ein.
+      # Automatischer Webhook-Trigger zur Neu-Bereitstellung in Coolify.
+      # Nutzt standardmäßig den bereitgestellten Deploy-Webhook.
       - name: Trigger Coolify Webhook
-        if: ${{ secrets.COOLIFY_WEBHOOK != '' }}
         run: |
-          curl -i -X GET "${{ secrets.COOLIFY_WEBHOOK }}"
-
-      - name: Trigger Portainer Webhook
-        if: ${{ secrets.PORTAINER_WEBHOOK != '' }}
-        run: |
-          curl -i -X POST "${{ secrets.PORTAINER_WEBHOOK }}"
+          curl -i -X GET "${{ secrets.COOLIFY_WEBHOOK || 'https://coolify.godsize.info/api/v1/deploy?uuid=ff0tu5gud7xqo0ggu0de74ei&force=false' }}"
