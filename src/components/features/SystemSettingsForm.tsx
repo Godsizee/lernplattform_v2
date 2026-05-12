@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { updateGlobalAnnouncement, updateSecuritySettings } from "@/lib/actions/admin"
+import { updateGlobalAnnouncement, updateSecuritySettings, updateAISettings } from "@/lib/actions/admin"
 
 interface SystemSettingsFormProps {
   initialAnnouncement: {
@@ -13,9 +13,13 @@ interface SystemSettingsFormProps {
     maxLoginAttempts: number
     sessionDurationDays: number
   }
+  initialAI: {
+    anthropicApiKey: string
+    geminiApiKey: string
+  }
 }
 
-export function SystemSettingsForm({ initialAnnouncement, initialSecurity }: SystemSettingsFormProps) {
+export function SystemSettingsForm({ initialAnnouncement, initialSecurity, initialAI }: SystemSettingsFormProps) {
   // Announcement states
   const [message, setMessage] = useState(initialAnnouncement.message)
   const [type, setType] = useState<"info" | "warning" | "success">(initialAnnouncement.type)
@@ -28,6 +32,14 @@ export function SystemSettingsForm({ initialAnnouncement, initialSecurity }: Sys
   const [sessionDurationDays, setSessionDurationDays] = useState(initialSecurity.sessionDurationDays)
   const [isSavingSecurity, setIsSavingSecurity] = useState(false)
   const [securityMsg, setSecurityMsg] = useState<{ type: "success" | "error"; text: string } | null>(null)
+
+  // AI states
+  const [anthropicApiKey, setAnthropicApiKey] = useState(initialAI?.anthropicApiKey || "")
+  const [geminiApiKey, setGeminiApiKey] = useState(initialAI?.geminiApiKey || "")
+  const [showAnthropic, setShowAnthropic] = useState(false)
+  const [showGemini, setShowGemini] = useState(false)
+  const [isSavingAI, setIsSavingAI] = useState(false)
+  const [aiMsg, setAiMsg] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   // Backup states
   const [isBackupPreparing, setIsBackupPreparing] = useState(false)
@@ -59,6 +71,21 @@ export function SystemSettingsForm({ initialAnnouncement, initialSecurity }: Sys
       setSecurityMsg({ type: "error", text: err.message || "Fehler beim Speichern der Sicherheits-Einstellunen." })
     } finally {
       setIsSavingSecurity(false)
+    }
+  }
+
+  const handleAISubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAiMsg(null)
+    setIsSavingAI(true)
+
+    try {
+      await updateAISettings({ anthropicApiKey, geminiApiKey })
+      setAiMsg({ type: "success", text: "KI-Schnittstellen-Schlüssel erfolgreich gespeichert." })
+    } catch (err: any) {
+      setAiMsg({ type: "error", text: err.message || "Fehler beim Speichern der KI-Schlüssel." })
+    } finally {
+      setIsSavingAI(false)
     }
   }
 
@@ -223,6 +250,96 @@ export function SystemSettingsForm({ initialAnnouncement, initialSecurity }: Sys
                 className="w-full sm:w-auto px-5 py-2.5 bg-primary/10 hover:bg-primary/15 text-primary font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {isSavingSecurity ? "Wird gespeichert..." : "Sicherheit speichern"} <i className="ph ph-shield text-sm"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* KI-Schnittstellen (API Keys) Card */}
+        <div className="bg-surface border border-border rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <div className="border-b border-border/60 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                <i className="ph ph-cpu text-xl"></i>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold tracking-tight">KI-Schnittstellen (API-Keys)</h2>
+                <p className="text-xs text-muted">Verwalte die API-Keys für den intelligenten Lern-Assistenten.</p>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleAISubmit} className="space-y-4">
+            {aiMsg && (
+              <div className={`p-4 rounded-xl border text-xs font-bold flex items-center gap-2.5 ${
+                aiMsg.type === "success" 
+                  ? "bg-success/10 border-success/20 text-success" 
+                  : "bg-danger/10 border-danger/20 text-danger"
+              }`}>
+                <i className={`ph-fill ${aiMsg.type === "success" ? "ph-check-circle" : "ph-x-circle"} text-lg`}></i>
+                <span>{aiMsg.text}</span>
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-muted uppercase flex items-center justify-between">
+                <span>Anthropic Claude API Key</span>
+                <span className="text-[10px] text-muted capitalize">Claude 3.5 Sonnet</span>
+              </label>
+              <div className="relative flex items-center">
+                <input
+                  type={showAnthropic ? "text" : "password"}
+                  value={anthropicApiKey}
+                  onChange={(e) => setAnthropicApiKey(e.target.value)}
+                  placeholder="sk-ant-..."
+                  className="w-full bg-background border border-border rounded-xl pl-4 pr-12 py-2.5 text-sm focus:outline-none focus:border-primary transition-all font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAnthropic(!showAnthropic)}
+                  className="absolute right-4 text-muted hover:text-foreground cursor-pointer transition-colors"
+                >
+                  <i className={`ph ${showAnthropic ? "ph-eye-closed" : "ph-eye"} text-base`}></i>
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-muted uppercase flex items-center justify-between">
+                <span>Google Gemini API Key</span>
+                <span className="text-[10px] text-muted capitalize">Gemini 1.5/2.5 Flash</span>
+              </label>
+              <div className="relative flex items-center">
+                <input
+                  type={showGemini ? "text" : "password"}
+                  value={geminiApiKey}
+                  onChange={(e) => setGeminiApiKey(e.target.value)}
+                  placeholder="AIzaSy..."
+                  className="w-full bg-background border border-border rounded-xl pl-4 pr-12 py-2.5 text-sm focus:outline-none focus:border-primary transition-all font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowGemini(!showGemini)}
+                  className="absolute right-4 text-muted hover:text-foreground cursor-pointer transition-colors"
+                >
+                  <i className={`ph ${showGemini ? "ph-eye-closed" : "ph-eye"} text-base`}></i>
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-background/40 border border-border/40 rounded-xl p-3 text-[10px] text-muted leading-relaxed">
+              <i className="ph ph-info-circle text-xs text-primary mr-1 align-middle"></i>
+              Wenn kein API-Key hinterlegt oder dieser ungültig ist, wechselt das System automatisch in den 
+              kostenlosen <strong>Simulations-Modus (Mock Mode)</strong>. Dies schützt vor unnötigen Live-Kosten beim Testen.
+            </div>
+
+            <div className="pt-2 flex justify-end">
+              <button
+                disabled={isSavingAI}
+                type="submit"
+                className="w-full sm:w-auto px-5 py-2.5 bg-primary hover:bg-primary/95 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer shadow-lg shadow-primary/10 disabled:opacity-50"
+              >
+                {isSavingAI ? "Wird gespeichert..." : "KI-Einstellungen speichern"} <i className="ph ph-cpu text-sm"></i>
               </button>
             </div>
           </form>

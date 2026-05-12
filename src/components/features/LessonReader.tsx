@@ -46,6 +46,75 @@ export function LessonReader({
   const [isSavingNote, setIsSavingNote] = useState(false)
   const [noteSavedSuccess, setNoteSavedSuccess] = useState(false)
 
+  // AI summary states
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false)
+  const [summary, setSummary] = useState("")
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false)
+
+  // AI chat states
+  const [isChatOpen, setIsChatOpen] = useState(false)
+  const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([])
+  const [chatInput, setChatInput] = useState("")
+  const [isSendingChat, setIsSendingChat] = useState(false)
+
+  const handleGenerateSummary = async () => {
+    setIsSummaryOpen(true)
+    if (summary) return
+
+    setIsGeneratingSummary(true)
+    try {
+      const res = await fetch("/api/ai/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonTitle: lesson.title,
+          lessonContent: lesson.contentRaw
+        })
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setSummary(data.summary)
+    } catch (err) {
+      console.error(err)
+      showToast("Zusammenfassung konnte nicht geladen werden.", "error")
+      setIsSummaryOpen(false)
+    } finally {
+      setIsGeneratingSummary(false)
+    }
+  }
+
+  const handleSendChat = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!chatInput.trim() || isSendingChat) return
+
+    const userMsg = chatInput.trim()
+    setChatInput("")
+
+    const newMessages = [...chatMessages, { role: "user" as const, content: userMsg }]
+    setChatMessages(newMessages)
+    setIsSendingChat(true)
+
+    try {
+      const res = await fetch("/api/ai/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          lessonTitle: lesson.title,
+          lessonContent: lesson.contentRaw,
+          messages: newMessages
+        })
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setChatMessages([...newMessages, { role: "assistant" as const, content: data.reply }])
+    } catch (err) {
+      console.error(err)
+      showToast("KI-Antwort konnte nicht geladen werden.", "error")
+    } finally {
+      setIsSendingChat(false)
+    }
+  }
+
   // Calculate Reading Time
   const wordCount = lesson.contentRaw.split(/\s+/).filter(Boolean).length
   const readingTime = Math.max(1, Math.round(wordCount / 200))
@@ -221,8 +290,18 @@ export function LessonReader({
           <h1 className="text-3xl md:text-4xl font-black tracking-tight">{lesson.title}</h1>
         </div>
 
-        {/* Action Controls: Bookmark, Zen Mode */}
+        {/* Action Controls: Bookmark, Zen Mode, Chat */}
         <div className="flex items-center gap-3.5 shrink-0 w-full sm:w-auto">
+          {/* KI-Tutor Sidebar Button */}
+          <button
+            onClick={() => setIsChatOpen(true)}
+            className="h-10 px-4 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+            title="KI-Tutor Chat öffnen"
+          >
+            <i className="ph ph-chat-centered-dots text-base"></i>
+            <span>Tutor fragen 🤖</span>
+          </button>
+
           {/* Bookmark Button */}
           <button
             onClick={handleBookmarkToggle}
@@ -255,6 +334,50 @@ export function LessonReader({
       <div className="flex flex-col xl:flex-row gap-10 items-start">
         {/* Article Body */}
         <div className="flex-1 min-w-0 prose dark:prose-invert max-w-none text-foreground space-y-6 leading-relaxed w-full">
+          {/* KI-Zusammenfassung (Spickzettel) Section */}
+          <div className="not-prose mb-6">
+            {!isSummaryOpen ? (
+              <button
+                onClick={handleGenerateSummary}
+                className="px-4 py-2.5 rounded-xl border border-border bg-surface/40 hover:bg-surface text-xs font-bold text-foreground transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+              >
+                <i className="ph ph-lightning text-warning text-sm"></i>
+                <span>Zusammenfassung generieren (Spickzettel) ⚡</span>
+              </button>
+            ) : (
+              <div className="bg-surface/50 backdrop-blur-md border border-border/80 rounded-2xl p-5 md:p-6 shadow-md space-y-4 animate-fade-in">
+                <div className="flex items-center justify-between border-b border-border/40 pb-3">
+                  <div className="flex items-center gap-2 text-warning">
+                    <i className="ph-fill ph-lightning text-lg"></i>
+                    <h3 className="text-sm font-black tracking-wide uppercase">⚡ KI-Spickzettel</h3>
+                  </div>
+                  <button
+                    onClick={() => setIsSummaryOpen(false)}
+                    className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
+                    title="Schließen"
+                  >
+                    <i className="ph ph-x text-base"></i>
+                  </button>
+                </div>
+
+                {isGeneratingSummary ? (
+                  <div className="space-y-3 py-2 animate-pulse">
+                    <div className="h-4 bg-border/60 rounded-md w-3/4"></div>
+                    <div className="h-4 bg-border/60 rounded-md w-5/6"></div>
+                    <div className="h-4 bg-border/60 rounded-md w-2/3"></div>
+                    <div className="h-4 bg-border/60 rounded-md w-4/5"></div>
+                    <div className="h-4 bg-border/60 rounded-md w-1/2"></div>
+                  </div>
+                ) : (
+                  <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/80 space-y-2">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                      {summary}
+                    </ReactMarkdown>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
           {lesson.contentRaw.trim().startsWith("<") ? (
             <div dangerouslySetInnerHTML={{ __html: lesson.contentRaw }} />
           ) : (
@@ -405,6 +528,119 @@ export function LessonReader({
           </aside>
         )}
       </div>
+
+      {/* KI-Tutor Chat-Sidebar */}
+      {isChatOpen && (
+        <>
+          {/* Overlay to close chat */}
+          <div 
+            onClick={() => setIsChatOpen(false)} 
+            className="fixed inset-0 bg-background/40 backdrop-blur-xs z-40 animate-fade-in"
+          />
+          
+          <div className="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-96 bg-surface border-l border-border shadow-2xl flex flex-col transition-all duration-300 animate-slide-in">
+            {/* Sidebar Header */}
+            <div className="p-5 border-b border-border/80 flex items-center justify-between bg-surface/60 backdrop-blur-md sticky top-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8.5 h-8.5 rounded-xl bg-primary/15 text-primary flex items-center justify-center font-bold text-sm">
+                  🤖
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-sm tracking-tight text-foreground">KI-Lektionstutor</h3>
+                  <p className="text-[10px] text-muted font-bold">Aktiv für: {lesson.title}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsChatOpen(false)}
+                className="text-muted hover:text-foreground p-1.5 rounded-lg hover:bg-border/30 transition cursor-pointer"
+              >
+                <i className="ph ph-x text-lg"></i>
+              </button>
+            </div>
+
+            {/* Chat Messages area */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 min-h-0 bg-background/20">
+              {chatMessages.length === 0 ? (
+                <div className="text-center py-8 px-4 space-y-2">
+                  <span className="text-3xl block">👋</span>
+                  <p className="font-bold text-xs text-foreground/90">Frage den KI-Tutor!</p>
+                  <p className="text-[10px] text-muted leading-relaxed max-w-[200px] mx-auto">
+                    Hast du Fragen zum Code, Konzepten oder suchst nach Beispielen? Ich helfe dir sofort weiter.
+                  </p>
+                </div>
+              ) : (
+                chatMessages.map((msg, idx) => {
+                  const isBot = msg.role === "assistant"
+                  return (
+                    <div 
+                      key={idx} 
+                      className={`flex flex-col max-w-[85%] ${
+                        isBot ? "self-start items-start" : "self-end items-end ml-auto"
+                      }`}
+                    >
+                      <span className="text-[9px] text-muted font-bold mb-1 px-1">
+                        {isBot ? "KI-TUTOR" : "DU"}
+                      </span>
+                      <div className={`p-3.5 rounded-2xl text-xs leading-relaxed space-y-2 border shadow-sm ${
+                        isBot 
+                          ? "bg-surface border-border text-foreground rounded-tl-none" 
+                          : "bg-primary border-primary text-white rounded-tr-none"
+                      }`}>
+                        {isBot ? (
+                          <div className="prose dark:prose-invert prose-xs max-w-none text-foreground">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                              {msg.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="whitespace-pre-wrap font-semibold">{msg.content}</p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+
+              {/* Shimmer loading skeleton */}
+              {isSendingChat && (
+                <div className="flex flex-col max-w-[85%] self-start items-start animate-pulse">
+                  <span className="text-[9px] text-muted font-bold mb-1 px-1">KI-TUTOR</span>
+                  <div className="p-3.5 rounded-2xl bg-surface border border-border text-foreground rounded-tl-none space-y-2 w-48 shadow-sm">
+                    <div className="h-3 bg-border/60 rounded w-5/6"></div>
+                    <div className="h-3 bg-border/60 rounded w-3/4"></div>
+                    <div className="h-3 bg-border/60 rounded w-1/2"></div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Chat Input area */}
+            <div className="p-4 border-t border-border/80 bg-surface/60 backdrop-blur-md sticky bottom-0">
+              <form 
+                onSubmit={handleSendChat}
+                className="flex items-center gap-2 bg-background border border-border rounded-xl p-1.5 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all"
+              >
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder="Frage stellen..."
+                  disabled={isSendingChat}
+                  className="flex-1 bg-transparent px-2.5 py-1.5 text-xs font-semibold focus:outline-none text-foreground placeholder:text-muted"
+                />
+                <button
+                  type="submit"
+                  disabled={!chatInput.trim() || isSendingChat}
+                  className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center transition-all hover:bg-primary/95 disabled:opacity-40 disabled:hover:bg-primary cursor-pointer shrink-0"
+                >
+                  <i className="ph ph-paper-plane-right text-sm"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   )
 }
+

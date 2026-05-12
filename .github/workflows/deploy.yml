@@ -50,11 +50,14 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Optionaler Portainer Webhook-Trigger zur automatischen Neu-Bereitstellung!
-      # Wenn du in Portainer einen Webhook für deinen Stack erstellst, trage die URL als Secret PORTAINER_WEBHOOK in GitHub ein.
-      - name: Trigger Portainer Webhook
-        if: env.PORTAINER_WEBHOOK != ''
-        env:
-          PORTAINER_WEBHOOK: ${{ secrets.PORTAINER_WEBHOOK }}
+      # Optionaler Webhook-Trigger zur automatischen Neu-Bereitstellung in Coolify oder Portainer!
+      # Trage die entsprechende URL als GitHub Secret (COOLIFY_WEBHOOK oder PORTAINER_WEBHOOK) ein.
+      - name: Trigger Coolify Webhook
+        if: ${{ secrets.COOLIFY_WEBHOOK != '' }}
         run: |
-          curl -X POST "$PORTAINER_WEBHOOK"
+          curl -i -X GET "${{ secrets.COOLIFY_WEBHOOK }}"
+
+      - name: Trigger Portainer Webhook
+        if: ${{ secrets.PORTAINER_WEBHOOK != '' }}
+        run: |
+          curl -i -X POST "${{ secrets.PORTAINER_WEBHOOK }}"

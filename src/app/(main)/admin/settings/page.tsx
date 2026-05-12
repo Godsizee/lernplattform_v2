@@ -4,12 +4,15 @@ import Link from "next/link"
 
 export default async function AdminSettingsPage() {
   // Fetch settings from database
-  const [announcementSetting, securitySetting] = await Promise.all([
+  const [announcementSetting, securitySetting, aiSetting] = await Promise.all([
     prisma.systemSetting.findUnique({
       where: { settingKey: "global_announcement" }
     }),
     prisma.systemSetting.findUnique({
       where: { settingKey: "security_settings" }
+    }),
+    prisma.systemSetting.findUnique({
+      where: { settingKey: "ai_settings" }
     })
   ])
 
@@ -40,6 +43,19 @@ export default async function AdminSettingsPage() {
     }
   }
 
+  let initialAI = {
+    anthropicApiKey: "",
+    geminiApiKey: ""
+  }
+
+  if (aiSetting) {
+    try {
+      initialAI = JSON.parse(aiSetting.settingValue)
+    } catch (e) {
+      console.error("Fehler beim Parsen der KI-Einstellung:", e)
+    }
+  }
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Breadcrumb */}
@@ -61,7 +77,11 @@ export default async function AdminSettingsPage() {
         <p className="text-sm text-muted mt-1">Konfiguriere plattformweite Variablen, Ankündigungen und globale System-Parameter.</p>
       </div>
 
-      <SystemSettingsForm initialAnnouncement={initialAnnouncement} initialSecurity={initialSecurity} />
+      <SystemSettingsForm 
+        initialAnnouncement={initialAnnouncement} 
+        initialSecurity={initialSecurity} 
+        initialAI={initialAI} 
+      />
     </div>
   )
 }

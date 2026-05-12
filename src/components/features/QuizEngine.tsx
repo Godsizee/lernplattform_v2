@@ -28,6 +28,10 @@ export function QuizEngine({ questions, lessonId, subjectId }: QuizEngineProps) 
   const [incorrectQuestions, setIncorrectQuestions] = useState<Question[]>([])
   const [quizCompleted, setQuizCompleted] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+
+  // AI Explanation states
+  const [explanation, setExplanation] = useState("")
+  const [isFetchingExplanation, setIsFetchingExplanation] = useState(false)
   
   // Shuffled keys to avoid order bias
   const [shuffledKeys, setShuffledKeys] = useState<string[]>([])
@@ -43,6 +47,7 @@ export function QuizEngine({ questions, lessonId, subjectId }: QuizEngineProps) 
       setQuizCompleted(false)
       setHasChecked(false)
       setSelectedKeys([])
+      setExplanation("")
     }
   }, [questions])
 
@@ -54,6 +59,7 @@ export function QuizEngine({ questions, lessonId, subjectId }: QuizEngineProps) 
       setShuffledKeys(keys)
       setSelectedKeys([])
       setHasChecked(false)
+      setExplanation("")
     }
   }, [activeQuestions, currentIndex])
 
@@ -79,6 +85,38 @@ export function QuizEngine({ questions, lessonId, subjectId }: QuizEngineProps) 
       setSelectedKeys(prev => 
         prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]
       )
+    }
+  }
+
+  // Fetch AI explanation for wrong answer
+  const handleFetchExplanation = async () => {
+    if (explanation || isFetchingExplanation) return
+    setIsFetchingExplanation(true)
+
+    const userAnsLabels = selectedKeys.map(key => currentQuestion.options[key] || key).join(", ")
+    const correctAnswers = Array.isArray(currentQuestion.correct) 
+      ? currentQuestion.correct 
+      : [currentQuestion.correct]
+    const correctAnsLabels = correctAnswers.map(key => currentQuestion.options[key] || key).join(", ")
+
+    try {
+      const res = await fetch("/api/ai/explain", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          question: currentQuestion.question,
+          userAnswer: userAnsLabels,
+          correctAnswer: correctAnsLabels
+        })
+      })
+      if (!res.ok) throw new Error()
+      const data = await res.json()
+      setExplanation(data.explanation)
+    } catch (err) {
+      console.error(err)
+      setExplanation("💡 Die KI-Erklärung konnte leider nicht geladen werden. Bitte versuche es erneut.")
+    } finally {
+      setIsFetchingExplanation(false)
     }
   }
 
@@ -239,6 +277,37 @@ export function QuizEngine({ questions, lessonId, subjectId }: QuizEngineProps) 
               )
             })}
           </div>
+
+          {/* KI Quiz-Erklärung Section */}
+          {hasChecked && JSON.stringify([...correctAnswersList].sort()) !== JSON.stringify([...selectedKeys].sort()) && (
+            <div className="border-t border-border/40 pt-4 space-y-3">
+              {!explanation && !isFetchingExplanation ? (
+                <button
+                  onClick={handleFetchExplanation}
+                  className="px-4 py-2 bg-warning/10 hover:bg-warning/15 border border-warning/20 text-warning text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <i className="ph ph-lightbulb text-sm"></i>
+                  <span>KI-Erklärung einholen 💡</span>
+                </button>
+              ) : (
+                <div className="bg-warning/5 border border-warning/15 rounded-2xl p-4 text-xs md:text-sm leading-relaxed text-foreground/90 space-y-2 animate-fade-in">
+                  <div className="flex items-center gap-1.5 text-warning font-black border-b border-warning/10 pb-1.5 mb-1.5">
+                    <i className="ph-fill ph-lightbulb text-base"></i>
+                    <span className="uppercase tracking-wide text-[10px]">KI-Erklärung</span>
+                  </div>
+                  {isFetchingExplanation ? (
+                    <div className="space-y-2 animate-pulse py-1">
+                      <div className="h-3 bg-warning/10 rounded w-5/6"></div>
+                      <div className="h-3 bg-warning/10 rounded w-3/4"></div>
+                      <div className="h-3 bg-warning/10 rounded w-2/3"></div>
+                    </div>
+                  ) : (
+                    <p className="whitespace-pre-wrap font-semibold leading-relaxed">{explanation}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Footer Actions */}
           <div className="pt-4 border-t border-border/60 flex items-center justify-between gap-4">

@@ -341,4 +341,33 @@ export async function updateSecuritySettings(rawData: { maxLoginAttempts: number
   return { success: true }
 }
 
+export async function updateAISettings(rawData: { anthropicApiKey: string; geminiApiKey: string }) {
+  const session = await auth()
+  if (session?.user?.role !== "admin") {
+    throw new Error("Zugriff verweigert")
+  }
 
+  const userId = session.user.id
+
+  await prisma.systemSetting.upsert({
+    where: { settingKey: "ai_settings" },
+    update: {
+      settingValue: JSON.stringify(rawData),
+    },
+    create: {
+      settingKey: "ai_settings",
+      settingValue: JSON.stringify(rawData),
+    }
+  })
+
+  // Log in AuditLog
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: "KI-Schnittstellen-Schlüssel (API Keys) aktualisiert",
+      details: `Aktualisiert durch Admin-ID: ${userId}`
+    }
+  }).catch(console.error)
+
+  return { success: true }
+}
