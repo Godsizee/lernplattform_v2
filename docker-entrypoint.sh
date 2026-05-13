@@ -6,7 +6,7 @@ sleep 5
 
 # Führe Datenbank-Schema-Update aus
 echo "Synchronisiere Prisma-Schema mit Live-Datenbank..."
-npx prisma db push --accept-data-loss
+npx prisma@5.22.0 db push --accept-data-loss
 
 # Starte den Next.js Standalone Server
 echo "Starte Next.js Standalone Server..."
