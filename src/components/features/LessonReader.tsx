@@ -544,7 +544,7 @@ export function LessonReader({
             className="fixed inset-0 bg-background/40 backdrop-blur-xs z-40 animate-fade-in"
           />
           
-          <div className="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-[330px] bg-surface border-l border-border shadow-2xl flex flex-col transition-all duration-300 animate-slide-in">
+          <div className="fixed right-0 top-0 bottom-0 sm:top-auto sm:bottom-6 sm:right-6 z-50 w-full sm:w-[330px] sm:h-[500px] bg-surface border-l sm:border border-border shadow-2xl rounded-none sm:rounded-2xl flex flex-col transition-all duration-300 animate-slide-in">
             {/* Sidebar Header */}
             <div className="py-3 px-4 border-b border-border/80 flex items-center justify-between bg-surface/60 backdrop-blur-md sticky top-0">
               <div className="flex items-center gap-2">
