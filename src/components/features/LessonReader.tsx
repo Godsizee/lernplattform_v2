@@ -361,12 +361,18 @@ export function LessonReader({
                 </div>
 
                 {isGeneratingSummary ? (
-                  <div className="space-y-3 py-2 animate-pulse">
-                    <div className="h-4 bg-border/60 rounded-md w-3/4"></div>
-                    <div className="h-4 bg-border/60 rounded-md w-5/6"></div>
-                    <div className="h-4 bg-border/60 rounded-md w-2/3"></div>
-                    <div className="h-4 bg-border/60 rounded-md w-4/5"></div>
-                    <div className="h-4 bg-border/60 rounded-md w-1/2"></div>
+                  <div className="space-y-4 py-3">
+                    <div className="flex items-center gap-2.5 text-xs text-muted font-bold">
+                      <div className="w-4 h-4 border-2 border-warning border-t-transparent rounded-full animate-spin shrink-0"></div>
+                      <span>Etwas Geduld bitte. Deine Zusammenfassung wird gerade erstellt...</span>
+                    </div>
+                    <div className="space-y-2.5 animate-pulse">
+                      <div className="h-3.5 bg-border/60 rounded-md w-3/4"></div>
+                      <div className="h-3.5 bg-border/60 rounded-md w-5/6"></div>
+                      <div className="h-3.5 bg-border/60 rounded-md w-2/3"></div>
+                      <div className="h-3.5 bg-border/60 rounded-md w-4/5"></div>
+                      <div className="h-3.5 bg-border/60 rounded-md w-1/2"></div>
+                    </div>
                   </div>
                 ) : (
                   <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/80 space-y-2">
@@ -458,7 +464,7 @@ export function LessonReader({
               <p className="text-xs text-muted">
                 {successState 
                   ? "Du hast diese Lektion bereits abgeschlossen." 
-                  : "Markiere diese Lektion als gelernt, um deinen Lernfortschritt zu speichern."}
+                  : "Markiere diese Lektion as gelernt, um deinen Lernfortschritt zu speichern."}
               </p>
             </div>
             
@@ -538,33 +544,33 @@ export function LessonReader({
             className="fixed inset-0 bg-background/40 backdrop-blur-xs z-40 animate-fade-in"
           />
           
-          <div className="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-96 bg-surface border-l border-border shadow-2xl flex flex-col transition-all duration-300 animate-slide-in">
+          <div className="fixed right-0 top-0 bottom-0 z-50 w-full sm:w-[330px] bg-surface border-l border-border shadow-2xl flex flex-col transition-all duration-300 animate-slide-in">
             {/* Sidebar Header */}
-            <div className="p-5 border-b border-border/80 flex items-center justify-between bg-surface/60 backdrop-blur-md sticky top-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8.5 h-8.5 rounded-xl bg-primary/15 text-primary flex items-center justify-center font-bold text-sm">
+            <div className="py-3 px-4 border-b border-border/80 flex items-center justify-between bg-surface/60 backdrop-blur-md sticky top-0">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center font-bold text-xs">
                   🤖
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-sm tracking-tight text-foreground">KI-Lektionstutor</h3>
-                  <p className="text-[10px] text-muted font-bold">Aktiv für: {lesson.title}</p>
+                  <h3 className="font-extrabold text-xs tracking-tight text-foreground">KI-Lektionstutor</h3>
+                  <p className="text-[9px] text-muted font-bold truncate max-w-[200px]">Aktiv für: {lesson.title}</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsChatOpen(false)}
-                className="text-muted hover:text-foreground p-1.5 rounded-lg hover:bg-border/30 transition cursor-pointer"
+                className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
               >
-                <i className="ph ph-x text-lg"></i>
+                <i className="ph ph-x text-base"></i>
               </button>
             </div>
 
             {/* Chat Messages area */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4 min-h-0 bg-background/20">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0 bg-background/20">
               {chatMessages.length === 0 ? (
-                <div className="text-center py-8 px-4 space-y-2">
-                  <span className="text-3xl block">👋</span>
+                <div className="text-center py-6 px-3 space-y-1.5">
+                  <span className="text-2xl block">👋</span>
                   <p className="font-bold text-xs text-foreground/90">Frage den KI-Tutor!</p>
-                  <p className="text-[10px] text-muted leading-relaxed max-w-[200px] mx-auto">
+                  <p className="text-[9px] text-muted leading-relaxed max-w-[180px] mx-auto">
                     Hast du Fragen zum Code, Konzepten oder suchst nach Beispielen? Ich helfe dir sofort weiter.
                   </p>
                 </div>
@@ -574,20 +580,20 @@ export function LessonReader({
                   return (
                     <div 
                       key={idx} 
-                      className={`flex flex-col max-w-[85%] ${
+                      className={`flex flex-col max-w-[88%] ${
                         isBot ? "self-start items-start" : "self-end items-end ml-auto"
                       }`}
                     >
-                      <span className="text-[9px] text-muted font-bold mb-1 px-1">
+                      <span className="text-[8px] text-muted font-bold mb-0.5 px-1">
                         {isBot ? "KI-TUTOR" : "DU"}
                       </span>
-                      <div className={`p-3.5 rounded-2xl text-xs leading-relaxed space-y-2 border shadow-sm ${
+                      <div className={`py-2 px-3 rounded-xl text-[11px] leading-relaxed space-y-1.5 border shadow-sm ${
                         isBot 
                           ? "bg-surface border-border text-foreground rounded-tl-none" 
                           : "bg-primary border-primary text-white rounded-tr-none"
                       }`}>
                         {isBot ? (
-                          <div className="prose dark:prose-invert prose-xs max-w-none text-foreground">
+                          <div className="prose dark:prose-invert prose-xs max-w-none text-foreground text-[11px] leading-relaxed">
                             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                               {msg.content}
                             </ReactMarkdown>
@@ -603,22 +609,22 @@ export function LessonReader({
 
               {/* Shimmer loading skeleton */}
               {isSendingChat && (
-                <div className="flex flex-col max-w-[85%] self-start items-start animate-pulse">
-                  <span className="text-[9px] text-muted font-bold mb-1 px-1">KI-TUTOR</span>
-                  <div className="p-3.5 rounded-2xl bg-surface border border-border text-foreground rounded-tl-none space-y-2 w-48 shadow-sm">
-                    <div className="h-3 bg-border/60 rounded w-5/6"></div>
-                    <div className="h-3 bg-border/60 rounded w-3/4"></div>
-                    <div className="h-3 bg-border/60 rounded w-1/2"></div>
+                <div className="flex flex-col max-w-[88%] self-start items-start animate-pulse">
+                  <span className="text-[8px] text-muted font-bold mb-0.5 px-1">KI-TUTOR</span>
+                  <div className="py-2 px-3 rounded-xl bg-surface border border-border text-foreground rounded-tl-none space-y-1.5 w-40 shadow-sm">
+                    <div className="h-2.5 bg-border/60 rounded w-5/6"></div>
+                    <div className="h-2.5 bg-border/60 rounded w-3/4"></div>
+                    <div className="h-2.5 bg-border/60 rounded w-1/2"></div>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Chat Input area */}
-            <div className="p-4 border-t border-border/80 bg-surface/60 backdrop-blur-md sticky bottom-0">
+            <div className="py-2.5 px-3 border-t border-border/80 bg-surface/60 backdrop-blur-md sticky bottom-0">
               <form 
                 onSubmit={handleSendChat}
-                className="flex items-center gap-2 bg-background border border-border rounded-xl p-1.5 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all"
+                className="flex items-center gap-1.5 bg-background border border-border rounded-xl p-1 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all"
               >
                 <input
                   type="text"
@@ -626,14 +632,14 @@ export function LessonReader({
                   onChange={(e) => setChatInput(e.target.value)}
                   placeholder="Frage stellen..."
                   disabled={isSendingChat}
-                  className="flex-1 bg-transparent px-2.5 py-1.5 text-xs font-semibold focus:outline-none text-foreground placeholder:text-muted"
+                  className="flex-1 bg-transparent px-2 py-1 text-[11px] font-semibold focus:outline-none text-foreground placeholder:text-muted"
                 />
                 <button
                   type="submit"
                   disabled={!chatInput.trim() || isSendingChat}
-                  className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center transition-all hover:bg-primary/95 disabled:opacity-40 disabled:hover:bg-primary cursor-pointer shrink-0"
+                  className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center transition-all hover:bg-primary/95 disabled:opacity-40 disabled:hover:bg-primary cursor-pointer shrink-0"
                 >
-                  <i className="ph ph-paper-plane-right text-sm"></i>
+                  <i className="ph ph-paper-plane-right text-xs"></i>
                 </button>
               </form>
             </div>
