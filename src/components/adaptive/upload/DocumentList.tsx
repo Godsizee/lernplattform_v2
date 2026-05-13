@@ -82,9 +82,9 @@ function NodeItem({
 
   if (editing) {
     return (
-      <li className="rounded-lg bg-blue-50 dark:bg-blue-950 px-3 py-3 space-y-2">
+      <li className="rounded-xl bg-primary/5 border border-primary/20 p-3.5 space-y-3.5 animate-fade-in">
         <input
-          className="w-full rounded border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 px-2 py-1 text-sm font-medium text-gray-900 dark:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+          className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={60}
@@ -92,18 +92,18 @@ function NodeItem({
           autoFocus
         />
         <textarea
-          className="w-full rounded border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 px-2 py-1 text-xs text-gray-600 dark:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 resize-none"
+          className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all resize-none"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
           placeholder="Beschreibung"
         />
-        {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
+        {error && <p className="text-xs font-bold text-danger animate-fade-in">{error}</p>}
         <div className="flex gap-2">
           <button
             onClick={handleSave}
             disabled={saving || !title.trim()}
-            className="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            className="rounded-xl bg-primary hover:bg-primary/95 text-white px-3.5 py-2 text-xs font-bold transition-all shadow-md shadow-primary/10 cursor-pointer"
           >
             {saving ? 'Speichern…' : 'Speichern'}
           </button>
@@ -114,7 +114,7 @@ function NodeItem({
               setDescription(node.description)
               setError('')
             }}
-            className="rounded bg-gray-200 dark:bg-slate-700 px-3 py-1 text-xs font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600"
+            className="rounded-xl border border-border px-3.5 py-2 text-xs font-bold text-foreground hover:bg-border/30 transition-all cursor-pointer"
           >
             Abbrechen
           </button>
@@ -124,15 +124,15 @@ function NodeItem({
   }
 
   return (
-    <li className="group flex items-start justify-between gap-2 rounded-lg bg-gray-50 dark:bg-slate-800 px-3 py-2">
+    <li className="group flex items-start justify-between gap-3 rounded-xl bg-background border border-border/40 px-3.5 py-2.5 transition-all hover:border-border/80">
       <div className="min-w-0">
-        <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{node.title}</p>
-        <p className="text-xs text-gray-500 dark:text-slate-500">{node.description}</p>
+        <p className="text-sm font-bold text-foreground leading-snug">{node.title}</p>
+        <p className="text-xs text-muted font-medium mt-0.5 leading-relaxed">{node.description}</p>
       </div>
       <div className="flex shrink-0 gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
           onClick={() => setEditing(true)}
-          className="rounded p-1 text-gray-400 dark:text-slate-500 hover:bg-blue-100 dark:hover:bg-blue-900 hover:text-blue-600"
+          className="rounded-lg p-1.5 text-muted hover:bg-primary/10 hover:text-primary transition-all border border-transparent hover:border-primary/20"
           title="Bearbeiten"
         >
           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -142,7 +142,7 @@ function NodeItem({
         <button
           onClick={handleDelete}
           disabled={deleting}
-          className="rounded p-1 text-gray-400 dark:text-slate-500 hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-600 disabled:opacity-50"
+          className="rounded-lg p-1.5 text-muted hover:bg-danger/10 hover:text-danger transition-all border border-transparent hover:border-danger/20 disabled:opacity-50"
           title="Löschen"
         >
           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -194,10 +194,10 @@ function AddNodeForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-lg border border-dashed border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950 px-3 py-3 space-y-2">
-      <p className="text-xs font-medium text-blue-700 dark:text-blue-300">Neuer Konzeptknoten</p>
+    <form onSubmit={handleSubmit} className="rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4 space-y-3 animate-fade-in">
+      <p className="text-xs font-extrabold text-primary uppercase tracking-wider mb-1">Neuer Konzeptknoten</p>
       <input
-        className="w-full rounded border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 px-2 py-1 text-sm text-gray-900 dark:text-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400"
+        className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm font-semibold text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         maxLength={60}
@@ -206,25 +206,25 @@ function AddNodeForm({
         required
       />
       <textarea
-        className="w-full rounded border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 px-2 py-1 text-xs text-gray-600 dark:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 resize-none"
+        className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-xs font-medium text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all resize-none"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows={2}
         placeholder="Beschreibung (optional)"
       />
-      {error && <p className="text-xs text-red-600 dark:text-red-400">{error}</p>}
-      <div className="flex gap-2">
+      {error && <p className="text-xs font-bold text-danger animate-fade-in">{error}</p>}
+      <div className="flex gap-2 pt-1">
         <button
           type="submit"
           disabled={saving || !title.trim()}
-          className="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-xl bg-primary hover:bg-primary/95 text-white px-4 py-2 text-xs font-bold transition-all shadow-md shadow-primary/10 cursor-pointer"
         >
           {saving ? 'Anlegen…' : 'Anlegen'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded bg-gray-200 dark:bg-slate-700 px-3 py-1 text-xs font-medium text-gray-700 dark:text-slate-300 hover:bg-gray-300 dark:hover:bg-slate-600"
+          className="rounded-xl border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-border/30 transition-all cursor-pointer"
         >
           Abbrechen
         </button>
@@ -266,39 +266,39 @@ function DuplicateAlert({
   if (visible.length === 0) return null
 
   return (
-    <div className="mt-4 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <p className="text-xs font-semibold text-amber-800 dark:text-amber-200">
+    <div className="mt-4 rounded-xl border border-warning/20 bg-warning/10 p-4 space-y-3 animate-fade-in">
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-extrabold text-warning uppercase tracking-wider">
           {visible.length} mögliche{visible.length === 1 ? 's Duplikat' : ' Duplikate'} gefunden
         </p>
-        <button onClick={onDismiss} className="text-xs text-amber-600 dark:text-amber-400 hover:underline">
+        <button onClick={onDismiss} className="text-xs font-bold text-warning hover:underline">
           Alle ignorieren
         </button>
       </div>
       <ul className="space-y-2">
         {visible.map((d) => (
-          <li key={d.newNodeId} className="rounded bg-white dark:bg-slate-800 px-3 py-2 text-xs shadow-sm">
+          <li key={d.newNodeId} className="rounded-xl bg-surface border border-border p-3.5 shadow-sm space-y-2">
             <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-2">
-              <span className="font-medium text-gray-700 dark:text-slate-300 truncate max-w-[180px]" title={d.newTitle}>
+              <span className="font-bold text-foreground truncate max-w-[180px]" title={d.newTitle}>
                 {d.newTitle}
               </span>
-              <span className="text-amber-500 shrink-0">≈ {d.score}%</span>
-              <span className="text-gray-400 dark:text-slate-500 shrink-0">ähnlich wie</span>
-              <span className="font-medium text-gray-700 dark:text-slate-300 truncate max-w-[180px]" title={d.existingTitle}>
+              <span className="text-warning font-black shrink-0">≈ {d.score}%</span>
+              <span className="text-muted shrink-0">ähnlich wie</span>
+              <span className="font-bold text-foreground truncate max-w-[180px]" title={d.existingTitle}>
                 {d.existingTitle}
               </span>
             </div>
-            <div className="mt-1.5 flex gap-2">
+            <div className="flex gap-2 pt-1">
               <button
                 onClick={() => handleMerge(d.existingNodeId, d.newNodeId)}
                 disabled={merging === d.newNodeId}
-                className="rounded bg-amber-600 px-2 py-0.5 text-xs font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                className="rounded-xl bg-warning hover:bg-warning/95 text-white px-3 py-1.5 text-xs font-bold transition-all shadow-md shadow-warning/10 cursor-pointer"
               >
                 {merging === d.newNodeId ? 'Führe zusammen…' : 'Zusammenführen'}
               </button>
               <button
                 onClick={() => setDismissed((prev) => new Set([...prev, d.newNodeId]))}
-                className="rounded bg-gray-100 dark:bg-slate-700 px-2 py-0.5 text-xs text-gray-600 dark:text-slate-400 hover:bg-gray-200"
+                className="rounded-xl border border-border px-3 py-1.5 text-xs font-bold text-foreground hover:bg-border/30 transition-all cursor-pointer"
               >
                 Ignorieren
               </button>
@@ -368,29 +368,29 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Hochgeladene Dokumente</h2>
+      <h2 className="text-lg font-extrabold text-foreground tracking-tight">Hochgeladene Dokumente</h2>
 
       {documents.map((doc) => (
-        <div key={doc.id} className="relative overflow-hidden rounded-xl bg-white dark:bg-slate-800 p-6 shadow-sm">
+        <div key={doc.id} className="relative overflow-hidden rounded-2xl bg-surface border border-border/80 p-5 sm:p-6 shadow-sm">
           {extracting?.id === doc.id && doc.status !== 'processed' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-100 dark:bg-slate-700">
-              <div className="h-full animate-[slide_1.4s_ease-in-out_infinite] bg-blue-500" />
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-background border-t border-border">
+              <div className="h-full animate-[slide_1.4s_ease-in-out_infinite] bg-primary" />
             </div>
           )}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="font-medium text-gray-900 dark:text-slate-100">{doc.filename}</p>
-              <p className="text-xs text-gray-500 dark:text-slate-500">
+              <p className="font-bold text-foreground text-sm sm:text-base leading-snug">{doc.filename}</p>
+              <p className="text-xs text-muted font-medium mt-0.5">
                 {new Date(doc.uploadedAt).toLocaleDateString('de-DE')}
               </p>
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                className={`rounded-full px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-wide border ${
                   doc.status === 'processed'
-                    ? 'bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400'
-                    : 'bg-yellow-50 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-400'
+                    ? 'bg-success/10 text-success border-success/20'
+                    : 'bg-warning/10 text-warning border-warning/20'
                 }`}
               >
                 {doc.status === 'processed' ? 'verarbeitet' : 'hochgeladen'}
@@ -399,7 +399,7 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
               <button
                 onClick={() => handleDelete(doc.id, doc.filename)}
                 disabled={deleting === doc.id || extracting?.id === doc.id}
-                className="rounded p-1.5 text-gray-400 dark:text-slate-500 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-500 disabled:opacity-40"
+                className="rounded-xl p-2 text-muted hover:bg-danger/10 hover:text-danger border border-transparent hover:border-danger/20 transition-all shrink-0"
                 title="Dokument löschen"
               >
                 {deleting === doc.id ? (
@@ -415,12 +415,12 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
               </button>
 
               {doc.status !== 'processed' && (
-                <div>
+                <div className="flex flex-col items-end gap-1.5">
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleExtract(doc.id)}
                       disabled={extracting !== null}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary hover:bg-primary/95 text-white px-3.5 py-2 text-xs font-bold transition-all shadow-md shadow-primary/10 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
                       title="Lernmaterial: extrahiert Konzeptgraph, Aufgaben werden on-demand generiert"
                     >
                       {extracting?.id === doc.id && extracting.mode === 'normal' && (
@@ -434,7 +434,7 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
                     <button
                       onClick={() => handleExtract(doc.id, 'exam')}
                       disabled={extracting !== null}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-700 disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-secondary hover:bg-secondary/95 text-white px-3.5 py-2 text-xs font-bold transition-all shadow-md shadow-secondary/10 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
                       title="Übungsklausur: extrahiert Konzeptgraph und legt echte Klausurfragen als Aufgaben an"
                     >
                       {extracting?.id === doc.id && extracting.mode === 'exam' && (
@@ -446,7 +446,7 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
                       {extracting?.id === doc.id && extracting.mode === 'exam' ? 'Extrahiere…' : 'Übungsklausur'}
                     </button>
                   </div>
-                  <p className="mt-1.5 text-xs text-gray-400 dark:text-slate-500">
+                  <p className="text-[10px] text-muted font-semibold text-right max-w-xs leading-normal">
                     {extracting?.id === doc.id
                       ? 'KI analysiert das Dokument – bitte warten…'
                       : 'Die KI-Analyse dauert je nach Dokumentgröße ca. 1–2 Minuten.'}
@@ -460,9 +460,9 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
           </div>
 
           {errors[doc.id] && (
-            <div className="mt-3 rounded-lg bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-600 dark:text-red-400">
+            <div className="mt-4 rounded-xl bg-danger/10 border border-danger/20 px-3.5 py-2.5 text-xs font-bold text-danger animate-fade-in">
               <p>{errors[doc.id]}</p>
-              <p className="mt-1 text-xs text-red-500 dark:text-red-500">
+              <p className="mt-1 text-[10px] opacity-90">
                 Du kannst Konzeptknoten auch manuell hinzufügen (siehe unten).
               </p>
             </div>
@@ -482,15 +482,15 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
           )}
 
           {(doc.conceptNodes.length > 0 || doc.status === 'processed' || errors[doc.id]) && (
-            <div className="mt-4 border-t border-gray-100 dark:border-slate-700 pt-4">
-              <div className="mb-2 flex items-center justify-between">
+            <div className="mt-5 border-t border-border/60 pt-4 space-y-3">
+              <div className="flex items-center justify-between">
                 <button
                   onClick={() => setCollapsed((prev) => {
                     const next = new Set(prev)
                     next.has(doc.id) ? next.delete(doc.id) : next.add(doc.id)
                     return next
                   })}
-                  className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300"
+                  className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-muted hover:text-foreground transition-colors"
                 >
                   <svg
                     className={`h-3 w-3 transition-transform ${collapsed.has(doc.id) ? '-rotate-90' : ''}`}
@@ -503,7 +503,7 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
                 {!collapsed.has(doc.id) && (
                   <button
                     onClick={() => setAddingTo(addingTo === doc.id ? null : doc.id)}
-                    className="text-xs text-blue-600 hover:underline"
+                    className="text-xs font-bold text-primary hover:underline"
                   >
                     + Knoten hinzufügen
                   </button>
@@ -511,8 +511,8 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
               </div>
 
               {!collapsed.has(doc.id) && (
-                <>
-                  <ul className="space-y-2">
+                <div className="space-y-3">
+                  <ul className="space-y-2.5">
                     {doc.conceptNodes.map((node) => (
                       <NodeItem
                         key={node.id}
@@ -524,7 +524,7 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
                   </ul>
 
                   {addingTo === doc.id && (
-                    <div className="mt-2">
+                    <div className="pt-1">
                       <AddNodeForm
                         documentId={doc.id}
                         onAdded={() => {
@@ -535,7 +535,7 @@ export default function DocumentList({ documents }: { documents: Document[] }) {
                       />
                     </div>
                   )}
-                </>
+                </div>
               )}
             </div>
           )}

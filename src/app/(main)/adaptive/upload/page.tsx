@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import prisma from '@/db/client'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import UploadForm from '@/components/adaptive/upload/UploadForm'
 import DocumentList from '@/components/adaptive/upload/DocumentList'
 
@@ -30,28 +31,27 @@ export default async function UploadPage() {
   })
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-slate-900 px-4 py-12">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-6">
-          <a href="/dashboard" className="text-sm text-blue-600 hover:underline dark:text-blue-400">
-            ← Dashboard
-          </a>
-        </div>
-
-        <div className="rounded-xl bg-white dark:bg-slate-800 p-4 sm:p-8 shadow-sm">
-          <h1 className="mb-2 text-2xl font-semibold text-gray-900 dark:text-slate-100">Lernmaterial hochladen</h1>
-          <p className="mb-6 text-sm text-gray-500 dark:text-slate-400">
-            Unterstützte Formate: PDF, .txt, .md — max. 10 MB
-          </p>
-          <UploadForm subjects={subjects} />
-        </div>
-
-        {documents.length > 0 && (
-          <div className="mt-6">
-            <DocumentList documents={documents} />
-          </div>
-        )}
+    <div className="mx-auto max-w-2xl space-y-6 py-4 sm:py-8 animate-fade-in">
+      <div>
+        <Link href="/adaptive" className="inline-flex items-center gap-1.5 text-xs font-bold text-muted hover:text-foreground transition-colors">
+          <i className="ph-bold ph-arrow-left text-[10px]"></i>
+          <span>Zurück zum Dashboard</span>
+        </Link>
       </div>
-    </main>
+
+      <div className="rounded-2xl bg-surface border border-border/80 p-5 sm:p-8 shadow-sm">
+        <h1 className="mb-2 text-xl sm:text-2xl font-black text-foreground tracking-tight">Lernmaterial hochladen</h1>
+        <p className="mb-6 text-xs sm:text-sm font-medium text-muted">
+          Unterstützte Formate: PDF, .txt, .md — max. 10 MB
+        </p>
+        <UploadForm subjects={subjects} />
+      </div>
+
+      {documents.length > 0 && (
+        <div className="mt-6">
+          <DocumentList documents={documents} />
+        </div>
+      )}
+    </div>
   )
 }

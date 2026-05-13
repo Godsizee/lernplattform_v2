@@ -106,11 +106,11 @@ export default function UploadForm({ subjects }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div
-        className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 px-6 py-10 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors"
+        className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border/80 bg-background/50 px-6 py-10 hover:border-primary/40 hover:bg-primary/5 transition-all duration-300"
         onClick={() => inputRef.current?.click()}
       >
         <svg
-          className="mb-3 h-10 w-10 text-gray-400 dark:text-slate-500"
+          className="mb-3 h-10 w-10 text-muted"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -122,16 +122,16 @@ export default function UploadForm({ subjects }: Props) {
             d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
           />
         </svg>
-        <p className="text-sm text-gray-600 dark:text-slate-400">
+        <p className="text-xs sm:text-sm text-muted font-medium">
           {file ? (
-            <span className="font-medium text-blue-600 dark:text-blue-400">{file.name}</span>
+            <span className="font-bold text-primary">{file.name}</span>
           ) : (
             <>
-              <span className="font-medium text-blue-600 dark:text-blue-400">Datei auswählen</span> oder hierher ziehen
+              <span className="font-bold text-primary">Datei auswählen</span> oder hierher ziehen
             </>
           )}
         </p>
-        <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">PDF, TXT, MD bis 10 MB</p>
+        <p className="mt-1.5 text-xs text-muted/80">PDF, TXT, MD bis 10 MB</p>
         <input
           ref={inputRef}
           type="file"
@@ -142,16 +142,16 @@ export default function UploadForm({ subjects }: Props) {
       </div>
 
       {/* Fach-Selector */}
-      <div>
-        <div className="mb-1 flex items-center justify-between">
-          <label className="text-xs font-medium text-gray-700 dark:text-slate-300">
-            Fach <span className="text-red-500">*</span>
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-extrabold text-muted uppercase tracking-wider">
+            Fach <span className="text-danger">*</span>
           </label>
           {localSubjects.length > 0 && (
             <button
               type="button"
               onClick={() => setShowManager(true)}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-300"
+              className="text-muted hover:text-foreground transition-colors"
               aria-label="Fächer verwalten"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -164,7 +164,7 @@ export default function UploadForm({ subjects }: Props) {
         <select
           value={subjectId}
           onChange={(e) => setSubjectId(e.target.value)}
-          className="w-full rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 px-3 py-2 text-sm text-gray-900 dark:text-slate-100 focus:border-blue-400 focus-visible:outline-none"
+          className="w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
         >
           <option value="">Fach wählen…</option>
           {localSubjects.map((s) => (
@@ -174,7 +174,7 @@ export default function UploadForm({ subjects }: Props) {
         <button
           type="button"
           onClick={() => setShowNewSubject((v) => !v)}
-          className="mt-1 text-xs text-blue-600 hover:underline"
+          className="mt-1 text-xs font-bold text-primary hover:underline"
         >
           + Neues Fach anlegen
         </button>
@@ -182,54 +182,54 @@ export default function UploadForm({ subjects }: Props) {
 
       {/* Inline "Neues Fach" Panel */}
       {showNewSubject && (
-        <div className="rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 p-3 space-y-2">
-          <p className="text-xs font-medium text-gray-700 dark:text-slate-300">Neues Fach</p>
+        <div className="rounded-2xl border border-border/80 bg-background/40 p-4 space-y-3 animate-fade-in">
+          <p className="text-xs font-extrabold text-muted uppercase tracking-wider">Neues Fach</p>
           <input
             type="text"
             placeholder="Fachname (z.B. Java, BWL…)"
             value={newSubjectName}
             onChange={(e) => setNewSubjectName(e.target.value)}
-            className="w-full rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 px-3 py-1.5 text-sm focus:border-blue-400 focus-visible:outline-none"
+            className="w-full rounded-xl border border-border bg-surface text-foreground px-3.5 py-2 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition-all"
           />
           <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-600 dark:text-slate-400">Farbe:</label>
+            <label className="text-xs font-extrabold text-muted uppercase tracking-wider">Farbe:</label>
             <input
               type="color"
               value={newSubjectColor}
               onChange={(e) => setNewSubjectColor(e.target.value)}
-              className="h-7 w-12 cursor-pointer rounded border border-gray-200 dark:border-slate-600"
+              className="h-8 w-14 cursor-pointer rounded-lg border border-border bg-background p-0.5 overflow-hidden"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pt-1">
             <button
               type="button"
               onClick={handleCreateSubject}
-              className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
+              className="rounded-xl bg-primary hover:bg-primary/95 text-white px-4 py-2 text-xs font-bold transition-all shadow-md shadow-primary/10 cursor-pointer"
             >
               Anlegen
             </button>
             <button
               type="button"
               onClick={() => setShowNewSubject(false)}
-              className="rounded-lg border border-gray-200 dark:border-slate-600 px-3 py-1.5 text-xs text-gray-600 dark:text-slate-400"
+              className="rounded-xl border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-border/30 transition-all cursor-pointer"
             >
               Abbrechen
             </button>
           </div>
           {subjectError && (
-            <p className="text-xs text-red-600">{subjectError}</p>
+            <p className="text-xs font-bold text-danger animate-fade-in">{subjectError}</p>
           )}
         </div>
       )}
 
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 dark:bg-red-950 px-3 py-2 text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="rounded-xl bg-danger/10 border border-danger/20 px-3.5 py-2.5 text-xs font-bold text-danger animate-fade-in">
           {error}
         </p>
       )}
 
       {success && (
-        <p role="status" className="rounded-lg bg-green-50 dark:bg-green-950 px-3 py-2 text-sm text-green-700 dark:text-green-400">
+        <p role="status" className="rounded-xl bg-success/10 border border-success/20 px-3.5 py-2.5 text-xs font-bold text-success animate-fade-in">
           {success}
         </p>
       )}
@@ -237,7 +237,7 @@ export default function UploadForm({ subjects }: Props) {
       <button
         type="submit"
         disabled={!file || !subjectId || loading}
-        className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+        className="w-full rounded-xl bg-primary hover:bg-primary/95 text-white px-5 py-3 text-xs sm:text-sm font-black transition-all shadow-lg shadow-primary/10 disabled:opacity-40 disabled:pointer-events-none cursor-pointer text-center"
       >
         {loading ? 'Wird hochgeladen…' : 'Hochladen'}
       </button>
