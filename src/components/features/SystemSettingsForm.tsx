@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { updateGlobalAnnouncement, updateSecuritySettings, updateAISettings } from "@/lib/actions/admin"
+import { updateGlobalAnnouncement, updateSecuritySettings, updateAISettings, updateSidebarOrder } from "@/lib/actions/admin"
 
 interface SystemSettingsFormProps {
   initialAnnouncement: {
@@ -17,9 +17,24 @@ interface SystemSettingsFormProps {
     anthropicApiKey: string
     geminiApiKey: string
   }
+  initialSidebarOrder: {
+    main: string[]
+    lumadiq: string[]
+  }
 }
 
-export function SystemSettingsForm({ initialAnnouncement, initialSecurity, initialAI }: SystemSettingsFormProps) {
+const ALL_SIDEBAR_ITEMS = {
+  dashboard: { label: "Dashboard", icon: "ph-squares-four" },
+  learning: { label: "Lern-Bereich", icon: "ph-books" },
+  admin: { label: "Admin-Bereich", icon: "ph-shield-star" },
+  intro: { label: "Einführung", icon: "ph-info" },
+  docs: { label: "Dokumente", icon: "ph-upload-simple" },
+  learn: { label: "Adaptiv Lernen", icon: "ph-lightning" },
+  graph: { label: "Wissensgraph", icon: "ph-graph" },
+  exams: { label: "Klausuren", icon: "ph-calendar-check" }
+} as Record<string, { label: string; icon: string }>
+
+export function SystemSettingsForm({ initialAnnouncement, initialSecurity, initialAI, initialSidebarOrder }: SystemSettingsFormProps) {
   // Announcement states
   const [message, setMessage] = useState(initialAnnouncement.message)
   const [type, setType] = useState<"info" | "warning" | "success">(initialAnnouncement.type)
@@ -43,6 +58,77 @@ export function SystemSettingsForm({ initialAnnouncement, initialSecurity, initi
 
   // Backup states
   const [isBackupPreparing, setIsBackupPreparing] = useState(false)
+
+  // Sidebar order state
+  const [mainOrder, setMainOrder] = useState<string[]>(initialSidebarOrder?.main || ["dashboard", "learning", "admin"])
+  const [lumadiqOrder, setLumadiqOrder] = useState<string[]>(initialSidebarOrder?.lumadiq || ["intro", "docs", "learn", "graph", "exams"])
+  const [isSavingSidebar, setIsSavingSidebar] = useState(false)
+  const [sidebarMsg, setSidebarMsg] = useState<{ type: "success" | "error"; text: string } | null>(null)
+
+  // Drag and drop states
+  const [draggedItem, setDraggedItem] = useState<{ id: string; listType: "main" | "lumadiq" } | null>(null)
+
+  // Drag start handler
+  const handleDragStart = (id: string, listType: "main" | "lumadiq") => {
+    setDraggedItem({ id, listType })
+  }
+
+  // Drag over handler to allow dropping
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+  }
+
+  // Drop handler
+  const handleDrop = (targetId: string, listType: "main" | "lumadiq") => {
+    if (!draggedItem || draggedItem.listType !== listType) return
+
+    const list = listType === "main" ? [...mainOrder] : [...lumadiqOrder]
+    const setList = listType === "main" ? setMainOrder : setLumadiqOrder
+
+    const dragIndex = list.indexOf(draggedItem.id)
+    const dropIndex = list.indexOf(targetId)
+
+    if (dragIndex === -1 || dropIndex === -1 || dragIndex === dropIndex) return
+
+    // Reorder array
+    list.splice(dragIndex, 1)
+    list.splice(dropIndex, 0, draggedItem.id)
+
+    setList(list)
+    setDraggedItem(null)
+  }
+
+  // Accessibility/Keyboard reorder buttons (Up/Down)
+  const moveItem = (index: number, direction: "up" | "down", listType: "main" | "lumadiq") => {
+    const list = listType === "main" ? [...mainOrder] : [...lumadiqOrder]
+    const setList = listType === "main" ? setMainOrder : setLumadiqOrder
+
+    const targetIndex = direction === "up" ? index - 1 : index + 1
+    if (targetIndex < 0 || targetIndex >= list.length) return
+
+    // Swap items
+    const temp = list[index]
+    list[index] = list[targetIndex]
+    list[targetIndex] = temp
+
+    setList(list)
+  }
+
+  // Submit handler
+  const handleSidebarSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSidebarMsg(null)
+    setIsSavingSidebar(true)
+
+    try {
+      await updateSidebarOrder({ main: mainOrder, lumadiq: lumadiqOrder })
+      setSidebarMsg({ type: "success", text: "Sidebar-Reihenfolge erfolgreich gespeichert! Die Änderungen sind nun für alle Benutzer wirksam." })
+    } catch (err: any) {
+      setSidebarMsg({ type: "error", text: err.message || "Fehler beim Speichern der Sidebar-Reihenfolge." })
+    } finally {
+      setIsSavingSidebar(false)
+    }
+  }
 
   const handleAnnouncementSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -382,6 +468,158 @@ export function SystemSettingsForm({ initialAnnouncement, initialSecurity, initi
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Sidebar drag and drop ordering */}
+      <div className="lg:col-span-12 bg-surface border border-border rounded-3xl p-6 md:p-8 shadow-sm space-y-6 mt-8">
+        <div className="border-b border-border/60 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+              <i className="ph ph-list-numbers text-xl"></i>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold tracking-tight">Sidebar-Navigation verwalten</h2>
+              <p className="text-xs text-muted">Ziehe die Elemente per Drag & Drop in die gewünschte Reihenfolge, um das Hauptmenü und das LumadIQ-Menü plattformweit neu zu ordnen.</p>
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleSidebarSubmit} className="space-y-6">
+          {sidebarMsg && (
+            <div className={`p-4 rounded-xl border text-xs font-bold flex items-center gap-2.5 ${
+              sidebarMsg.type === "success" 
+                ? "bg-success/10 border-success/20 text-success" 
+                : "bg-danger/10 border-danger/20 text-danger"
+            }`}>
+              <i className={`ph-fill ${sidebarMsg.type === "success" ? "ph-check-circle" : "ph-x-circle"} text-lg`}></i>
+              <span>{sidebarMsg.text}</span>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Main menu column */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-extrabold text-foreground uppercase tracking-wider flex items-center gap-2">
+                <i className="ph ph-list-dashes text-primary"></i> Hauptmenü
+              </h3>
+              <div className="space-y-2">
+                {mainOrder.map((id, index) => {
+                  const item = ALL_SIDEBAR_ITEMS[id]
+                  if (!item) return null
+                  return (
+                    <div
+                      key={id}
+                      draggable
+                      onDragStart={() => handleDragStart(id, "main")}
+                      onDragOver={handleDragOver}
+                      onDrop={() => handleDrop(id, "main")}
+                      className="flex items-center justify-between p-3.5 bg-background border border-border/70 hover:border-primary/50 rounded-xl transition-all group cursor-grab active:cursor-grabbing select-none hover:shadow-sm"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <i className="ph ph-dots-six-vertical text-muted group-hover:text-primary transition-colors text-lg"></i>
+                        <div className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-muted group-hover:text-primary transition-all border border-border/40">
+                          <i className={`ph ${item.icon} text-base`}></i>
+                        </div>
+                        <span className="text-xs font-bold text-foreground">{item.label}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          disabled={index === 0}
+                          onClick={() => moveItem(index, "up", "main")}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg border border-border hover:bg-surface text-muted disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                          title="Nach oben verschieben"
+                        >
+                          <i className="ph ph-caret-up text-xs"></i>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={index === mainOrder.length - 1}
+                          onClick={() => moveItem(index, "down", "main")}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg border border-border hover:bg-surface text-muted disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                          title="Nach unten verschieben"
+                        >
+                          <i className="ph ph-caret-down text-xs"></i>
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* LumadIQ menu column */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-extrabold text-foreground uppercase tracking-wider flex items-center gap-2">
+                <i className="ph ph-brain text-purple-500"></i> LumadIQ-Untermenü
+              </h3>
+              <div className="space-y-2">
+                {lumadiqOrder.map((id, index) => {
+                  const item = ALL_SIDEBAR_ITEMS[id]
+                  if (!item) return null
+                  return (
+                    <div
+                      key={id}
+                      draggable
+                      onDragStart={() => handleDragStart(id, "lumadiq")}
+                      onDragOver={handleDragOver}
+                      onDrop={() => handleDrop(id, "lumadiq")}
+                      className="flex items-center justify-between p-3.5 bg-background border border-border/70 hover:border-purple-500/50 rounded-xl transition-all group cursor-grab active:cursor-grabbing select-none hover:shadow-sm"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <i className="ph ph-dots-six-vertical text-muted group-hover:text-purple-500 transition-colors text-lg"></i>
+                        <div className="w-8 h-8 rounded-lg bg-surface flex items-center justify-center text-muted group-hover:text-purple-500 transition-all border border-border/40">
+                          <i className={`ph ${item.icon} text-base`}></i>
+                        </div>
+                        <span className="text-xs font-bold text-foreground">{item.label}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          disabled={index === 0}
+                          onClick={() => moveItem(index, "up", "lumadiq")}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg border border-border hover:bg-surface text-muted disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                          title="Nach oben verschieben"
+                        >
+                          <i className="ph ph-caret-up text-xs"></i>
+                        </button>
+                        <button
+                          type="button"
+                          disabled={index === lumadiqOrder.length - 1}
+                          onClick={() => moveItem(index, "down", "lumadiq")}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg border border-border hover:bg-surface text-muted disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                          title="Nach unten verschieben"
+                        >
+                          <i className="ph ph-caret-down text-xs"></i>
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-4 flex justify-end gap-3 border-t border-border/40">
+            <button
+              type="button"
+              onClick={() => {
+                setMainOrder(["dashboard", "learning", "admin"])
+                setLumadiqOrder(["intro", "docs", "learn", "graph", "exams"])
+              }}
+              className="px-5 py-2.5 bg-background hover:bg-surface border border-border text-foreground font-bold text-xs rounded-xl transition cursor-pointer"
+            >
+              Standard zurücksetzen
+            </button>
+            <button
+              disabled={isSavingSidebar}
+              type="submit"
+              className="px-6 py-2.5 bg-primary hover:bg-primary/95 text-white font-bold text-xs rounded-xl transition shadow-lg shadow-primary/10 disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              {isSavingSidebar ? "Wird gespeichert..." : "Reihenfolge speichern"} <i className="ph ph-floppy-disk text-sm"></i>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   )

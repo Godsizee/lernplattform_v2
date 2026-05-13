@@ -15,10 +15,11 @@ interface Announcement {
 interface AppShellProps {
   user: any
   announcement: Announcement | null
+  sidebarOrder?: { main: string[]; lumadiq: string[] } | null
   children: React.ReactNode
 }
 
-export function AppShell({ user, announcement, children }: AppShellProps) {
+export function AppShell({ user, announcement, sidebarOrder, children }: AppShellProps) {
   const pathname = usePathname()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
@@ -60,7 +61,9 @@ export function AppShell({ user, announcement, children }: AppShellProps) {
         onClose={closeSidebar}
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={toggleSidebarCollapse}
+        sidebarOrder={sidebarOrder}
       />
+
 
       {/* Backdrop for mobile drawers */}
       {isSidebarOpen && (

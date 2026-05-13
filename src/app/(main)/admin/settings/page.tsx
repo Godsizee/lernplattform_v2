@@ -4,7 +4,7 @@ import Link from "next/link"
 
 export default async function AdminSettingsPage() {
   // Fetch settings from database
-  const [announcementSetting, securitySetting, aiSetting] = await Promise.all([
+  const [announcementSetting, securitySetting, aiSetting, sidebarSetting] = await Promise.all([
     prisma.systemSetting.findUnique({
       where: { settingKey: "global_announcement" }
     }),
@@ -13,6 +13,9 @@ export default async function AdminSettingsPage() {
     }),
     prisma.systemSetting.findUnique({
       where: { settingKey: "ai_settings" }
+    }),
+    prisma.systemSetting.findUnique({
+      where: { settingKey: "sidebar_order" }
     })
   ])
 
@@ -56,11 +59,24 @@ export default async function AdminSettingsPage() {
     }
   }
 
+  let initialSidebarOrder = {
+    main: ["dashboard", "learning", "admin"],
+    lumadiq: ["intro", "docs", "learn", "graph", "exams"]
+  }
+
+  if (sidebarSetting) {
+    try {
+      initialSidebarOrder = JSON.parse(sidebarSetting.settingValue)
+    } catch (e) {
+      console.error("Fehler beim Parsen der Sidebar-Einstellung:", e)
+    }
+  }
+
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-muted">
-        <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
+         <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
           <i className="ph ph-squares-four"></i> Dashboard
         </Link>
         <i className="ph ph-caret-right text-xs"></i>
@@ -81,6 +97,7 @@ export default async function AdminSettingsPage() {
         initialAnnouncement={initialAnnouncement} 
         initialSecurity={initialSecurity} 
         initialAI={initialAI} 
+        initialSidebarOrder={initialSidebarOrder}
       />
     </div>
   )

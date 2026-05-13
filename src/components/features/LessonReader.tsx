@@ -56,6 +56,10 @@ export function LessonReader({
   // AI chat states
   const [isChatOpen, setIsChatOpen] = useState(false)
 
+  // PDF export states
+  const [isExporting, setIsExporting] = useState(false)
+  const [isExportingSummary, setIsExportingSummary] = useState(false)
+
   const handleGenerateSummary = async () => {
     setIsSummaryOpen(true)
     if (summary) return
@@ -81,6 +85,97 @@ export function LessonReader({
       setIsGeneratingSummary(false)
     }
   }
+
+  const handleExportLesson = async () => {
+    if (isExporting) return
+    setIsExporting(true)
+    try {
+      const { jsPDF } = await import("jspdf")
+      const html2canvas = (await import("html2canvas")).default
+      ;(window as any).html2canvas = html2canvas
+
+      // Add rendering class to body to temporarily hide navigation / apply printable light styles
+      document.body.classList.add("export-pdf-rendering")
+
+      // Find element
+      const element = document.getElementById("lesson-pdf-content")
+      if (!element) throw new Error("Export-Inhalt nicht gefunden.")
+
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true
+      })
+
+      const filename = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-lektion.pdf`
+
+      await doc.html(element, {
+        x: 10,
+        y: 10,
+        width: 190, // A4 width (210) minus 20 margin
+        windowWidth: 800, // Fixed logical width for consistent responsive scale
+        autoPaging: "text",
+        margin: [10, 10, 10, 10],
+        callback: function (pdf) {
+          pdf.save(filename)
+          document.body.classList.remove("export-pdf-rendering")
+          setIsExporting(false)
+          showToast("Lektion erfolgreich als PDF exportiert!", "success")
+        }
+      })
+    } catch (err) {
+      console.error("PDF-Export Fehler:", err)
+      document.body.classList.remove("export-pdf-rendering")
+      setIsExporting(false)
+      showToast("PDF-Export fehlgeschlagen.", "error")
+    }
+  }
+
+  const handleExportSummary = async () => {
+    if (isExportingSummary) return
+    setIsExportingSummary(true)
+    try {
+      const { jsPDF } = await import("jspdf")
+      const html2canvas = (await import("html2canvas")).default
+      ;(window as any).html2canvas = html2canvas
+
+      document.body.classList.add("export-pdf-rendering")
+
+      const element = document.getElementById("summary-pdf-content")
+      if (!element) throw new Error("Spickzettel-Inhalt nicht gefunden.")
+
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+        compress: true
+      })
+
+      const filename = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-spickzettel.pdf`
+
+      await doc.html(element, {
+        x: 10,
+        y: 10,
+        width: 190,
+        windowWidth: 800,
+        autoPaging: "text",
+        margin: [10, 10, 10, 10],
+        callback: function (pdf) {
+          pdf.save(filename)
+          document.body.classList.remove("export-pdf-rendering")
+          setIsExportingSummary(false)
+          showToast("KI-Spickzettel erfolgreich als PDF exportiert!", "success")
+        }
+      })
+    } catch (err) {
+      console.error("Spickzettel-Export Fehler:", err)
+      document.body.classList.remove("export-pdf-rendering")
+      setIsExportingSummary(false)
+      showToast("Spickzettel-Export fehlgeschlagen.", "error")
+    }
+  }
+
 
   // Calculate Reading Time
   const wordCount = lesson.contentRaw.split(/\s+/).filter(Boolean).length
@@ -245,88 +340,121 @@ export function LessonReader({
           </nav>
         )}
 
-        {/* Lesson Header block */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-border/80">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
-              <span style={{ color: subject.color }}>{subject.title}</span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <i className="ph ph-clock"></i> ca. {readingTime} {readingTime === 1 ? 'Minute' : 'Minuten'} Lesezeit
-              </span>
+        {/* Lesson Wrapper with ID for high-fidelity PDF Generation */}
+        <div id="lesson-pdf-content" className="space-y-8">
+          {/* Lesson Header block */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-border/80">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
+                <span style={{ color: subject.color }}>{subject.title}</span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <i className="ph ph-clock"></i> ca. {readingTime} {readingTime === 1 ? 'Minute' : 'Minuten'} Lesezeit
+                </span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-black tracking-tight">{lesson.title}</h1>
             </div>
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight">{lesson.title}</h1>
+
+            {/* Action Controls: Bookmark, Zen Mode, Chat - Hidden on PDF export */}
+            <div className="flex items-center gap-3.5 shrink-0 w-full sm:w-auto no-pdf-export">
+              {/* KI-Tutor Sidebar Button */}
+              <button
+                onClick={() => setIsChatOpen(true)}
+                className="h-10 px-4 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                title="KI-Tutor Chat öffnen"
+              >
+                <i className="ph ph-chat-centered-dots text-base"></i>
+                <span>Tutor fragen 🤖</span>
+              </button>
+
+              {/* PDF Export Button */}
+              <button
+                onClick={handleExportLesson}
+                disabled={isExporting}
+                className="h-10 px-4 rounded-xl border border-border bg-surface hover:bg-border/30 text-muted hover:text-foreground text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                title="Lektion als PDF herunterladen"
+              >
+                {isExporting ? (
+                  <div className="w-3.5 h-3.5 border-2 border-muted border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <i className="ph ph-file-pdf text-base"></i>
+                )}
+                <span>Exportieren 📄</span>
+              </button>
+
+              {/* Bookmark Button */}
+              <button
+                onClick={handleBookmarkToggle}
+                className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
+                  bookmarked 
+                    ? "bg-warning/15 text-warning border-warning/30 hover:bg-warning/20 shadow-sm" 
+                    : "bg-surface hover:bg-border/30 border-border text-muted hover:text-foreground"
+                }`}
+                title={bookmarked ? "Lesezeichen entfernen" : "Lesezeichen setzen"}
+              >
+                <i className={`text-xl ${bookmarked ? "ph-fill ph-bookmark" : "ph ph-bookmark"}`}></i>
+              </button>
+
+              {/* Zen Mode Button */}
+              <button
+                onClick={() => setIsZenMode(!isZenMode)}
+                className={`h-10 px-4 rounded-xl border border-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                  isZenMode 
+                    ? "bg-primary text-white border-primary" 
+                    : "bg-surface hover:bg-border/30 text-muted hover:text-foreground"
+                }`}
+                title={isZenMode ? "Zen-Modus beenden" : "Zen-Modus aktivieren"}
+              >
+                <i className={`ph ${isZenMode ? "ph-eye-closed" : "ph-eye"}`}></i>
+                <span>Zen-Modus</span>
+              </button>
+            </div>
           </div>
 
-          {/* Action Controls: Bookmark, Zen Mode, Chat */}
-          <div className="flex items-center gap-3.5 shrink-0 w-full sm:w-auto">
-            {/* KI-Tutor Sidebar Button */}
-            <button
-              onClick={() => setIsChatOpen(true)}
-              className="h-10 px-4 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-              title="KI-Tutor Chat öffnen"
-            >
-              <i className="ph ph-chat-centered-dots text-base"></i>
-              <span>Tutor fragen 🤖</span>
-            </button>
-
-            {/* Bookmark Button */}
-            <button
-              onClick={handleBookmarkToggle}
-              className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
-                bookmarked 
-                  ? "bg-warning/15 text-warning border-warning/30 hover:bg-warning/20 shadow-sm" 
-                  : "bg-surface hover:bg-border/30 border-border text-muted hover:text-foreground"
-              }`}
-              title={bookmarked ? "Lesezeichen entfernen" : "Lesezeichen setzen"}
-            >
-              <i className={`text-xl ${bookmarked ? "ph-fill ph-bookmark" : "ph ph-bookmark"}`}></i>
-            </button>
-
-            {/* Zen Mode Button */}
-            <button
-              onClick={() => setIsZenMode(!isZenMode)}
-              className={`h-10 px-4 rounded-xl border border-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                isZenMode 
-                  ? "bg-primary text-white border-primary" 
-                  : "bg-surface hover:bg-border/30 text-muted hover:text-foreground"
-              }`}
-              title={isZenMode ? "Zen-Modus beenden" : "Zen-Modus aktivieren"}
-            >
-              <i className={`ph ${isZenMode ? "ph-eye-closed" : "ph-eye"}`}></i>
-              <span>Zen-Modus</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="flex flex-col xl:flex-row gap-10 items-start">
-          {/* Article Body */}
-          <div className="flex-1 min-w-0 prose dark:prose-invert max-w-none text-foreground space-y-6 leading-relaxed w-full">
-            {/* KI-Zusammenfassung (Spickzettel) Section */}
-            <div className="not-prose mb-6">
-              {!isSummaryOpen ? (
-                <button
-                  onClick={handleGenerateSummary}
-                  className="px-4 py-2.5 rounded-xl border border-border bg-surface/40 hover:bg-surface text-xs font-bold text-foreground transition-all flex items-center gap-2 cursor-pointer shadow-sm"
-                >
-                  <i className="ph ph-lightning text-warning text-sm"></i>
-                  <span>Zusammenfassung generieren (Spickzettel) ⚡</span>
-                </button>
-              ) : (
-                <div className="bg-surface/50 backdrop-blur-md border border-border/80 rounded-2xl p-5 md:p-6 shadow-md space-y-4 animate-fade-in">
-                  <div className="flex items-center justify-between border-b border-border/40 pb-3">
-                    <div className="flex items-center gap-2 text-warning">
-                      <i className="ph-fill ph-lightning text-lg"></i>
-                      <h3 className="text-sm font-black tracking-wide uppercase">⚡ KI-Spickzettel</h3>
+          <div className="flex flex-col xl:flex-row gap-10 items-start">
+            {/* Article Body */}
+            <div className="flex-1 min-w-0 prose dark:prose-invert max-w-none text-foreground space-y-6 leading-relaxed w-full">
+              {/* KI-Zusammenfassung (Spickzettel) Section */}
+              <div className="not-prose mb-6 no-pdf-export">
+                {!isSummaryOpen ? (
+                  <button
+                    onClick={handleGenerateSummary}
+                    className="px-4 py-2.5 rounded-xl border border-border bg-surface/40 hover:bg-surface text-xs font-bold text-foreground transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+                  >
+                    <i className="ph ph-lightning text-warning text-sm"></i>
+                    <span>Zusammenfassung generieren (Spickzettel) ⚡</span>
+                  </button>
+                ) : (
+                  <div className="bg-surface/50 backdrop-blur-md border border-border/80 rounded-2xl p-5 md:p-6 shadow-md space-y-4 animate-fade-in">
+                    <div className="flex items-center justify-between border-b border-border/40 pb-3">
+                      <div className="flex items-center gap-2 text-warning">
+                        <i className="ph-fill ph-lightning text-lg"></i>
+                        <h3 className="text-sm font-black tracking-wide uppercase">⚡ KI-Spickzettel</h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {/* Download Spickzettel PDF Button */}
+                        <button
+                          onClick={handleExportSummary}
+                          disabled={isExportingSummary}
+                          className="px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-border/30 text-[10px] font-bold text-foreground transition-all flex items-center gap-1.5 cursor-pointer"
+                          title="Spickzettel als PDF herunterladen"
+                        >
+                          {isExportingSummary ? (
+                            <div className="w-3 h-3 border-2 border-muted border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <i className="ph ph-file-pdf text-xs"></i>
+                          )}
+                          <span>PDF Speichern ⚡</span>
+                        </button>
+                        <button
+                          onClick={() => setIsSummaryOpen(false)}
+                          className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
+                          title="Schließen"
+                        >
+                          <i className="ph ph-x text-base"></i>
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => setIsSummaryOpen(false)}
-                      className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
-                      title="Schließen"
-                    >
-                      <i className="ph ph-x text-base"></i>
-                    </button>
-                  </div>
 
                   {isGeneratingSummary ? (
                     <div className="space-y-4 py-3">
@@ -343,7 +471,13 @@ export function LessonReader({
                       </div>
                     </div>
                   ) : (
-                    <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/80 space-y-2">
+                    <div id="summary-pdf-content" className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/80 space-y-2">
+                      {/* Hidden header that only displays during PDF export */}
+                      <div className="hidden export-only-title mb-6 pb-4 border-b border-border">
+                        <span className="text-xs font-bold text-primary uppercase tracking-wider">⚡ KI-Spickzettel (Zusammenfassung)</span>
+                        <h2 className="text-2xl font-black text-foreground mt-1 mb-0">{lesson.title}</h2>
+                      </div>
+
                       <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
                         {summary}
                       </ReactMarkdown>
@@ -501,6 +635,7 @@ export function LessonReader({
               {notesWidgetNode}
             </aside>
           )}
+        </div>
         </div>
       </div>
 

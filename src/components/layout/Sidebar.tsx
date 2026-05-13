@@ -12,6 +12,7 @@ interface SidebarProps {
   onClose: () => void
   isCollapsed?: boolean
   onToggleCollapse?: () => void
+  sidebarOrder?: { main: string[]; lumadiq: string[] } | null
 }
 
 export function Sidebar({ 
@@ -19,7 +20,8 @@ export function Sidebar({
   isOpen, 
   onClose, 
   isCollapsed = false, 
-  onToggleCollapse 
+  onToggleCollapse,
+  sidebarOrder
 }: SidebarProps) {
   const pathname = usePathname()
   const [isLumadiqExpanded, setIsLumadiqExpanded] = useState(pathname.startsWith("/adaptive"))
@@ -31,24 +33,65 @@ export function Sidebar({
     }
   }, [pathname])
   
-  // Standard navigation links
-  const mainNavItems = [
-    { href: "/dashboard", icon: "ph-squares-four", label: "Dashboard" },
-    { href: "/learning", icon: "ph-books", label: "Lern-Bereich" },
+  // Standard default items
+  const defaultMain = [
+    { id: "dashboard", href: "/dashboard", icon: "ph-squares-four", label: "Dashboard" },
+    { id: "learning", href: "/learning", icon: "ph-books", label: "Lern-Bereich" },
+    { id: "admin", href: "/admin", icon: "ph-shield-star", label: "Admin-Bereich" },
   ]
 
-  if (user?.role === "admin") {
-    mainNavItems.push({ href: "/admin", icon: "ph-shield-star", label: "Admin-Bereich" })
+  const defaultLumadiq = [
+    { id: "intro", href: "/adaptive", icon: "ph-info", label: "Einführung" },
+    { id: "docs", href: "/adaptive/upload", icon: "ph-upload-simple", label: "Dokumente" },
+    { id: "learn", href: "/adaptive/learn", icon: "ph-lightning", label: "Adaptiv Lernen" },
+    { id: "graph", href: "/adaptive/graph", icon: "ph-graph", label: "Wissensgraph" },
+    { id: "exams", href: "/adaptive/exams", icon: "ph-calendar-check", label: "Klausuren" },
+  ]
+
+  // Construct mainNavItems based on custom order if present
+  let mainNavItems: typeof defaultMain = []
+  if (sidebarOrder?.main) {
+    sidebarOrder.main.forEach((id) => {
+      const item = defaultMain.find((i) => i.id === id)
+      if (item) {
+        if (item.id === "admin" && user?.role !== "admin") return
+        mainNavItems.push(item)
+      }
+    })
+    // Append any missing default items
+    defaultMain.forEach((item) => {
+      if (item.id === "admin" && user?.role !== "admin") return
+      if (!mainNavItems.some((i) => i.id === item.id)) {
+        mainNavItems.push(item)
+      }
+    })
+  } else {
+    // Fallback to default ordering
+    mainNavItems = defaultMain.filter(item => {
+      if (item.id === "admin" && user?.role !== "admin") return false
+      return true
+    })
   }
 
-  // LumadIQ sub-items inside the dropdown
-  const lumadiqItems = [
-    { href: "/adaptive", icon: "ph-info", label: "Einführung" },
-    { href: "/adaptive/upload", icon: "ph-upload-simple", label: "Dokumente" },
-    { href: "/adaptive/learn", icon: "ph-lightning", label: "Adaptiv Lernen" },
-    { href: "/adaptive/graph", icon: "ph-graph", label: "Wissensgraph" },
-    { href: "/adaptive/exams", icon: "ph-calendar-check", label: "Klausuren" },
-  ]
+  // Construct lumadiqItems based on custom order if present
+  let lumadiqItems: typeof defaultLumadiq = []
+  if (sidebarOrder?.lumadiq) {
+    sidebarOrder.lumadiq.forEach((id) => {
+      const item = defaultLumadiq.find((i) => i.id === id)
+      if (item) {
+        lumadiqItems.push(item)
+      }
+    })
+    // Append missing
+    defaultLumadiq.forEach((item) => {
+      if (!lumadiqItems.some((i) => i.id === item.id)) {
+        lumadiqItems.push(item)
+      }
+    })
+  } else {
+    // Fallback to default
+    lumadiqItems = [...defaultLumadiq]
+  }
 
   const profileItem = { href: "/profile", icon: "ph-user-circle", label: "Mein Profil" }
   

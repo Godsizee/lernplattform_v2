@@ -457,3 +457,37 @@ export async function deleteSubject(subjectId: string) {
   return { success: true }
 }
 
+export async function updateSidebarOrder(rawData: { main: string[]; lumadiq: string[] }) {
+  const session = await auth()
+  if (session?.user?.role !== "admin") {
+    throw new Error("Zugriff verweigert")
+  }
+
+  const userId = session.user.id
+
+  await prisma.systemSetting.upsert({
+    where: { settingKey: "sidebar_order" },
+    update: {
+      settingValue: JSON.stringify(rawData),
+    },
+    create: {
+      settingKey: "sidebar_order",
+      settingValue: JSON.stringify(rawData),
+    }
+  })
+
+  // Log in AuditLog
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: "Sidebar-Elemente Umsortierung durchgeführt",
+      details: `Neue Reihenfolge der Sidebar-Elemente gespeichert. Hauptmenü: [${rawData.main.join(", ")}], LumadIQ: [${rawData.lumadiq.join(", ")}]`
+    }
+  }).catch(console.error)
+
+  revalidatePath("/")
+
+  return { success: true }
+}
+
+

@@ -296,3 +296,53 @@ body.focus-mode main {
   animation: fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* === HIGH-FIDELITY CLIENT-SIDE PDF EXPORT STYLES === */
+body.export-pdf-rendering {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+body.export-pdf-rendering .no-pdf-export,
+body.export-pdf-rendering aside,
+body.export-pdf-rendering header,
+body.export-pdf-rendering .complete-lesson-bar,
+body.export-pdf-rendering .tutor-chat-window,
+body.export-pdf-rendering nav {
+  display: none !important;
+}
+
+body.export-pdf-rendering #lesson-pdf-content,
+body.export-pdf-rendering #summary-pdf-content {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  width: 800px !important;
+  padding: 32px !important;
+  margin: 0 auto !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+body.export-pdf-rendering .prose {
+  color: #1e293b !important;
+  max-width: 100% !important;
+}
+
+body.export-pdf-rendering .prose h1,
+body.export-pdf-rendering .prose h2,
+body.export-pdf-rendering .prose h3 {
+  color: #0f172a !important;
+}
+
+body.export-pdf-rendering .prose code {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+body.export-pdf-rendering .prose pre {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+
