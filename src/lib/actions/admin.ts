@@ -109,7 +109,7 @@ export async function createSubject(rawData: { title: string; color: string; ico
   revalidatePath("/admin")
   revalidatePath("/")
 
-  return { success: true }
+  return { success: true, subject: newSubject }
 }
 
 export async function deleteLesson(lessonId: string) {
@@ -371,3 +371,89 @@ export async function updateAISettings(rawData: { anthropicApiKey: string; gemin
 
   return { success: true }
 }
+
+export async function updateSubject(subjectId: string, rawData: { title: string; color: string; icon: string }) {
+  const session = await auth()
+  if (session?.user?.role !== "admin") {
+    throw new Error("Zugriff verweigert")
+  }
+
+  const userId = session.user.id
+
+  const subject = await prisma.subject.findUnique({
+    where: { id: subjectId }
+  })
+
+  if (!subject) {
+    throw new Error("Fach nicht gefunden")
+  }
+
+  if (subject.userId !== userId) {
+    throw new Error("Berechtigung verweigert: Dieses Fach gehört einem anderen Benutzer")
+  }
+
+  const updatedSubject = await prisma.subject.update({
+    where: { id: subjectId },
+    data: {
+      title: rawData.title,
+      color: rawData.color,
+      icon: rawData.icon
+    }
+  })
+
+  // Log in AuditLog
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: `Fach aktualisiert: "${rawData.title}"`,
+      details: `ID: ${subjectId}, Neue Farbe: ${rawData.color}, Neues Icon: ${rawData.icon}`
+    }
+  }).catch(console.error)
+
+  revalidatePath("/admin")
+  revalidatePath("/admin/content")
+  revalidatePath("/")
+
+  return { success: true }
+}
+
+export async function deleteSubject(subjectId: string) {
+  const session = await auth()
+  if (session?.user?.role !== "admin") {
+    throw new Error("Zugriff verweigert")
+  }
+
+  const userId = session.user.id
+
+  const subject = await prisma.subject.findUnique({
+    where: { id: subjectId }
+  })
+
+  if (!subject) {
+    throw new Error("Fach nicht gefunden")
+  }
+
+  if (subject.userId !== userId) {
+    throw new Error("Berechtigung verweigert: Dieses Fach gehört einem anderen Benutzer")
+  }
+
+  await prisma.subject.delete({
+    where: { id: subjectId }
+  })
+
+  // Log in AuditLog
+  await prisma.auditLog.create({
+    data: {
+      userId,
+      action: `Fach gelöscht: "${subject.title}"`,
+      details: `ID: ${subjectId}`
+    }
+  }).catch(console.error)
+
+  revalidatePath("/admin")
+  revalidatePath("/admin/content")
+  revalidatePath("/")
+
+  return { success: true }
+}
+

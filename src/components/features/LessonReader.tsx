@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState, useEffect } from "react"
@@ -56,6 +57,48 @@ export function LessonReader({
   const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([])
   const [chatInput, setChatInput] = useState("")
   const [isSendingChat, setIsSendingChat] = useState(false)
+
+  // Draggable Tutor Chat position state
+  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return
+    const target = e.target as HTMLElement
+    if (target.closest("button") || target.closest("input") || target.closest("a") || target.closest("i")) return
+
+    setIsDragging(true)
+    setDragStart({
+      x: e.clientX - position.x,
+      y: e.clientY - position.y
+    })
+    e.preventDefault()
+  }
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return
+      setPosition({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      })
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+    }
+
+    if (isDragging) {
+      window.addEventListener("mousemove", handleMouseMove)
+      window.addEventListener("mouseup", handleMouseUp)
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove)
+      window.removeEventListener("mouseup", handleMouseUp)
+    }
+  }, [isDragging, dragStart])
 
   const handleGenerateSummary = async () => {
     setIsSummaryOpen(true)
@@ -222,7 +265,7 @@ export function LessonReader({
     }
   }
 
-  const NotesWidget = () => (
+  const notesWidgetNode = (
     <div className="bg-surface border border-border rounded-2xl p-5 space-y-4 shadow-sm">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-extrabold text-muted uppercase tracking-wider flex items-center gap-1.5">
@@ -415,7 +458,7 @@ export function LessonReader({
                 li: ({ children }: any) => (
                   <li className="leading-relaxed">{children}</li>
                 ),
-                code({ node, inline, className, children, ...props }: any) {
+                code({ children }: any) {
                   return (
                     <code className="bg-background border border-border px-1.5 py-0.5 rounded text-primary text-xs font-mono">
                       {children}
@@ -430,7 +473,7 @@ export function LessonReader({
                   )
                 },
                 // Inject code-playgrounds directly inside lesson content!
-                playground: ({ node, ...props }: any) => {
+                playground: ({ ...props }: any) => {
                   return (
                     <Playground 
                       initialHtml={props.html}
@@ -449,11 +492,11 @@ export function LessonReader({
           {/* Collapsible Mobile-Only Notes Widget (rendered on mobile/tablet or in Zen Mode) */}
           {isZenMode ? (
             <div className="pt-8">
-              <NotesWidget />
+              {notesWidgetNode}
             </div>
           ) : (
             <div className="xl:hidden pt-8">
-              <NotesWidget />
+              {notesWidgetNode}
             </div>
           )}
 
@@ -530,121 +573,142 @@ export function LessonReader({
             )}
 
             {/* Notes Widget */}
-            <NotesWidget />
+            {notesWidgetNode}
           </aside>
         )}
       </div>
 
       {/* KI-Tutor Chat-Sidebar */}
       {isChatOpen && (
-        <>
-          {/* Overlay to close chat */}
+        <div 
+          style={{
+            transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
+            cursor: isDragging ? "grabbing" : "default"
+          }}
+          className="fixed right-6 bottom-6 z-50 w-full sm:w-[360px] sm:h-[530px] bg-surface/95 border border-border/85 shadow-2xl rounded-2xl flex flex-col transition-all duration-300 animate-slide-in overflow-hidden"
+        >
+          {/* Sidebar Header */}
           <div 
-            onClick={() => setIsChatOpen(false)} 
-            className="fixed inset-0 bg-background/40 backdrop-blur-xs z-40 animate-fade-in"
-          />
-          
-          <div className="fixed right-0 top-0 bottom-0 sm:top-auto sm:bottom-6 sm:right-6 z-50 w-full sm:w-[330px] sm:h-[500px] bg-surface border-l sm:border border-border shadow-2xl rounded-none sm:rounded-2xl flex flex-col transition-all duration-300 animate-slide-in">
-            {/* Sidebar Header */}
-            <div className="py-3 px-4 border-b border-border/80 flex items-center justify-between bg-surface/60 backdrop-blur-md sticky top-0">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center font-bold text-xs">
-                  🤖
-                </div>
-                <div>
-                  <h3 className="font-extrabold text-xs tracking-tight text-foreground">KI-Lektionstutor</h3>
-                  <p className="text-[9px] text-muted font-bold truncate max-w-[200px]">Aktiv für: {lesson.title}</p>
+            onMouseDown={handleMouseDown}
+            className="py-3 px-4 border-b border-border/80 flex items-center justify-between bg-surface/80 select-none cursor-grab active:cursor-grabbing shrink-0"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center font-bold text-xs">
+                🤖
+              </div>
+              <div>
+                <h3 className="font-extrabold text-xs tracking-tight text-foreground">KI-Lektionstutor</h3>
+                <p className="text-[9px] text-muted font-bold truncate max-w-[200px]">Aktiv für: {lesson.title}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsChatOpen(false)}
+              className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
+            >
+              <i className="ph ph-x text-base"></i>
+            </button>
+          </div>
+
+          {/* Chat Messages area */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0 bg-background/20 select-text">
+            {chatMessages.length === 0 ? (
+              <div className="text-center py-6 px-3 space-y-1.5">
+                <span className="text-2xl block">👋</span>
+                <p className="font-bold text-xs text-foreground/90">Frage den KI-Tutor!</p>
+                <p className="text-[9px] text-muted leading-relaxed max-w-[180px] mx-auto">
+                  Hast du Fragen zum Code, Konzepten oder suchst nach Beispielen? Ich helfe dir sofort weiter.
+                </p>
+              </div>
+            ) : (
+              chatMessages.map((msg, idx) => {
+                const isBot = msg.role === "assistant"
+                return (
+                  <div 
+                    key={idx} 
+                    className={`flex flex-col max-w-[88%] ${
+                      isBot ? "self-start items-start" : "self-end items-end ml-auto"
+                    }`}
+                  >
+                    <span className="text-[8px] text-muted font-bold mb-0.5 px-1">
+                      {isBot ? "KI-TUTOR" : "DU"}
+                    </span>
+                    <div className={`py-2 px-3 rounded-xl space-y-1.5 border shadow-sm ${
+                      isBot 
+                        ? "bg-surface border-border text-foreground rounded-tl-none" 
+                        : "bg-primary border-primary text-white rounded-tr-none"
+                    }`}>
+                      {isBot ? (
+                        <div className="max-w-none text-foreground text-xs leading-relaxed">
+                          <ReactMarkdown 
+                            remarkPlugins={[remarkGfm]} 
+                            rehypePlugins={[rehypeRaw]}
+                            components={{
+                              p: ({ children }) => <p className="text-xs text-foreground/95 leading-relaxed mb-1.5 last:mb-0 font-medium">{children}</p>,
+                              ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 text-xs my-1.5 font-medium">{children}</ul>,
+                              ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 text-xs my-1.5 font-medium">{children}</ol>,
+                              li: ({ children }) => <li className="leading-relaxed font-medium">{children}</li>,
+                              strong: ({ children }) => <strong className="font-extrabold text-primary">{children}</strong>,
+                              code: ({ children }) => (
+                                <code className="bg-background/80 border border-border px-1 py-0.5 rounded text-primary text-[10px] font-mono font-bold">
+                                  {children}
+                                </code>
+                              ),
+                              pre: ({ children }) => (
+                                <pre className="p-2 bg-background border border-border rounded-xl font-mono text-[10px] overflow-x-auto my-1.5 max-w-full leading-relaxed shadow-inner">
+                                  {children}
+                                </pre>
+                              )
+                            }}
+                          >
+                            {msg.content}
+                          </ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap text-xs font-semibold leading-relaxed">{msg.content}</p>
+                      )}
+                    </div>
+                  </div>
+                )
+              })
+            )}
+
+            {/* Shimmer loading skeleton */}
+            {isSendingChat && (
+              <div className="flex flex-col max-w-[88%] self-start items-start animate-pulse">
+                <span className="text-[8px] text-muted font-bold mb-0.5 px-1">KI-TUTOR</span>
+                <div className="py-2 px-3 rounded-xl bg-surface border border-border text-foreground rounded-tl-none space-y-1.5 w-40 shadow-sm">
+                  <div className="h-2.5 bg-border/60 rounded w-5/6"></div>
+                  <div className="h-2.5 bg-border/60 rounded w-3/4"></div>
+                  <div className="h-2.5 bg-border/60 rounded w-1/2"></div>
                 </div>
               </div>
-              <button
-                onClick={() => setIsChatOpen(false)}
-                className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
-              >
-                <i className="ph ph-x text-base"></i>
-              </button>
-            </div>
-
-            {/* Chat Messages area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0 bg-background/20">
-              {chatMessages.length === 0 ? (
-                <div className="text-center py-6 px-3 space-y-1.5">
-                  <span className="text-2xl block">👋</span>
-                  <p className="font-bold text-xs text-foreground/90">Frage den KI-Tutor!</p>
-                  <p className="text-[9px] text-muted leading-relaxed max-w-[180px] mx-auto">
-                    Hast du Fragen zum Code, Konzepten oder suchst nach Beispielen? Ich helfe dir sofort weiter.
-                  </p>
-                </div>
-              ) : (
-                chatMessages.map((msg, idx) => {
-                  const isBot = msg.role === "assistant"
-                  return (
-                    <div 
-                      key={idx} 
-                      className={`flex flex-col max-w-[88%] ${
-                        isBot ? "self-start items-start" : "self-end items-end ml-auto"
-                      }`}
-                    >
-                      <span className="text-[8px] text-muted font-bold mb-0.5 px-1">
-                        {isBot ? "KI-TUTOR" : "DU"}
-                      </span>
-                      <div className={`py-2 px-3 rounded-xl text-[11px] leading-relaxed space-y-1.5 border shadow-sm ${
-                        isBot 
-                          ? "bg-surface border-border text-foreground rounded-tl-none" 
-                          : "bg-primary border-primary text-white rounded-tr-none"
-                      }`}>
-                        {isBot ? (
-                          <div className="prose dark:prose-invert prose-xs max-w-none text-foreground text-[11px] leading-relaxed">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                              {msg.content}
-                            </ReactMarkdown>
-                          </div>
-                        ) : (
-                          <p className="whitespace-pre-wrap font-semibold">{msg.content}</p>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })
-              )}
-
-              {/* Shimmer loading skeleton */}
-              {isSendingChat && (
-                <div className="flex flex-col max-w-[88%] self-start items-start animate-pulse">
-                  <span className="text-[8px] text-muted font-bold mb-0.5 px-1">KI-TUTOR</span>
-                  <div className="py-2 px-3 rounded-xl bg-surface border border-border text-foreground rounded-tl-none space-y-1.5 w-40 shadow-sm">
-                    <div className="h-2.5 bg-border/60 rounded w-5/6"></div>
-                    <div className="h-2.5 bg-border/60 rounded w-3/4"></div>
-                    <div className="h-2.5 bg-border/60 rounded w-1/2"></div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Chat Input area */}
-            <div className="py-2.5 px-3 border-t border-border/80 bg-surface/60 backdrop-blur-md sticky bottom-0">
-              <form 
-                onSubmit={handleSendChat}
-                className="flex items-center gap-1.5 bg-background border border-border rounded-xl p-1 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all"
-              >
-                <input
-                  type="text"
-                  value={chatInput}
-                  onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Frage stellen..."
-                  disabled={isSendingChat}
-                  className="flex-1 bg-transparent px-2 py-1 text-[11px] font-semibold focus:outline-none text-foreground placeholder:text-muted"
-                />
-                <button
-                  type="submit"
-                  disabled={!chatInput.trim() || isSendingChat}
-                  className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center transition-all hover:bg-primary/95 disabled:opacity-40 disabled:hover:bg-primary cursor-pointer shrink-0"
-                >
-                  <i className="ph ph-paper-plane-right text-xs"></i>
-                </button>
-              </form>
-            </div>
+            )}
           </div>
-        </>
+
+          {/* Chat Input area */}
+          <div className="py-2.5 px-3 border-t border-border/80 bg-surface/60 backdrop-blur-md sticky bottom-0 shrink-0">
+            <form 
+              onSubmit={handleSendChat}
+              className="flex items-center gap-1.5 bg-background border border-border rounded-xl p-1 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all"
+            >
+              <input
+                type="text"
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="Frage stellen..."
+                disabled={isSendingChat}
+                className="flex-1 bg-transparent px-2 py-1 text-[11px] font-semibold focus:outline-none text-foreground placeholder:text-muted"
+              />
+              <button
+                type="submit"
+                disabled={!chatInput.trim() || isSendingChat}
+                className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center transition-all hover:bg-primary/95 disabled:opacity-40 disabled:hover:bg-primary cursor-pointer shrink-0"
+              >
+                <i className="ph ph-paper-plane-right text-xs"></i>
+              </button>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   )

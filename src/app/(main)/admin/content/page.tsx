@@ -12,6 +12,17 @@ export default async function AdminContentPage() {
 
   const userId = session.user.id
 
+  // Fetch all subjects owned by this admin
+  const subjects = await prisma.subject.findMany({
+    where: { userId },
+    include: {
+      _count: {
+        select: { lessons: true }
+      }
+    },
+    orderBy: { title: "asc" }
+  })
+
   // Fetch all lessons belonging to subjects owned by this user
   const lessons = await prisma.lesson.findMany({
     where: {
@@ -27,6 +38,7 @@ export default async function AdminContentPage() {
       type: true,
       status: true,
       sortOrder: true,
+      subjectId: true,
       subject: {
         select: {
           title: true,
@@ -55,7 +67,7 @@ export default async function AdminContentPage() {
       <div className="pb-4 border-b border-border/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-black tracking-tight">Inhalte verwalten</h1>
-          <p className="text-sm text-muted mt-1">Hier siehst du alle Lektionen und Quizze deines Lehrplans. Bearbeite sie im Editor oder lösche sie.</p>
+          <p className="text-sm text-muted mt-1">Hier siehst du alle Fächer und Lektionen deines Lehrplans. Bearbeite sie im Editor oder erstelle neue.</p>
         </div>
         <Link 
           href="/admin/editor"
@@ -65,7 +77,8 @@ export default async function AdminContentPage() {
         </Link>
       </div>
 
-      <ContentManagementTable initialLessons={lessons} />
+      <ContentManagementTable initialLessons={lessons} initialSubjects={subjects} />
     </div>
   )
 }
+
