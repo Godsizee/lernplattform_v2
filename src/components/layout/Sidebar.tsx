@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ThemeToggle } from "@/components/ThemeToggle"
@@ -21,25 +22,42 @@ export function Sidebar({
   onToggleCollapse 
 }: SidebarProps) {
   const pathname = usePathname()
+  const [isLumadiqExpanded, setIsLumadiqExpanded] = useState(pathname.startsWith("/adaptive"))
+
+  // Auto-expand LumadIQ dropdown if user navigates to an adaptive sub-route
+  useEffect(() => {
+    if (pathname.startsWith("/adaptive")) {
+      setIsLumadiqExpanded(true)
+    }
+  }, [pathname])
   
-  const navItems = [
+  // Standard navigation links
+  const mainNavItems = [
     { href: "/dashboard", icon: "ph-squares-four", label: "Dashboard" },
     { href: "/learning", icon: "ph-books", label: "Lern-Bereich" },
-    { href: "/adaptive", icon: "ph-brain", label: "LumadIQ", separator: true },
+  ]
+
+  if (user?.role === "admin") {
+    mainNavItems.push({ href: "/admin", icon: "ph-shield-star", label: "Admin-Bereich" })
+  }
+
+  // LumadIQ sub-items inside the dropdown
+  const lumadiqItems = [
+    { href: "/adaptive", icon: "ph-info", label: "Einführung" },
     { href: "/adaptive/upload", icon: "ph-upload-simple", label: "Dokumente" },
     { href: "/adaptive/learn", icon: "ph-lightning", label: "Adaptiv Lernen" },
     { href: "/adaptive/graph", icon: "ph-graph", label: "Wissensgraph" },
     { href: "/adaptive/exams", icon: "ph-calendar-check", label: "Klausuren" },
-    { href: "/profile", icon: "ph-user-circle", label: "Mein Profil" },
   ]
-  
-  if (user?.role === "admin") {
-    navItems.splice(2, 0, { href: "/admin", icon: "ph-shield-star", label: "Admin-Bereich" })
-  }
 
+  const profileItem = { href: "/profile", icon: "ph-user-circle", label: "Mein Profil" }
+  
   const isItemActive = (href: string) => {
     if (href === "/dashboard") {
       return pathname === "/" || pathname === "/dashboard"
+    }
+    if (href === "/adaptive") {
+      return pathname === "/adaptive"
     }
     return pathname.startsWith(href)
   }
@@ -95,7 +113,8 @@ export function Sidebar({
       <nav className={`flex-1 px-4 py-6 space-y-1.5 overflow-y-auto ${
         isCollapsed ? "lg:px-2" : ""
       }`}>
-        {navItems.map((item) => {
+        {/* Render standard main items */}
+        {mainNavItems.map((item) => {
           const isActive = isItemActive(item.href)
           return (
             <Link 
@@ -118,6 +137,87 @@ export function Sidebar({
             </Link>
           )
         })}
+
+        {/* Render LumadIQ Collapsible Dropdown */}
+        <div className="space-y-1">
+          <button
+            onClick={() => setIsLumadiqExpanded(!isLumadiqExpanded)}
+            className={`flex items-center transition-all duration-200 rounded-xl w-full ${
+              isCollapsed 
+                ? "w-12 h-12 justify-center mx-auto" 
+                : "px-4 py-3 gap-3.5 justify-between"
+            } ${
+              pathname.startsWith("/adaptive")
+                ? "bg-primary/5 text-primary font-bold border border-primary/10"
+                : "text-muted hover:bg-border/30 hover:text-foreground"
+            } cursor-pointer`}
+            title={isCollapsed ? "LumadIQ" : undefined}
+          >
+            <div className="flex items-center gap-3.5">
+              <i className={`ph-bold ph-brain text-xl shrink-0`}></i>
+              {!isCollapsed && <span className="text-sm font-semibold">LumadIQ</span>}
+            </div>
+            {!isCollapsed && (
+              <i className={`ph ph-caret-down text-xs transition-transform duration-300 ${isLumadiqExpanded ? "rotate-180" : ""}`}></i>
+            )}
+          </button>
+
+          {/* Sub-items (expanded) */}
+          <div className={`transition-all duration-300 ease-in-out ${
+            isLumadiqExpanded 
+              ? "max-h-[300px] opacity-100" 
+              : "max-h-0 opacity-0 pointer-events-none overflow-hidden"
+          } ${isCollapsed ? "flex flex-col items-center gap-1.5" : "pl-4 space-y-1"}`}>
+            {lumadiqItems.map((subItem) => {
+              const isActive = isItemActive(subItem.href)
+              return (
+                <Link
+                  key={subItem.href}
+                  href={subItem.href}
+                  onClick={onClose}
+                  className={`flex items-center transition-all duration-200 rounded-xl ${
+                    isCollapsed 
+                      ? "w-9 h-9 justify-center mx-auto" 
+                      : "w-full px-4 py-2.5 gap-3"
+                  } ${
+                    isActive 
+                      ? "bg-primary/10 text-primary font-bold shadow-sm" 
+                      : "text-muted hover:bg-border/20 hover:text-foreground"
+                  }`}
+                  title={isCollapsed ? subItem.label : undefined}
+                >
+                  <i className={`${isActive ? "ph-bold" : "ph"} ${subItem.icon} ${isCollapsed ? "text-base" : "text-lg"} shrink-0`}></i>
+                  {!isCollapsed && <span className="text-xs font-semibold whitespace-nowrap">{subItem.label}</span>}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Profile menu item */}
+        {(() => {
+          const isActive = isItemActive(profileItem.href)
+          return (
+            <Link 
+              key={profileItem.href} 
+              href={profileItem.href}
+              onClick={onClose}
+              className={`flex items-center transition-all duration-200 rounded-xl ${
+                isCollapsed 
+                  ? "w-12 h-12 justify-center mx-auto" 
+                  : "w-full px-4 py-3 gap-3.5"
+              } ${
+                isActive 
+                  ? "bg-primary/10 text-primary font-bold shadow-sm" 
+                  : "text-muted hover:bg-border/30 hover:text-foreground"
+              }`}
+              title={isCollapsed ? profileItem.label : undefined}
+            >
+              <i className={`${isActive ? "ph-bold" : "ph"} ${profileItem.icon} text-xl shrink-0`}></i>
+              {!isCollapsed && <span className="text-sm font-semibold whitespace-nowrap animate-fade-in">{profileItem.label}</span>}
+            </Link>
+          )
+        })()}
       </nav>
 
       {/* Footer Section - Themes & Terms */}

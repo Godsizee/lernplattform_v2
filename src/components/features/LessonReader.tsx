@@ -10,6 +10,7 @@ import { Playground } from "@/components/features/Playground"
 import { completeLesson, undoCompleteLesson } from "@/lib/actions/progress"
 import { toggleBookmark, saveLessonNote } from "@/lib/actions/learning"
 import { useToast } from "@/context/ToastContext"
+import { TutorChatWindow } from "@/components/features/TutorChatWindow"
 
 interface LessonReaderProps {
   lesson: {
@@ -54,51 +55,6 @@ export function LessonReader({
 
   // AI chat states
   const [isChatOpen, setIsChatOpen] = useState(false)
-  const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([])
-  const [chatInput, setChatInput] = useState("")
-  const [isSendingChat, setIsSendingChat] = useState(false)
-
-  // Draggable Tutor Chat position state
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.button !== 0) return
-    const target = e.target as HTMLElement
-    if (target.closest("button") || target.closest("input") || target.closest("a") || target.closest("i")) return
-
-    setIsDragging(true)
-    setDragStart({
-      x: e.clientX - position.x,
-      y: e.clientY - position.y
-    })
-    e.preventDefault()
-  }
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return
-      setPosition({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y
-      })
-    }
-
-    const handleMouseUp = () => {
-      setIsDragging(false)
-    }
-
-    if (isDragging) {
-      window.addEventListener("mousemove", handleMouseMove)
-      window.addEventListener("mouseup", handleMouseUp)
-    }
-
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove)
-      window.removeEventListener("mouseup", handleMouseUp)
-    }
-  }, [isDragging, dragStart])
 
   const handleGenerateSummary = async () => {
     setIsSummaryOpen(true)
@@ -123,38 +79,6 @@ export function LessonReader({
       setIsSummaryOpen(false)
     } finally {
       setIsGeneratingSummary(false)
-    }
-  }
-
-  const handleSendChat = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!chatInput.trim() || isSendingChat) return
-
-    const userMsg = chatInput.trim()
-    setChatInput("")
-
-    const newMessages = [...chatMessages, { role: "user" as const, content: userMsg }]
-    setChatMessages(newMessages)
-    setIsSendingChat(true)
-
-    try {
-      const res = await fetch("/api/ai/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          lessonTitle: lesson.title,
-          lessonContent: lesson.contentRaw,
-          messages: newMessages
-        })
-      })
-      if (!res.ok) throw new Error()
-      const data = await res.json()
-      setChatMessages([...newMessages, { role: "assistant" as const, content: data.reply }])
-    } catch (err) {
-      console.error(err)
-      showToast("KI-Antwort konnte nicht geladen werden.", "error")
-    } finally {
-      setIsSendingChat(false)
     }
   }
 
@@ -304,413 +228,289 @@ export function LessonReader({
   )
 
   return (
-    <div className={`space-y-8 ${isZenMode ? "max-w-5xl mx-auto py-12 px-4" : "animate-fade-in"}`}>
-      {/* Breadcrumb - hide in zen mode */}
-      {!isZenMode && (
-        <nav className="flex items-center gap-2 text-sm text-muted">
-          <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
-            <i className="ph ph-squares-four"></i> Dashboard
-          </Link>
-          <i className="ph ph-caret-right text-xs"></i>
-          <Link href={`/subjects/${lesson.subjectId}`} className="hover:text-primary transition-colors">
-            {subject.title}
-          </Link>
-          <i className="ph ph-caret-right text-xs"></i>
-          <span className="text-foreground font-medium truncate">{lesson.title}</span>
-        </nav>
-      )}
+    <>
+      <div className={`space-y-8 ${isZenMode ? "max-w-5xl mx-auto py-12 px-4" : "animate-fade-in"}`}>
+        {/* Breadcrumb - hide in zen mode */}
+        {!isZenMode && (
+          <nav className="flex items-center gap-2 text-sm text-muted">
+            <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
+              <i className="ph ph-squares-four"></i> Dashboard
+            </Link>
+            <i className="ph ph-caret-right text-xs"></i>
+            <Link href={`/subjects/${lesson.subjectId}`} className="hover:text-primary transition-colors">
+              {subject.title}
+            </Link>
+            <i className="ph ph-caret-right text-xs"></i>
+            <span className="text-foreground font-medium truncate">{lesson.title}</span>
+          </nav>
+        )}
 
-      {/* Lesson Header block */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-border/80">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
-            <span style={{ color: subject.color }}>{subject.title}</span>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              <i className="ph ph-clock"></i> ca. {readingTime} {readingTime === 1 ? 'Minute' : 'Minuten'} Lesezeit
-            </span>
+        {/* Lesson Header block */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-border/80">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
+              <span style={{ color: subject.color }}>{subject.title}</span>
+              <span>•</span>
+              <span className="flex items-center gap-1">
+                <i className="ph ph-clock"></i> ca. {readingTime} {readingTime === 1 ? 'Minute' : 'Minuten'} Lesezeit
+              </span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-black tracking-tight">{lesson.title}</h1>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight">{lesson.title}</h1>
-        </div>
 
-        {/* Action Controls: Bookmark, Zen Mode, Chat */}
-        <div className="flex items-center gap-3.5 shrink-0 w-full sm:w-auto">
-          {/* KI-Tutor Sidebar Button */}
-          <button
-            onClick={() => setIsChatOpen(true)}
-            className="h-10 px-4 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-            title="KI-Tutor Chat öffnen"
-          >
-            <i className="ph ph-chat-centered-dots text-base"></i>
-            <span>Tutor fragen 🤖</span>
-          </button>
-
-          {/* Bookmark Button */}
-          <button
-            onClick={handleBookmarkToggle}
-            className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
-              bookmarked 
-                ? "bg-warning/15 text-warning border-warning/30 hover:bg-warning/20 shadow-sm" 
-                : "bg-surface hover:bg-border/30 border-border text-muted hover:text-foreground"
-            }`}
-            title={bookmarked ? "Lesezeichen entfernen" : "Lesezeichen setzen"}
-          >
-            <i className={`text-xl ${bookmarked ? "ph-fill ph-bookmark" : "ph ph-bookmark"}`}></i>
-          </button>
-
-          {/* Zen Mode Button */}
-          <button
-            onClick={() => setIsZenMode(!isZenMode)}
-            className={`h-10 px-4 rounded-xl border border-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              isZenMode 
-                ? "bg-primary text-white border-primary" 
-                : "bg-surface hover:bg-border/30 text-muted hover:text-foreground"
-            }`}
-            title={isZenMode ? "Zen-Modus beenden" : "Zen-Modus aktivieren"}
-          >
-            <i className={`ph ${isZenMode ? "ph-eye-closed" : "ph-eye"}`}></i>
-            <span>Zen-Modus</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="flex flex-col xl:flex-row gap-10 items-start">
-        {/* Article Body */}
-        <div className="flex-1 min-w-0 prose dark:prose-invert max-w-none text-foreground space-y-6 leading-relaxed w-full">
-          {/* KI-Zusammenfassung (Spickzettel) Section */}
-          <div className="not-prose mb-6">
-            {!isSummaryOpen ? (
-              <button
-                onClick={handleGenerateSummary}
-                className="px-4 py-2.5 rounded-xl border border-border bg-surface/40 hover:bg-surface text-xs font-bold text-foreground transition-all flex items-center gap-2 cursor-pointer shadow-sm"
-              >
-                <i className="ph ph-lightning text-warning text-sm"></i>
-                <span>Zusammenfassung generieren (Spickzettel) ⚡</span>
-              </button>
-            ) : (
-              <div className="bg-surface/50 backdrop-blur-md border border-border/80 rounded-2xl p-5 md:p-6 shadow-md space-y-4 animate-fade-in">
-                <div className="flex items-center justify-between border-b border-border/40 pb-3">
-                  <div className="flex items-center gap-2 text-warning">
-                    <i className="ph-fill ph-lightning text-lg"></i>
-                    <h3 className="text-sm font-black tracking-wide uppercase">⚡ KI-Spickzettel</h3>
-                  </div>
-                  <button
-                    onClick={() => setIsSummaryOpen(false)}
-                    className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
-                    title="Schließen"
-                  >
-                    <i className="ph ph-x text-base"></i>
-                  </button>
-                </div>
-
-                {isGeneratingSummary ? (
-                  <div className="space-y-4 py-3">
-                    <div className="flex items-center gap-2.5 text-xs text-muted font-bold">
-                      <div className="w-4 h-4 border-2 border-warning border-t-transparent rounded-full animate-spin shrink-0"></div>
-                      <span>Etwas Geduld bitte. Deine Zusammenfassung wird gerade erstellt...</span>
-                    </div>
-                    <div className="space-y-2.5 animate-pulse">
-                      <div className="h-3.5 bg-border/60 rounded-md w-3/4"></div>
-                      <div className="h-3.5 bg-border/60 rounded-md w-5/6"></div>
-                      <div className="h-3.5 bg-border/60 rounded-md w-2/3"></div>
-                      <div className="h-3.5 bg-border/60 rounded-md w-4/5"></div>
-                      <div className="h-3.5 bg-border/60 rounded-md w-1/2"></div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/80 space-y-2">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                      {summary}
-                    </ReactMarkdown>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          {lesson.contentRaw.trim().startsWith("<") ? (
-            <div dangerouslySetInnerHTML={{ __html: lesson.contentRaw }} />
-          ) : (
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeRaw]}
-              components={{
-                h2: ({ children }: any) => {
-                  const text = String(children)
-                  const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-                  return (
-                    <h2 id={id} className="text-2xl font-extrabold mt-10 mb-4 pb-1 border-b border-border/60 flex items-center gap-2">
-                      {children}
-                    </h2>
-                  )
-                },
-                h3: ({ children }: any) => (
-                  <h3 className="text-xl font-bold mt-6 mb-3 text-foreground/90">{children}</h3>
-                ),
-                p: ({ children }: any) => (
-                  <p className="text-sm md:text-base text-foreground/80 leading-relaxed mb-4">{children}</p>
-                ),
-                ul: ({ children }: any) => (
-                  <ul className="list-disc pl-6 space-y-2 text-sm md:text-base text-foreground/80 my-4">{children}</ul>
-                ),
-                ol: ({ children }: any) => (
-                  <ol className="list-decimal pl-6 space-y-2 text-sm md:text-base text-foreground/80 my-4">{children}</ol>
-                ),
-                li: ({ children }: any) => (
-                  <li className="leading-relaxed">{children}</li>
-                ),
-                code({ children }: any) {
-                  return (
-                    <code className="bg-background border border-border px-1.5 py-0.5 rounded text-primary text-xs font-mono">
-                      {children}
-                    </code>
-                  )
-                },
-                pre({ children }: any) {
-                  return (
-                    <pre className="p-4 bg-background border border-border rounded-2xl font-mono text-xs overflow-x-auto my-6 max-w-full leading-relaxed shadow-inner">
-                      {children}
-                    </pre>
-                  )
-                },
-                // Inject code-playgrounds directly inside lesson content!
-                playground: ({ ...props }: any) => {
-                  return (
-                    <Playground 
-                      initialHtml={props.html}
-                      initialCss={props.css}
-                      initialJs={props.js}
-                      title={props.title}
-                    />
-                  )
-                }
-              } as any}
+          {/* Action Controls: Bookmark, Zen Mode, Chat */}
+          <div className="flex items-center gap-3.5 shrink-0 w-full sm:w-auto">
+            {/* KI-Tutor Sidebar Button */}
+            <button
+              onClick={() => setIsChatOpen(true)}
+              className="h-10 px-4 rounded-xl border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              title="KI-Tutor Chat öffnen"
             >
-              {lesson.contentRaw}
-            </ReactMarkdown>
-          )}
+              <i className="ph ph-chat-centered-dots text-base"></i>
+              <span>Tutor fragen 🤖</span>
+            </button>
 
-          {/* Collapsible Mobile-Only Notes Widget (rendered on mobile/tablet or in Zen Mode) */}
-          {isZenMode ? (
-            <div className="pt-8">
-              {notesWidgetNode}
-            </div>
-          ) : (
-            <div className="xl:hidden pt-8">
-              {notesWidgetNode}
-            </div>
-          )}
+            {/* Bookmark Button */}
+            <button
+              onClick={handleBookmarkToggle}
+              className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all cursor-pointer ${
+                bookmarked 
+                  ? "bg-warning/15 text-warning border-warning/30 hover:bg-warning/20 shadow-sm" 
+                  : "bg-surface hover:bg-border/30 border-border text-muted hover:text-foreground"
+              }`}
+              title={bookmarked ? "Lesezeichen entfernen" : "Lesezeichen setzen"}
+            >
+              <i className={`text-xl ${bookmarked ? "ph-fill ph-bookmark" : "ph ph-bookmark"}`}></i>
+            </button>
 
-          {/* Complete Lesson bar */}
-          <div className="pt-8 mt-12 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 bg-surface p-6 rounded-2xl border border-border shadow-sm">
-            <div className="space-y-1 text-center sm:text-left">
-              <h4 className="font-bold text-base">Lektion abschließen</h4>
-              <p className="text-xs text-muted">
-                {successState 
-                  ? "Du hast diese Lektion bereits abgeschlossen." 
-                  : "Markiere diese Lektion as gelernt, um deinen Lernfortschritt zu speichern."}
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-              <Link 
-                href={`/subjects/${lesson.subjectId}`}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-border text-center text-xs font-bold hover:bg-border/30 transition-all shrink-0 text-foreground"
-              >
-                Zurück zur Liste
-              </Link>
-              
-              {!successState ? (
+            {/* Zen Mode Button */}
+            <button
+              onClick={() => setIsZenMode(!isZenMode)}
+              className={`h-10 px-4 rounded-xl border border-border text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                isZenMode 
+                  ? "bg-primary text-white border-primary" 
+                  : "bg-surface hover:bg-border/30 text-muted hover:text-foreground"
+              }`}
+              title={isZenMode ? "Zen-Modus beenden" : "Zen-Modus aktivieren"}
+            >
+              <i className={`ph ${isZenMode ? "ph-eye-closed" : "ph-eye"}`}></i>
+              <span>Zen-Modus</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-col xl:flex-row gap-10 items-start">
+          {/* Article Body */}
+          <div className="flex-1 min-w-0 prose dark:prose-invert max-w-none text-foreground space-y-6 leading-relaxed w-full">
+            {/* KI-Zusammenfassung (Spickzettel) Section */}
+            <div className="not-prose mb-6">
+              {!isSummaryOpen ? (
                 <button
-                  disabled={isSaving}
-                  onClick={handleComplete}
-                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/95 text-white text-xs font-bold transition-all disabled:opacity-50 shrink-0 shadow-lg shadow-primary/10 flex items-center justify-center gap-1.5 cursor-pointer"
+                  onClick={handleGenerateSummary}
+                  className="px-4 py-2.5 rounded-xl border border-border bg-surface/40 hover:bg-surface text-xs font-bold text-foreground transition-all flex items-center gap-2 cursor-pointer shadow-sm"
                 >
-                  {isSaving ? "Wird gespeichert..." : "Als abgeschlossen markieren"} <i className="ph ph-check text-sm"></i>
+                  <i className="ph ph-lightning text-warning text-sm"></i>
+                  <span>Zusammenfassung generieren (Spickzettel) ⚡</span>
                 </button>
               ) : (
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                  <div className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-success/10 text-success border border-success/20 text-xs font-bold flex items-center justify-center gap-1.5 shrink-0">
-                    <i className="ph-fill ph-check-circle text-lg"></i> Gelernt
+                <div className="bg-surface/50 backdrop-blur-md border border-border/80 rounded-2xl p-5 md:p-6 shadow-md space-y-4 animate-fade-in">
+                  <div className="flex items-center justify-between border-b border-border/40 pb-3">
+                    <div className="flex items-center gap-2 text-warning">
+                      <i className="ph-fill ph-lightning text-lg"></i>
+                      <h3 className="text-sm font-black tracking-wide uppercase">⚡ KI-Spickzettel</h3>
+                    </div>
+                    <button
+                      onClick={() => setIsSummaryOpen(false)}
+                      className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
+                      title="Schließen"
+                    >
+                      <i className="ph ph-x text-base"></i>
+                    </button>
                   </div>
-                  <button
-                    disabled={isSaving}
-                    onClick={handleUndoComplete}
-                    className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-dashed border-border hover:border-danger/40 hover:bg-danger/5 hover:text-danger text-muted hover:text-danger text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                    title="Abschluss rückgängig machen"
-                  >
-                    <i className="ph ph-arrow-counter-clockwise text-sm"></i>
-                    <span>Rückgängig</span>
-                  </button>
+
+                  {isGeneratingSummary ? (
+                    <div className="space-y-4 py-3">
+                      <div className="flex items-center gap-2.5 text-xs text-muted font-bold">
+                        <div className="w-4 h-4 border-2 border-warning border-t-transparent rounded-full animate-spin shrink-0"></div>
+                        <span>Etwas Geduld bitte. Deine Zusammenfassung wird gerade erstellt...</span>
+                      </div>
+                      <div className="space-y-2.5 animate-pulse">
+                        <div className="h-3.5 bg-border/60 rounded-md w-3/4"></div>
+                        <div className="h-3.5 bg-border/60 rounded-md w-5/6"></div>
+                        <div className="h-3.5 bg-border/60 rounded-md w-2/3"></div>
+                        <div className="h-3.5 bg-border/60 rounded-md w-4/5"></div>
+                        <div className="h-3.5 bg-border/60 rounded-md w-1/2"></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/80 space-y-2">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                        {summary}
+                      </ReactMarkdown>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          </div>
-        </div>
-
-        {/* Sidebar Widgets Column (Table of Contents & Notes) - hide in zen mode */}
-        {!isZenMode && (
-          <aside className="w-72 shrink-0 hidden xl:flex flex-col gap-6 sticky top-24 self-start">
-            {/* Table of Contents Widget */}
-            {tocEntries.length > 0 && (
-              <div className="bg-surface border border-border rounded-2xl p-5 space-y-3.5 shadow-sm">
-                <h3 className="text-xs font-extrabold text-muted uppercase tracking-wider">Inhaltsverzeichnis</h3>
-                <nav className="flex flex-col gap-2.5">
-                  {tocEntries.map((entry) => (
-                    <a
-                      key={entry.id}
-                      href={`#${entry.id}`}
-                      className={`text-xs font-semibold leading-relaxed transition-all pl-1.5 border-l-2 hover:text-primary ${
-                        activeHeading === entry.id
-                          ? "border-primary text-primary font-bold"
-                          : "border-transparent text-muted"
-                      }`}
-                    >
-                      {entry.text}
-                    </a>
-                  ))}
-                </nav>
-              </div>
+            {lesson.contentRaw.trim().startsWith("<") ? (
+              <div dangerouslySetInnerHTML={{ __html: lesson.contentRaw }} />
+            ) : (
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                rehypePlugins={[rehypeRaw]}
+                components={{
+                  h2: ({ children }: any) => {
+                    const text = String(children)
+                    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+                    return (
+                      <h2 id={id} className="text-2xl font-extrabold mt-10 mb-4 pb-1 border-b border-border/60 flex items-center gap-2">
+                        {children}
+                      </h2>
+                    )
+                  },
+                  h3: ({ children }: any) => (
+                    <h3 className="text-xl font-bold mt-6 mb-3 text-foreground/90">{children}</h3>
+                  ),
+                  p: ({ children }: any) => (
+                    <p className="text-sm md:text-base text-foreground/80 leading-relaxed mb-4">{children}</p>
+                  ),
+                  ul: ({ children }: any) => (
+                    <ul className="list-disc pl-6 space-y-2 text-sm md:text-base text-foreground/80 my-4">{children}</ul>
+                  ),
+                  ol: ({ children }: any) => (
+                    <ol className="list-decimal pl-6 space-y-2 text-sm md:text-base text-foreground/80 my-4">{children}</ol>
+                  ),
+                  li: ({ children }: any) => (
+                    <li className="leading-relaxed">{children}</li>
+                  ),
+                  code({ children }: any) {
+                    return (
+                      <code className="bg-background border border-border px-1.5 py-0.5 rounded text-primary text-xs font-mono">
+                        {children}
+                      </code>
+                    )
+                  },
+                  pre({ children }: any) {
+                    return (
+                      <pre className="p-4 bg-background border border-border rounded-2xl font-mono text-xs overflow-x-auto my-6 max-w-full leading-relaxed shadow-inner">
+                        {children}
+                      </pre>
+                    )
+                  },
+                  // Inject code-playgrounds directly inside lesson content!
+                  playground: ({ ...props }: any) => {
+                    return (
+                      <Playground 
+                        initialHtml={props.html}
+                        initialCss={props.css}
+                        initialJs={props.js}
+                        title={props.title}
+                      />
+                    )
+                  }
+                } as any}
+              >
+                {lesson.contentRaw}
+              </ReactMarkdown>
             )}
 
-            {/* Notes Widget */}
-            {notesWidgetNode}
-          </aside>
-        )}
-      </div>
-
-      {/* KI-Tutor Chat-Sidebar */}
-      {isChatOpen && (
-        <div 
-          style={{
-            transform: `translate3d(${position.x}px, ${position.y}px, 0)`,
-            cursor: isDragging ? "grabbing" : "default"
-          }}
-          className="fixed right-6 bottom-6 z-50 w-full sm:w-[360px] sm:h-[530px] bg-surface/95 border border-border/85 shadow-2xl rounded-2xl flex flex-col transition-all duration-300 animate-slide-in overflow-hidden"
-        >
-          {/* Sidebar Header */}
-          <div 
-            onMouseDown={handleMouseDown}
-            className="py-3 px-4 border-b border-border/80 flex items-center justify-between bg-surface/80 select-none cursor-grab active:cursor-grabbing shrink-0"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-primary/15 text-primary flex items-center justify-center font-bold text-xs">
-                🤖
-              </div>
-              <div>
-                <h3 className="font-extrabold text-xs tracking-tight text-foreground">KI-Lektionstutor</h3>
-                <p className="text-[9px] text-muted font-bold truncate max-w-[200px]">Aktiv für: {lesson.title}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsChatOpen(false)}
-              className="text-muted hover:text-foreground p-1 rounded-lg hover:bg-border/30 transition cursor-pointer"
-            >
-              <i className="ph ph-x text-base"></i>
-            </button>
-          </div>
-
-          {/* Chat Messages area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0 bg-background/20 select-text">
-            {chatMessages.length === 0 ? (
-              <div className="text-center py-6 px-3 space-y-1.5">
-                <span className="text-2xl block">👋</span>
-                <p className="font-bold text-xs text-foreground/90">Frage den KI-Tutor!</p>
-                <p className="text-[9px] text-muted leading-relaxed max-w-[180px] mx-auto">
-                  Hast du Fragen zum Code, Konzepten oder suchst nach Beispielen? Ich helfe dir sofort weiter.
-                </p>
+            {/* Collapsible Mobile-Only Notes Widget (rendered on mobile/tablet or in Zen Mode) */}
+            {isZenMode ? (
+              <div className="pt-8">
+                {notesWidgetNode}
               </div>
             ) : (
-              chatMessages.map((msg, idx) => {
-                const isBot = msg.role === "assistant"
-                return (
-                  <div 
-                    key={idx} 
-                    className={`flex flex-col max-w-[88%] ${
-                      isBot ? "self-start items-start" : "self-end items-end ml-auto"
-                    }`}
-                  >
-                    <span className="text-[8px] text-muted font-bold mb-0.5 px-1">
-                      {isBot ? "KI-TUTOR" : "DU"}
-                    </span>
-                    <div className={`py-2 px-3 rounded-xl space-y-1.5 border shadow-sm ${
-                      isBot 
-                        ? "bg-surface border-border text-foreground rounded-tl-none" 
-                        : "bg-primary border-primary text-white rounded-tr-none"
-                    }`}>
-                      {isBot ? (
-                        <div className="max-w-none text-foreground text-xs leading-relaxed">
-                          <ReactMarkdown 
-                            remarkPlugins={[remarkGfm]} 
-                            rehypePlugins={[rehypeRaw]}
-                            components={{
-                              p: ({ children }) => <p className="text-xs text-foreground/95 leading-relaxed mb-1.5 last:mb-0 font-medium">{children}</p>,
-                              ul: ({ children }) => <ul className="list-disc pl-4 space-y-1 text-xs my-1.5 font-medium">{children}</ul>,
-                              ol: ({ children }) => <ol className="list-decimal pl-4 space-y-1 text-xs my-1.5 font-medium">{children}</ol>,
-                              li: ({ children }) => <li className="leading-relaxed font-medium">{children}</li>,
-                              strong: ({ children }) => <strong className="font-extrabold text-primary">{children}</strong>,
-                              code: ({ children }) => (
-                                <code className="bg-background/80 border border-border px-1 py-0.5 rounded text-primary text-[10px] font-mono font-bold">
-                                  {children}
-                                </code>
-                              ),
-                              pre: ({ children }) => (
-                                <pre className="p-2 bg-background border border-border rounded-xl font-mono text-[10px] overflow-x-auto my-1.5 max-w-full leading-relaxed shadow-inner">
-                                  {children}
-                                </pre>
-                              )
-                            }}
-                          >
-                            {msg.content}
-                          </ReactMarkdown>
-                        </div>
-                      ) : (
-                        <p className="whitespace-pre-wrap text-xs font-semibold leading-relaxed">{msg.content}</p>
-                      )}
-                    </div>
-                  </div>
-                )
-              })
-            )}
-
-            {/* Shimmer loading skeleton */}
-            {isSendingChat && (
-              <div className="flex flex-col max-w-[88%] self-start items-start animate-pulse">
-                <span className="text-[8px] text-muted font-bold mb-0.5 px-1">KI-TUTOR</span>
-                <div className="py-2 px-3 rounded-xl bg-surface border border-border text-foreground rounded-tl-none space-y-1.5 w-40 shadow-sm">
-                  <div className="h-2.5 bg-border/60 rounded w-5/6"></div>
-                  <div className="h-2.5 bg-border/60 rounded w-3/4"></div>
-                  <div className="h-2.5 bg-border/60 rounded w-1/2"></div>
-                </div>
+              <div className="xl:hidden pt-8">
+                {notesWidgetNode}
               </div>
             )}
+
+            {/* Complete Lesson bar */}
+            <div className="pt-8 mt-12 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 bg-surface p-6 rounded-2xl border border-border shadow-sm">
+              <div className="space-y-1 text-center sm:text-left">
+                <h4 className="font-bold text-base">Lektion abschließen</h4>
+                <p className="text-xs text-muted">
+                  {successState 
+                    ? "Du hast diese Lektion bereits abgeschlossen." 
+                    : "Markiere diese Lektion as gelernt, um deinen Lernfortschritt zu speichern."}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <Link 
+                  href={`/subjects/${lesson.subjectId}`}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-border text-center text-xs font-bold hover:bg-border/30 transition-all shrink-0 text-foreground"
+                >
+                  Zurück zur Liste
+                </Link>
+                
+                {!successState ? (
+                  <button
+                    disabled={isSaving}
+                    onClick={handleComplete}
+                    className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/95 text-white text-xs font-bold transition-all disabled:opacity-50 shrink-0 shadow-lg shadow-primary/10 flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    {isSaving ? "Wird gespeichert..." : "Als abgeschlossen markieren"} <i className="ph ph-check text-sm"></i>
+                  </button>
+                ) : (
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <div className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-success/10 text-success border border-success/20 text-xs font-bold flex items-center justify-center gap-1.5 shrink-0">
+                      <i className="ph-fill ph-check-circle text-lg"></i> Gelernt
+                    </div>
+                    <button
+                      disabled={isSaving}
+                      onClick={handleUndoComplete}
+                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-dashed border-border hover:border-danger/40 hover:bg-danger/5 hover:text-danger text-muted hover:text-danger text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                      title="Abschluss rückgängig machen"
+                    >
+                      <i className="ph ph-arrow-counter-clockwise text-sm"></i>
+                      <span>Rückgängig</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Chat Input area */}
-          <div className="py-2.5 px-3 border-t border-border/80 bg-surface/60 backdrop-blur-md sticky bottom-0 shrink-0">
-            <form 
-              onSubmit={handleSendChat}
-              className="flex items-center gap-1.5 bg-background border border-border rounded-xl p-1 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary/20 transition-all"
-            >
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder="Frage stellen..."
-                disabled={isSendingChat}
-                className="flex-1 bg-transparent px-2 py-1 text-[11px] font-semibold focus:outline-none text-foreground placeholder:text-muted"
-              />
-              <button
-                type="submit"
-                disabled={!chatInput.trim() || isSendingChat}
-                className="w-7 h-7 rounded-lg bg-primary text-white flex items-center justify-center transition-all hover:bg-primary/95 disabled:opacity-40 disabled:hover:bg-primary cursor-pointer shrink-0"
-              >
-                <i className="ph ph-paper-plane-right text-xs"></i>
-              </button>
-            </form>
-          </div>
+          {/* Sidebar Widgets Column (Table of Contents & Notes) - hide in zen mode */}
+          {!isZenMode && (
+            <aside className="w-72 shrink-0 hidden xl:flex flex-col gap-6 sticky top-24 self-start">
+              {/* Table of Contents Widget */}
+              {tocEntries.length > 0 && (
+                <div className="bg-surface border border-border rounded-2xl p-5 space-y-3.5 shadow-sm">
+                  <h3 className="text-xs font-extrabold text-muted uppercase tracking-wider">Inhaltsverzeichnis</h3>
+                  <nav className="flex flex-col gap-2.5">
+                    {tocEntries.map((entry) => (
+                      <a
+                        key={entry.id}
+                        href={`#${entry.id}`}
+                        className={`text-xs font-semibold leading-relaxed transition-all pl-1.5 border-l-2 hover:text-primary ${
+                          activeHeading === entry.id
+                            ? "border-primary text-primary font-bold"
+                            : "border-transparent text-muted"
+                        }`}
+                      >
+                        {entry.text}
+                      </a>
+                    ))}
+                  </nav>
+                </div>
+              )}
+
+              {/* Notes Widget */}
+              {notesWidgetNode}
+            </aside>
+          )}
         </div>
-      )}
-    </div>
+      </div>
+
+      <TutorChatWindow
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        lessonTitle={lesson.title}
+        lessonContent={lesson.contentRaw}
+      />
+    </>
   )
 }
 

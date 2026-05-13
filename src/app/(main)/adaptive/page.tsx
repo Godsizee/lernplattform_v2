@@ -1,6 +1,7 @@
 import { auth } from '@/lib/auth'
 import prisma from '@/db/client'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -32,78 +33,270 @@ export default async function DashboardPage() {
       })()
     : null
 
+  const progressPercent = totalCount > 0 ? Math.round((masteredCount / totalCount) * 100) : 0
+
   return (
-    <main className="px-4 py-12">
-      <div className="mx-auto max-w-sm text-center">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-slate-100">
-          Hallo, {session.user?.name ?? session.user?.email?.split('@')[0] ?? 'Lernender'}!
-        </h1>
-
-        {lastSession?.lastNode ? (
-          <p className="mt-2 text-sm text-gray-500 dark:text-slate-500">
-            Zuletzt bei:{' '}
-            <a href="/adaptive/learn" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
-              {lastSession.lastNode.title}
-            </a>
+    <main className="min-h-screen py-10 px-4 md:px-8 max-w-6xl mx-auto space-y-12 animate-fade-in select-none">
+      {/* Hero Welcome Block with Custom HSL Gradient Banner */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 md:p-12 text-white shadow-2xl shadow-indigo-500/10 border border-indigo-500/10">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.15),transparent_40%)]" />
+        <div className="relative z-10 max-w-3xl space-y-4">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-indigo-50 backdrop-blur-md">
+            🚀 Willkommen bei LumadIQ
+          </span>
+          <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-none">
+            Hallo, {session.user?.name ?? session.user?.email?.split('@')[0] ?? 'Lernender'}!
+          </h1>
+          <p className="text-sm md:text-base text-indigo-100 font-medium leading-relaxed max-w-2xl">
+            Bereit, dein Lernen auf das nächste Level zu heben? LumadIQ ist dein intelligenter, KI-gestützter Lernbegleiter. Wir verwandeln deine PDFs in lebendige, interaktive Lernwelten!
           </p>
-        ) : totalCount === 0 ? (
-          <p className="mt-2 text-sm text-gray-500 dark:text-slate-500">
-            Lade dein erstes Lernmaterial hoch, um zu beginnen.
-          </p>
-        ) : null}
+          
+          <div className="pt-4 flex flex-col sm:flex-row gap-4">
+            {totalCount === 0 ? (
+              <Link
+                href="/adaptive/upload"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-indigo-600 hover:bg-indigo-50 transition-all font-black rounded-2xl text-sm shadow-md hover:scale-[1.02] duration-200 cursor-pointer"
+              >
+                <i className="ph-bold ph-upload-simple text-base"></i>
+                <span>Erstes Dokument hochladen</span>
+              </Link>
+            ) : (
+              <Link
+                href="/adaptive/learn"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-indigo-600 hover:bg-indigo-50 transition-all font-black rounded-2xl text-sm shadow-md hover:scale-[1.02] duration-200 cursor-pointer"
+              >
+                <i className="ph-bold ph-lightning text-base"></i>
+                <span>{lastSession?.lastNode ? 'Weiterlernen' : 'Lern-Session starten'}</span>
+              </Link>
+            )}
+            <Link
+              href="#how-it-works"
+              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/15 text-white transition-all font-bold rounded-2xl text-sm border border-white/10 cursor-pointer"
+            >
+              <span>Wie funktioniert das?</span>
+              <i className="ph ph-arrow-down text-base"></i>
+            </Link>
+          </div>
+        </div>
+      </section>
 
-        {/* Fortschrittsbalken */}
-        {totalCount > 0 && (
-          <div className="mt-6 rounded-2xl bg-white dark:bg-slate-800 px-6 py-5 shadow-sm">
-            <div className="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-slate-500">
-              <span>Gesamtfortschritt</span>
-              <span>
-                <span className="font-semibold text-gray-900 dark:text-slate-100">{masteredCount}</span> / {totalCount} Konzepte
-              </span>
-            </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-slate-700">
-              <div
-                className="h-2 rounded-full bg-green-500 transition-all"
-                style={{ width: `${totalCount > 0 ? (masteredCount / totalCount) * 100 : 0}%` }}
-                aria-valuenow={masteredCount}
-                aria-valuemax={totalCount}
-                role="progressbar"
-              />
+      {/* Real-time Student Learning Metrics */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Progress Card */}
+        <div className="bg-surface border border-border/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-extrabold text-muted uppercase tracking-wider">Gesamtfortschritt</span>
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+              <i className="ph-fill ph-check-circle text-lg"></i>
             </div>
           </div>
-        )}
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-3xl font-black text-foreground">{masteredCount}</span>
+              <span className="text-sm text-muted">/ {totalCount} Konzepte</span>
+            </div>
+            {totalCount > 0 ? (
+              <div className="mt-3 space-y-2">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-border dark:bg-slate-800">
+                  <div
+                    className="h-2 rounded-full bg-emerald-500 transition-all duration-500"
+                    style={{ width: `${progressPercent}%` }}
+                    role="progressbar"
+                    aria-valuenow={masteredCount}
+                    aria-valuemax={totalCount}
+                  />
+                </div>
+                <div className="text-[10px] text-muted font-bold">{progressPercent}% aller Konzepte gemeistert!</div>
+              </div>
+            ) : (
+              <p className="text-xs text-muted mt-2">Lade Lernmaterial hoch, um deinen Fortschritt zu sehen.</p>
+            )}
+          </div>
+        </div>
 
-        {/* Klausur-Hinweis */}
-        {nextExam && daysUntilExam !== null && (
-          <div className="mt-4 rounded-2xl bg-indigo-50 dark:bg-indigo-950 px-6 py-4 shadow-sm">
-            <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">{nextExam.title}</p>
-            <p className="mt-0.5 text-xs text-indigo-600 dark:text-indigo-400">
-              {daysUntilExam <= 0
-                ? 'Klausur ist heute!'
-                : `In ${daysUntilExam} Tag${daysUntilExam === 1 ? '' : 'en'}`}
+        {/* Last Lesson Card */}
+        <div className="bg-surface border border-border/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-extrabold text-muted uppercase tracking-wider">Zuletzt gelernt</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+              <i className="ph-fill ph-clock text-lg"></i>
+            </div>
+          </div>
+          <div>
+            {lastSession?.lastNode ? (
+              <div className="space-y-1">
+                <h4 className="text-sm font-black text-foreground line-clamp-1">{lastSession.lastNode.title}</h4>
+                <p className="text-xs text-muted">Hier hast du deine letzte Session beendet.</p>
+                <div className="pt-2">
+                  <Link href="/adaptive/learn" className="text-xs text-primary font-bold hover:underline flex items-center gap-1">
+                    <span>Jetzt fortsetzen</span> <i className="ph ph-arrow-right"></i>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-muted">Noch keine Session</h4>
+                <p className="text-xs text-muted">Starte deine erste adaptive Lerneinheit, um loszulegen.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Next Exam Card */}
+        <div className="bg-surface border border-border/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-extrabold text-muted uppercase tracking-wider">Nächste Klausur</span>
+            <div className="w-8 h-8 rounded-lg bg-purple-500/10 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+              <i className="ph-fill ph-calendar text-lg"></i>
+            </div>
+          </div>
+          <div>
+            {nextExam && daysUntilExam !== null ? (
+              <div className="space-y-1">
+                <h4 className="text-sm font-black text-foreground line-clamp-1">{nextExam.title}</h4>
+                <p className="text-xs text-muted">
+                  Klausurtermin: {new Date(nextExam.examDate).toLocaleDateString('de-DE')}
+                </p>
+                <div className="pt-2">
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-extrabold ${
+                    daysUntilExam <= 3 ? 'bg-danger/10 text-danger' : 'bg-purple-500/10 text-purple-500'
+                  }`}>
+                    {daysUntilExam <= 0 ? 'Heute ist Klausur!' : `Noch ${daysUntilExam} Tag${daysUntilExam === 1 ? '' : 'e'}`}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <h4 className="text-sm font-bold text-muted">Keine anstehenden Klausuren</h4>
+                <p className="text-xs text-muted">Trage eine Klausur ein, damit wir deinen Lernplan anpassen können.</p>
+                <div className="pt-2">
+                  <Link href="/adaptive/exams" className="text-xs text-primary font-bold hover:underline flex items-center gap-1">
+                    <span>Klausur eintragen</span> <i className="ph ph-arrow-right"></i>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Guide: What does LumadIQ do? (Was macht es alles?) */}
+      <section className="space-y-6">
+        <div className="text-center md:text-left space-y-1.5">
+          <h2 className="text-2xl md:text-3xl font-black tracking-tight">Was macht LumadIQ alles? 🧠</h2>
+          <p className="text-sm text-muted max-w-xl font-medium">Dein Werkzeugkasten für stressfreies, schnelles und cleveres Lernen.</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-surface border border-border/80 rounded-2xl p-6 hover:border-primary/30 hover:shadow-md transition-all duration-300 space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+              <i className="ph-bold ph-sparkles text-xl"></i>
+            </div>
+            <h3 className="font-extrabold text-base">Automatische Konzept-Extraktion</h3>
+            <p className="text-xs text-muted leading-relaxed font-medium">
+              Kein ewiges Zusammenfassen mehr! Unsere schlaue KI liest deine Scripte und PDFs durch und filtert automatisch die wichtigsten Fachbegriffe und Definitionen für dich heraus.
             </p>
           </div>
-        )}
 
-        {/* Primäre Aktion */}
-        <div className="mt-6">
-          {totalCount === 0 ? (
-            <a
-              href="/adaptive/upload"
-              className="block w-full rounded-2xl bg-blue-600 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-            >
-              Lernmaterial hochladen
-            </a>
-          ) : (
-            <a
-              href="/adaptive/learn"
-              className="block w-full rounded-2xl bg-blue-600 py-3 text-center text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
-            >
-              {lastSession?.lastNode ? 'Weiterlernen' : 'Lernen starten'}
-            </a>
-          )}
+          <div className="bg-surface border border-border/80 rounded-2xl p-6 hover:border-warning/30 hover:shadow-md transition-all duration-300 space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-warning/10 text-warning flex items-center justify-center">
+              <i className="ph-bold ph-tree-structure text-xl"></i>
+            </div>
+            <h3 className="font-extrabold text-base">Interaktiver Wissensgraph</h3>
+            <p className="text-xs text-muted leading-relaxed font-medium">
+              Sehe den Wald vor lauter Bäumen wieder! LumadIQ verknüpft alle Konzepte in einem visuellen Diagramm. So erkennst du sofort, welches Thema auf welchem aufbaut.
+            </p>
+          </div>
+
+          <div className="bg-surface border border-border/80 rounded-2xl p-6 hover:border-success/30 hover:shadow-md transition-all duration-300 space-y-4">
+            <div className="w-10 h-10 rounded-xl bg-success/10 text-success flex items-center justify-center">
+              <i className="ph-bold ph-list-checks text-xl"></i>
+            </div>
+            <h3 className="font-extrabold text-base">Lernfragen & Quizzes</h3>
+            <p className="text-xs text-muted leading-relaxed font-medium">
+              Echtes Verständnis statt nur Auswendiglernen! Zu jedem Konzept generiert LumadIQ maßgeschneiderte Fragen, Rechenaufgaben oder Erklärungs-Quizzes, um dein Wissen zu prüfen.
+            </p>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Guide: How does it work? (Wie funktioniert es?) */}
+      <section id="how-it-works" className="space-y-6 pt-4 border-t border-border/40">
+        <div className="text-center md:text-left space-y-1.5">
+          <h2 className="text-2xl md:text-3xl font-black tracking-tight">Wie funktioniert es? 🗺️</h2>
+          <p className="text-sm text-muted max-w-xl font-medium">In nur vier einfachen Schritten zu besseren Noten.</p>
+        </div>
+
+        <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-surface/50 border border-border/60 rounded-2xl p-5 relative space-y-3.5">
+            <span className="absolute top-4 right-4 text-xs font-black text-primary/35">01</span>
+            <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+              📂
+            </div>
+            <h4 className="font-bold text-sm">PDF hochladen</h4>
+            <p className="text-xs text-muted font-semibold leading-relaxed">
+              Gehe auf <Link href="/adaptive/upload" className="text-primary hover:underline">Dokumente</Link> und lade dein Skript, deine Mitschriften oder Folien hoch.
+            </p>
+          </div>
+
+          <div className="bg-surface/50 border border-border/60 rounded-2xl p-5 relative space-y-3.5">
+            <span className="absolute top-4 right-4 text-xs font-black text-primary/35">02</span>
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold text-sm">
+              ⚡
+            </div>
+            <h4 className="font-bold text-sm">KI analysieren lassen</h4>
+            <p className="text-xs text-muted font-semibold leading-relaxed">
+              Unsere KI liest das Dokument und spaltet es in kleine, verständliche Lerneinheiten (Konzepte) auf.
+            </p>
+          </div>
+
+          <div className="bg-surface/50 border border-border/60 rounded-2xl p-5 relative space-y-3.5">
+            <span className="absolute top-4 right-4 text-xs font-black text-primary/35">03</span>
+            <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm">
+              🎯
+            </div>
+            <h4 className="font-bold text-sm">Adaptiv lernen</h4>
+            <p className="text-xs text-muted font-semibold leading-relaxed">
+              Die App merkt sich deine Stärken und Schwächen. Schwierige Themen werden häufiger abgefragt.
+            </p>
+          </div>
+
+          <div className="bg-surface/50 border border-border/60 rounded-2xl p-5 relative space-y-3.5">
+            <span className="absolute top-4 right-4 text-xs font-black text-primary/35">04</span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm">
+              🏆
+            </div>
+            <h4 className="font-bold text-sm">Klausur rocken</h4>
+            <p className="text-xs text-muted font-semibold leading-relaxed">
+              Sehe im <Link href="/adaptive/graph" className="text-primary hover:underline">Wissensgraphen</Link>, wie sich deine Lücken schließen, und gehe vollkommen vorbereitet in die Prüfung!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Final Student Call-to-Action */}
+      <section className="bg-surface border border-border/80 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+        <div className="space-y-2 text-center md:text-left">
+          <h3 className="font-black text-xl">Lass uns dein Wissen aufbauen!</h3>
+          <p className="text-xs text-muted font-medium max-w-md leading-relaxed">
+            Egal ob Mathe, Deutsch, Programmierung oder Wirtschaft – LumadIQ stellt sich ganz flexibel auf deine Fächer und dein eigenes Lerntempo ein.
+          </p>
+        </div>
+        <div className="flex gap-4 shrink-0">
+          <Link
+            href="/adaptive/upload"
+            className="px-5 py-3 rounded-2xl bg-primary hover:bg-primary/95 text-white text-xs font-bold transition-all shadow-lg shadow-primary/10 cursor-pointer"
+          >
+            Jetzt starten
+          </Link>
+          <Link
+            href="/adaptive/learn"
+            className="px-5 py-3 rounded-2xl border border-border hover:bg-border/30 text-xs font-bold transition-all cursor-pointer text-foreground"
+          >
+            Lern-Session öffnen
+          </Link>
+        </div>
+      </section>
     </main>
   )
 }
