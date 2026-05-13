@@ -81,10 +81,10 @@ export default async function LearningPage() {
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div 
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 animate-fade-in"
                   style={{ backgroundColor: `${subject.color}15`, color: subject.color }}
                 >
-                  <i className={`ph ${subject.icon}-fill text-3xl`}></i>
+                  <i className={`ph ${subject.icon || "ph-book"} text-3xl`}></i>
                 </div>
                 <div>
                   <h2 className="text-xl font-extrabold tracking-tight text-foreground">{subject.title}</h2>
