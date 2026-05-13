@@ -19,7 +19,7 @@ export async function updateProfile(rawData: any) {
     throw new Error(validation.error.issues[0]?.message || "Validierungsfehler")
   }
 
-  const { name, bio } = validation.data
+  const { name, bio, occupation } = validation.data
 
   const oldUser = await prisma.user.findUnique({
     where: { id: userId }
@@ -27,7 +27,7 @@ export async function updateProfile(rawData: any) {
 
   await prisma.user.update({
     where: { id: userId },
-    data: { name, bio }
+    data: { name, bio, occupation }
   })
 
   if (oldUser) {
@@ -46,6 +46,15 @@ export async function updateProfile(rawData: any) {
           userId,
           action: "UPDATE_BIO",
           details: "Biografie geändert"
+        }
+      }).catch(console.error)
+    }
+    if (oldUser.occupation !== occupation) {
+      await prisma.auditLog.create({
+        data: {
+          userId,
+          action: "UPDATE_OCCUPATION",
+          details: `Beruf geändert zu "${occupation}"`
         }
       }).catch(console.error)
     }
@@ -154,6 +163,7 @@ export async function exportUserData() {
       name: user.name,
       email: user.email,
       bio: user.bio,
+      occupation: user.occupation,
       role: user.role,
       theme: user.theme,
       createdAt: user.createdAt,

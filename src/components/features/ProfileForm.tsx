@@ -10,6 +10,7 @@ interface ProfileFormProps {
     name: string
     email: string
     bio: string
+    occupation: string | null
     createdAt: Date
   }
 }
@@ -20,6 +21,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
   // Profile Form States
   const [name, setName] = useState(user.name)
   const [bio, setBio] = useState(user.bio)
+  const [occupation, setOccupation] = useState(user.occupation || "")
   const [isSavingProfile, setIsSavingProfile] = useState(false)
 
   // Password Form States
@@ -82,7 +84,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     setIsSavingProfile(true)
 
     try {
-      await updateProfile({ name, bio })
+      await updateProfile({ name, bio, occupation })
       showToast("Profil erfolgreich aktualisiert!", "success")
     } catch (err: any) {
       showToast(err.message || "Fehler beim Speichern.", "error")
@@ -171,6 +173,19 @@ export function ProfileForm({ user }: ProfileFormProps) {
                   title="Die E-Mail-Adresse kann nicht geändert werden"
                 />
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-muted uppercase">Bisheriger Beruf / Aufgabengebiet</label>
+              <input
+                type="text"
+                value={occupation}
+                onChange={(e) => setOccupation(e.target.value)}
+                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/25 transition-all font-semibold"
+                placeholder="z.B. Kfz-Mechatroniker, Schwerpunkt Elektrik"
+              />
+              <p className="text-[10px] text-muted">
+                Wird genutzt, um deine adaptiven Lernaufgaben und Beispiele praxisnah an deinen Beruf anzupassen.
+              </p>
             </div>
 
             <div className="space-y-1.5">

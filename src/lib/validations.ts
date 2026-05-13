@@ -14,6 +14,7 @@ export const registerSchema = z.object({
 export const profileSchema = z.object({
   name: z.string().min(2, "Name muss mindestens 2 Zeichen lang sein"),
   bio: z.string().max(500, "Bio darf maximal 500 Zeichen lang sein").optional().default(""),
+  occupation: z.string().max(200, "Beruf darf maximal 200 Zeichen lang sein").optional().default(""),
 })
 
 export const passwordUpdateSchema = z.object({

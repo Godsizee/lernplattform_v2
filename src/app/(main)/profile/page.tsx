@@ -20,6 +20,7 @@ export default async function ProfilePage() {
       name: true,
       email: true,
       bio: true,
+      occupation: true,
       createdAt: true
     }
   })

@@ -25,6 +25,11 @@ export function Sidebar({
   const navItems = [
     { href: "/dashboard", icon: "ph-squares-four", label: "Dashboard" },
     { href: "/learning", icon: "ph-books", label: "Lern-Bereich" },
+    { href: "/adaptive", icon: "ph-brain", label: "LumadIQ", separator: true },
+    { href: "/adaptive/upload", icon: "ph-upload-simple", label: "Dokumente" },
+    { href: "/adaptive/learn", icon: "ph-lightning", label: "Adaptiv Lernen" },
+    { href: "/adaptive/graph", icon: "ph-graph", label: "Wissensgraph" },
+    { href: "/adaptive/exams", icon: "ph-calendar-check", label: "Klausuren" },
     { href: "/profile", icon: "ph-user-circle", label: "Mein Profil" },
   ]
   
