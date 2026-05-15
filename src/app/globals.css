@@ -296,101 +296,107 @@ body.focus-mode main {
   animation: fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* === HIGH-FIDELITY CLIENT-SIDE PDF EXPORT STYLES === */
-/* 
-  AGRESSIVE PDF EXPORT RESET 
-  Tailwind v4 uses oklch/oklab which crashes html2canvas.
-  We force EVERYTHING to standard hex/rgb colors during export.
-*/
-body.export-pdf-rendering * {
-  color: #0f172a !important;
-  border-color: #e2e8f0 !important;
-  text-shadow: none !important;
-  box-shadow: none !important;
-  letter-spacing: normal !important;
-  word-spacing: normal !important;
-  text-transform: none !important;
-  /* Prevent any color-mix or oklch from leaking through */
-}
+/* === NATIVE BROWSER PRINT STYLES (window.print) === */
+@media print {
+  /* 1. Global Reset for Printing */
+  @page {
+    margin: 20mm;
+    size: auto;
+  }
 
-body.export-pdf-rendering {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  --color-primary: #8b5cf6 !important;
-  --color-secondary: #ec4899 !important;
-  --color-success: #10b981 !important;
-  --color-danger: #ef4444 !important;
-  --color-warning: #f59e0b !important;
-  --background: #ffffff !important;
-  --surface: #ffffff !important;
-  --foreground: #0f172a !important;
-  --border: #e2e8f0 !important;
-  --color-muted: #64748b !important;
-}
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    overflow: visible !important;
+  }
 
-body.export-pdf-rendering .no-pdf-export,
-body.export-pdf-rendering .no-export,
-body.export-pdf-rendering .no-pdf,
-body.export-pdf-rendering aside,
-body.export-pdf-rendering header,
-body.export-pdf-rendering nav,
-body.export-pdf-rendering .complete-lesson-bar,
-body.export-pdf-rendering .tutor-chat-window,
-body.export-pdf-rendering .no-pdf-export * {
-  display: none !important;
-}
+  /* 2. Hide all UI elements */
+  header, 
+  aside, 
+  nav, 
+  footer,
+  .no-print,
+  .no-pdf-export,
+  .tutor-chat-window,
+  .complete-lesson-bar,
+  button,
+  .breadcrumb-nav {
+    display: none !important;
+  }
 
-body.export-pdf-rendering #lesson-pdf-content,
-body.export-pdf-rendering #summary-pdf-content {
-  background: #ffffff !important;
-  color: #0f172a !important;
-  width: 800px !important;
-  padding: 40px !important;
-  margin: 0 auto !important;
-  display: block !important;
-  visibility: visible !important;
-}
+  /* 3. Layout adjustments */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    display: block !important;
+    overflow: visible !important;
+  }
 
-body.export-pdf-rendering .prose {
-  color: #1e293b !important;
-  max-width: 100% !important;
-}
+  /* 4. Content Visibility Control */
+  /* If we print the lesson, hide the summary container and vice-versa */
+  body.print-lesson #summary-pdf-content { display: none !important; }
+  body.print-summary #lesson-pdf-content { display: none !important; }
 
-/* Specialized overrides for prose elements that might use oklch */
-body.export-pdf-rendering .prose h1,
-body.export-pdf-rendering .prose h2,
-body.export-pdf-rendering .prose h3,
-body.export-pdf-rendering .prose h4,
-body.export-pdf-rendering .prose strong,
-body.export-pdf-rendering .prose a {
-  color: #0f172a !important;
-}
+  #lesson-pdf-content,
+  #summary-pdf-content {
+    display: block !important;
+    visibility: visible !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+    position: static !important;
+  }
 
-body.export-pdf-rendering .prose code {
-  background-color: #f1f5f9 !important;
-  color: #8b5cf6 !important; /* Primary as hex */
-  border: 1px solid #cbd5e1 !important;
-}
+  .pdf-only-title {
+    display: block !important;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 1rem;
+  }
 
-body.export-pdf-rendering .prose pre {
-  background-color: #f8fafc !important;
-  color: #0f172a !important;
-  border: 1px solid #e2e8f0 !important;
-}
+  /* 5. Typography Fixes for Printing */
+  .prose {
+    max-width: none !important;
+    color: black !important;
+  }
 
-/* Re-allow the subject color if it's hex, otherwise it will be black from the * selector above */
-body.export-pdf-rendering .subject-title-display {
-  color: #8b5cf6 !important; /* Force hex primary as fallback */
-}
+  .prose h1, .prose h2, .prose h3 {
+    color: black !important;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
 
-body.export-pdf-rendering .pdf-only-title {
-  display: block !important;
-}
+  .prose pre, .prose code {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+  }
 
-/* Force icons to a safe color */
-body.export-pdf-rendering i,
-body.export-pdf-rendering svg,
-body.export-pdf-rendering svg path {
-  color: #64748b !important;
-  fill: #64748b !important;
+  .prose blockquote {
+    border-left: 4px solid #e2e8f0 !important;
+    font-style: italic;
+  }
+
+  /* Force page breaks for clean structure */
+  h2 {
+    page-break-before: always;
+    break-before: page;
+    margin-top: 3rem !important;
+  }
+
+  /* Keep first h2 on the first page if it follows h1 closely */
+  h1 + h2 {
+    page-break-before: auto;
+    break-before: auto;
+  }
+
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
 }

@@ -86,186 +86,26 @@ export function LessonReader({
     }
   }
 
-  const handleExportLesson = async () => {
-    if (isExporting) return
-    setIsExporting(true)
-    try {
-      console.log("Starting Lesson PDF Export (High-Fidelity Image Mode)...")
-      const { jsPDF } = await import("jspdf")
-      const html2canvas = (await import("html2canvas")).default
-
-      document.body.classList.add("export-pdf-rendering")
-      await new Promise(resolve => setTimeout(resolve, 600))
-
-      const element = document.getElementById("lesson-pdf-content")
-      if (!element) throw new Error("Export-Inhalt nicht gefunden.")
-
-      // 1. Capture as high-res image
-      console.log("Capturing element as image...")
-      const canvas = await html2canvas(element, {
-        useCORS: true,
-        scale: 2, // High resolution for sharp text
-        logging: false,
-        backgroundColor: "#ffffff",
-        windowWidth: 800,
-        onclone: (clonedDoc) => {
-          // EMERGENCY FIX for oklch/oklab errors in html2canvas
-          // We remove or replace all occurrences of modern color functions in stylesheets
-          const styleSheets = Array.from(clonedDoc.styleSheets);
-          styleSheets.forEach(sheet => {
-            try {
-              const rules = Array.from(sheet.cssRules);
-              rules.forEach((rule, idx) => {
-                if (rule.cssText.includes('oklch') || rule.cssText.includes('oklab') || rule.cssText.includes('color-mix')) {
-                  // If a rule contains problematic colors, we attempt to delete it 
-                  // or replace it with a sanitized version.
-                  // For safety, we just comment it out/empty it in the clone
-                  try {
-                    sheet.deleteRule(idx);
-                  } catch (e) {
-                    // Fallback if rule deletion fails
-                  }
-                }
-              });
-            } catch (e) {
-              // Ignore cross-origin stylesheet errors
-            }
-          });
-          
-          // Force a simple stylesheet for the clone
-          const safeStyle = clonedDoc.createElement('style');
-          safeStyle.innerHTML = `
-            * { 
-              color: #0f172a !important; 
-              border-color: #e2e8f0 !important; 
-              background-image: none !important;
-              box-shadow: none !important;
-              text-shadow: none !important;
-            }
-            .text-primary { color: #8b5cf6 !important; }
-            .bg-primary { background-color: #8b5cf6 !important; }
-          `;
-          clonedDoc.head.appendChild(safeStyle);
-        }
-      })
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.95)
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4"
-      })
-
-      const filename = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-lektion.pdf`
-      
-      // 2. Calculate dimensions to fit A4
-      const imgWidth = 210 // A4 width in mm
-      const pageHeight = 297 // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-      
-      let heightLeft = imgHeight
-      let position = 0
-
-      console.log("Adding images to PDF pages...")
-      // First page
-      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
-
-      // Additional pages
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
-        heightLeft -= pageHeight
-      }
-
-      console.log("Saving PDF...")
-      pdf.save(filename)
-      
-      document.body.classList.remove("export-pdf-rendering")
-      setIsExporting(false)
-      showToast("Lektion erfolgreich als PDF exportiert!", "success")
-    } catch (err) {
-      console.error("PDF-Export Fehler:", err)
-      document.body.classList.remove("export-pdf-rendering")
-      setIsExporting(false)
-      showToast("PDF-Export fehlgeschlagen.", "error")
-    }
+  const handleExportLesson = () => {
+    document.body.classList.add("print-lesson")
+    document.body.classList.remove("print-summary")
+    window.print()
   }
 
-  const handleExportSummary = async () => {
-    if (isExportingSummary) return
-    setIsExportingSummary(true)
-    try {
-      console.log("Starting Summary PDF Export (High-Fidelity Image Mode)...")
-      const { jsPDF } = await import("jspdf")
-      const html2canvas = (await import("html2canvas")).default
-
-      document.body.classList.add("export-pdf-rendering")
-      await new Promise(resolve => setTimeout(resolve, 600))
-
-      const element = document.getElementById("summary-pdf-content")
-      if (!element) throw new Error("Spickzettel-Inhalt nicht gefunden.")
-
-      const canvas = await html2canvas(element, {
-        useCORS: true,
-        scale: 2,
-        logging: false,
-        backgroundColor: "#ffffff",
-        windowWidth: 800,
-        onclone: (clonedDoc) => {
-          // Same safety fix for summary
-          const safeStyle = clonedDoc.createElement('style');
-          safeStyle.innerHTML = `
-            * { 
-              color: #0f172a !important; 
-              border-color: #e2e8f0 !important; 
-              background-image: none !important;
-              box-shadow: none !important;
-            }
-          `;
-          clonedDoc.head.appendChild(safeStyle);
-        }
-      })
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.95)
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4"
-      })
-
-      const filename = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-spickzettel.pdf`
-      
-      const imgWidth = 210
-      const pageHeight = 297
-      const imgHeight = (canvas.height * imgWidth) / canvas.width
-      
-      let heightLeft = imgHeight
-      let position = 0
-
-      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
-        heightLeft -= pageHeight
-      }
-
-      pdf.save(filename)
-      
-      document.body.classList.remove("export-pdf-rendering")
-      setIsExportingSummary(false)
-      showToast("KI-Spickzettel erfolgreich als PDF exportiert!", "success")
-    } catch (err) {
-      console.error("Spickzettel-Export Fehler:", err)
-      document.body.classList.remove("export-pdf-rendering")
-      setIsExportingSummary(false)
-      showToast("Spickzettel-Export fehlgeschlagen.", "error")
-    }
+  const handleExportSummary = () => {
+    document.body.classList.add("print-summary")
+    document.body.classList.remove("print-lesson")
+    window.print()
   }
+
+  // Cleanup print classes after print dialog closes
+  useEffect(() => {
+    const handleAfterPrint = () => {
+      document.body.classList.remove("print-lesson", "print-summary")
+    }
+    window.addEventListener("afterprint", handleAfterPrint)
+    return () => window.removeEventListener("afterprint", handleAfterPrint)
+  }, [])
 
 
   // Calculate Reading Time
