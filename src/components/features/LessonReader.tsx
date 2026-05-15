@@ -90,51 +90,62 @@ export function LessonReader({
     if (isExporting) return
     setIsExporting(true)
     try {
-      console.log("Starting Lesson PDF Export...")
+      console.log("Starting Lesson PDF Export (High-Fidelity Image Mode)...")
       const { jsPDF } = await import("jspdf")
       const html2canvas = (await import("html2canvas")).default
-      ;(window as any).html2canvas = html2canvas
 
-      // Add rendering class to body to temporarily hide navigation / apply printable light styles
       document.body.classList.add("export-pdf-rendering")
-      
-      // Wait a bit for the browser to apply styles and re-render
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 600))
 
-      // Find element
       const element = document.getElementById("lesson-pdf-content")
       if (!element) throw new Error("Export-Inhalt nicht gefunden.")
 
-      const doc = new jsPDF({
+      // 1. Capture as high-res image
+      console.log("Capturing element as image...")
+      const canvas = await html2canvas(element, {
+        useCORS: true,
+        scale: 2, // High resolution for sharp text
+        logging: false,
+        backgroundColor: "#ffffff",
+        windowWidth: 800
+      })
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95)
+      const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: "a4",
-        compress: true
+        format: "a4"
       })
 
       const filename = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-lektion.pdf`
+      
+      // 2. Calculate dimensions to fit A4
+      const imgWidth = 210 // A4 width in mm
+      const pageHeight = 297 // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      
+      let heightLeft = imgHeight
+      let position = 0
 
-      console.log("Rendering HTML to PDF...")
-      await doc.html(element, {
-        x: 10,
-        y: 10,
-        width: 190, // A4 width (210) minus 20 margin
-        windowWidth: 800, // Fixed logical width for consistent responsive scale
-        autoPaging: true,
-        margin: [10, 10, 10, 10],
-        html2canvas: {
-          useCORS: true,
-          logging: true,
-          scale: 1
-        },
-        callback: function (pdf) {
-          console.log("PDF generation callback triggered")
-          pdf.save(filename)
-          document.body.classList.remove("export-pdf-rendering")
-          setIsExporting(false)
-          showToast("Lektion erfolgreich als PDF exportiert!", "success")
-        }
-      })
+      console.log("Adding images to PDF pages...")
+      // First page
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+
+      // Additional pages
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+      }
+
+      console.log("Saving PDF...")
+      pdf.save(filename)
+      
+      document.body.classList.remove("export-pdf-rendering")
+      setIsExporting(false)
+      showToast("Lektion erfolgreich als PDF exportiert!", "success")
     } catch (err) {
       console.error("PDF-Export Fehler:", err)
       document.body.classList.remove("export-pdf-rendering")
@@ -147,49 +158,55 @@ export function LessonReader({
     if (isExportingSummary) return
     setIsExportingSummary(true)
     try {
-      console.log("Starting Summary PDF Export...")
+      console.log("Starting Summary PDF Export (High-Fidelity Image Mode)...")
       const { jsPDF } = await import("jspdf")
       const html2canvas = (await import("html2canvas")).default
-      ;(window as any).html2canvas = html2canvas
 
       document.body.classList.add("export-pdf-rendering")
-      
-      // Wait for rendering
-      await new Promise(resolve => setTimeout(resolve, 500))
+      await new Promise(resolve => setTimeout(resolve, 600))
 
       const element = document.getElementById("summary-pdf-content")
       if (!element) throw new Error("Spickzettel-Inhalt nicht gefunden.")
 
-      const doc = new jsPDF({
+      const canvas = await html2canvas(element, {
+        useCORS: true,
+        scale: 2,
+        logging: false,
+        backgroundColor: "#ffffff",
+        windowWidth: 800
+      })
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95)
+      const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: "a4",
-        compress: true
+        format: "a4"
       })
 
       const filename = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-spickzettel.pdf`
+      
+      const imgWidth = 210
+      const pageHeight = 297
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      
+      let heightLeft = imgHeight
+      let position = 0
 
-      console.log("Rendering Summary HTML to PDF...")
-      await doc.html(element, {
-        x: 10,
-        y: 10,
-        width: 190,
-        windowWidth: 800,
-        autoPaging: true,
-        margin: [10, 10, 10, 10],
-        html2canvas: {
-          useCORS: true,
-          logging: true,
-          scale: 1
-        },
-        callback: function (pdf) {
-          console.log("Summary PDF generation callback triggered")
-          pdf.save(filename)
-          document.body.classList.remove("export-pdf-rendering")
-          setIsExportingSummary(false)
-          showToast("KI-Spickzettel erfolgreich als PDF exportiert!", "success")
-        }
-      })
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+      heightLeft -= pageHeight
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight
+        pdf.addPage()
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight)
+        heightLeft -= pageHeight
+      }
+
+      pdf.save(filename)
+      
+      document.body.classList.remove("export-pdf-rendering")
+      setIsExportingSummary(false)
+      showToast("KI-Spickzettel erfolgreich als PDF exportiert!", "success")
     } catch (err) {
       console.error("Spickzettel-Export Fehler:", err)
       document.body.classList.remove("export-pdf-rendering")
