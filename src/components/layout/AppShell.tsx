@@ -137,7 +137,7 @@ export function AppShell({ user, announcement, sidebarOrder, children }: AppShel
       </div>
 
       {/* Floating Capsule Mobile Bottom Navigation Bar */}
-      <div className="fixed bottom-4 left-4 right-4 z-40 bg-surface/90 dark:bg-gray-900/95 border border-border/80 dark:border-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl py-2 px-6 flex items-center justify-around lg:hidden">
+      <div className="fixed bottom-4 left-4 right-4 z-40 bg-surface/90 dark:bg-gray-900/95 border border-border/80 dark:border-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl py-2 px-6 flex items-center justify-around lg:hidden no-print">
         {navItems.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname?.startsWith(item.href))
           return (

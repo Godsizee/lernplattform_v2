@@ -365,6 +365,18 @@ body.focus-mode main {
     color: black !important;
   }
 
+  .prose p, 
+  .prose li, 
+  .prose blockquote, 
+  .prose pre,
+  .prose h1, 
+  .prose h2, 
+  .prose h3, 
+  .prose h4 {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
   .prose h1, .prose h2, .prose h3 {
     color: black !important;
     page-break-after: avoid;

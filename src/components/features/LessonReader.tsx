@@ -465,7 +465,7 @@ export function LessonReader({
                   // Inject code-playgrounds directly inside lesson content!
                   playground: ({ ...props }: any) => {
                     return (
-                      <div className="no-pdf-export">
+                      <div className="no-print">
                         <Playground 
                           initialHtml={props.html}
                           initialCss={props.css}
@@ -483,17 +483,17 @@ export function LessonReader({
 
             {/* Collapsible Mobile-Only Notes Widget (rendered on mobile/tablet or in Zen Mode) */}
             {isZenMode ? (
-              <div className="pt-8">
+              <div className="pt-8 no-print">
                 {notesWidgetNode}
               </div>
             ) : (
-              <div className="xl:hidden pt-8">
+              <div className="xl:hidden pt-8 no-print">
                 {notesWidgetNode}
               </div>
             )}
 
             {/* Complete Lesson bar */}
-            <div className="pt-8 mt-12 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 bg-surface p-6 rounded-2xl border border-border shadow-sm">
+            <div className="pt-8 mt-12 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4 bg-surface p-6 rounded-2xl border border-border shadow-sm no-print">
               <div className="space-y-1 text-center sm:text-left">
                 <h4 className="font-bold text-base">Lektion abschließen</h4>
                 <p className="text-xs text-muted">
@@ -541,7 +541,7 @@ export function LessonReader({
 
           {/* Sidebar Widgets Column (Table of Contents & Notes) - hide in zen mode */}
           {!isZenMode && (
-            <aside className="w-72 shrink-0 hidden xl:flex flex-col gap-6 sticky top-24 self-start">
+            <aside className="w-72 shrink-0 hidden xl:flex flex-col gap-6 sticky top-24 self-start no-print">
               {/* Table of Contents Widget */}
               {tocEntries.length > 0 && (
                 <div className="bg-surface border border-border rounded-2xl p-5 space-y-3.5 shadow-sm">
