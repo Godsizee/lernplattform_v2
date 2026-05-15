@@ -368,7 +368,7 @@ export function LessonReader({
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-6 border-b border-border/80">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold text-muted uppercase tracking-wider">
-                <span style={{ color: subject.color }}>{subject.title}</span>
+                <span className="subject-title-display" style={{ color: subject.color }}>{subject.title}</span>
                 <span>•</span>
                 <span className="flex items-center gap-1">
                   <i className="ph ph-clock"></i> ca. {readingTime} {readingTime === 1 ? 'Minute' : 'Minuten'} Lesezeit
@@ -494,8 +494,8 @@ export function LessonReader({
                     </div>
                   ) : (
                     <div id="summary-pdf-content" className="prose dark:prose-invert max-w-none text-sm leading-relaxed text-foreground/80 space-y-2">
-                      {/* Hidden header that only displays during PDF export */}
-                      <div className="hidden export-only-title mb-6 pb-4 border-b border-border">
+                      {/* Header that only displays during PDF export */}
+                      <div className="hidden pdf-only-title mb-6 pb-4 border-b border-border">
                         <span className="text-xs font-bold text-primary uppercase tracking-wider">⚡ KI-Spickzettel (Zusammenfassung)</span>
                         <h2 className="text-2xl font-black text-foreground mt-1 mb-0">{lesson.title}</h2>
                       </div>

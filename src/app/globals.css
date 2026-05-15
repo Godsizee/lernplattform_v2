@@ -297,10 +297,22 @@ body.focus-mode main {
 }
 
 /* === HIGH-FIDELITY CLIENT-SIDE PDF EXPORT STYLES === */
+/* 
+  AGRESSIVE PDF EXPORT RESET 
+  Tailwind v4 uses oklch/oklab which crashes html2canvas.
+  We force EVERYTHING to standard hex/rgb colors during export.
+*/
+body.export-pdf-rendering * {
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  /* Prevent any color-mix or oklch from leaking through */
+}
+
 body.export-pdf-rendering {
   background-color: #ffffff !important;
   color: #0f172a !important;
-  /* Override Tailwind v4 oklch variables with hex for html2canvas compatibility */
   --color-primary: #8b5cf6 !important;
   --color-secondary: #ec4899 !important;
   --color-success: #10b981 !important;
@@ -315,12 +327,13 @@ body.export-pdf-rendering {
 
 body.export-pdf-rendering .no-pdf-export,
 body.export-pdf-rendering .no-export,
+body.export-pdf-rendering .no-pdf,
 body.export-pdf-rendering aside,
 body.export-pdf-rendering header,
+body.export-pdf-rendering nav,
 body.export-pdf-rendering .complete-lesson-bar,
 body.export-pdf-rendering .tutor-chat-window,
-body.export-pdf-rendering .no-pdf,
-body.export-pdf-rendering nav {
+body.export-pdf-rendering .no-pdf-export * {
   display: none !important;
 }
 
@@ -329,16 +342,10 @@ body.export-pdf-rendering #summary-pdf-content {
   background: #ffffff !important;
   color: #0f172a !important;
   width: 800px !important;
-  padding: 32px !important;
+  padding: 40px !important;
   margin: 0 auto !important;
-  box-shadow: none !important;
-  border: none !important;
   display: block !important;
   visibility: visible !important;
-}
-
-body.export-pdf-rendering .export-only-title {
-  display: block !important;
 }
 
 body.export-pdf-rendering .prose {
@@ -346,36 +353,41 @@ body.export-pdf-rendering .prose {
   max-width: 100% !important;
 }
 
+/* Specialized overrides for prose elements that might use oklch */
 body.export-pdf-rendering .prose h1,
 body.export-pdf-rendering .prose h2,
 body.export-pdf-rendering .prose h3,
-body.export-pdf-rendering .prose h4 {
-  color: #0f172a !important;
-}
-
-body.export-pdf-rendering .prose strong {
+body.export-pdf-rendering .prose h4,
+body.export-pdf-rendering .prose strong,
+body.export-pdf-rendering .prose a {
   color: #0f172a !important;
 }
 
 body.export-pdf-rendering .prose code {
   background-color: #f1f5f9 !important;
-  color: #0f172a !important;
-  border-color: #cbd5e1 !important;
+  color: #8b5cf6 !important; /* Primary as hex */
+  border: 1px solid #cbd5e1 !important;
 }
 
 body.export-pdf-rendering .prose pre {
   background-color: #f8fafc !important;
   color: #0f172a !important;
-  border-color: #e2e8f0 !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
-/* Force light mode for everything inside export container regardless of user theme */
-body.export-pdf-rendering .dark #lesson-pdf-content,
-body.export-pdf-rendering .dark #summary-pdf-content,
-.dark body.export-pdf-rendering #lesson-pdf-content,
-.dark body.export-pdf-rendering #summary-pdf-content {
-  background: #ffffff !important;
-  color: #0f172a !important;
+/* Re-allow the subject color if it's hex, otherwise it will be black from the * selector above */
+body.export-pdf-rendering .subject-title-display {
+  color: #8b5cf6 !important; /* Force hex primary as fallback */
 }
 
+body.export-pdf-rendering .pdf-only-title {
+  display: block !important;
+}
 
+/* Force icons to a safe color */
+body.export-pdf-rendering i,
+body.export-pdf-rendering svg,
+body.export-pdf-rendering svg path {
+  color: #64748b !important;
+  fill: #64748b !important;
+}
