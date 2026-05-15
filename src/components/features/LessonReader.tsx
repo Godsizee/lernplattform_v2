@@ -107,7 +107,46 @@ export function LessonReader({
         scale: 2, // High resolution for sharp text
         logging: false,
         backgroundColor: "#ffffff",
-        windowWidth: 800
+        windowWidth: 800,
+        onclone: (clonedDoc) => {
+          // EMERGENCY FIX for oklch/oklab errors in html2canvas
+          // We remove or replace all occurrences of modern color functions in stylesheets
+          const styleSheets = Array.from(clonedDoc.styleSheets);
+          styleSheets.forEach(sheet => {
+            try {
+              const rules = Array.from(sheet.cssRules);
+              rules.forEach((rule, idx) => {
+                if (rule.cssText.includes('oklch') || rule.cssText.includes('oklab') || rule.cssText.includes('color-mix')) {
+                  // If a rule contains problematic colors, we attempt to delete it 
+                  // or replace it with a sanitized version.
+                  // For safety, we just comment it out/empty it in the clone
+                  try {
+                    sheet.deleteRule(idx);
+                  } catch (e) {
+                    // Fallback if rule deletion fails
+                  }
+                }
+              });
+            } catch (e) {
+              // Ignore cross-origin stylesheet errors
+            }
+          });
+          
+          // Force a simple stylesheet for the clone
+          const safeStyle = clonedDoc.createElement('style');
+          safeStyle.innerHTML = `
+            * { 
+              color: #0f172a !important; 
+              border-color: #e2e8f0 !important; 
+              background-image: none !important;
+              box-shadow: none !important;
+              text-shadow: none !important;
+            }
+            .text-primary { color: #8b5cf6 !important; }
+            .bg-primary { background-color: #8b5cf6 !important; }
+          `;
+          clonedDoc.head.appendChild(safeStyle);
+        }
       })
 
       const imgData = canvas.toDataURL("image/jpeg", 0.95)
@@ -173,7 +212,20 @@ export function LessonReader({
         scale: 2,
         logging: false,
         backgroundColor: "#ffffff",
-        windowWidth: 800
+        windowWidth: 800,
+        onclone: (clonedDoc) => {
+          // Same safety fix for summary
+          const safeStyle = clonedDoc.createElement('style');
+          safeStyle.innerHTML = `
+            * { 
+              color: #0f172a !important; 
+              border-color: #e2e8f0 !important; 
+              background-image: none !important;
+              box-shadow: none !important;
+            }
+          `;
+          clonedDoc.head.appendChild(safeStyle);
+        }
       })
 
       const imgData = canvas.toDataURL("image/jpeg", 0.95)
