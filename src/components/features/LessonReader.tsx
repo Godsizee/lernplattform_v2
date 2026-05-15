@@ -90,12 +90,16 @@ export function LessonReader({
     if (isExporting) return
     setIsExporting(true)
     try {
+      console.log("Starting Lesson PDF Export...")
       const { jsPDF } = await import("jspdf")
       const html2canvas = (await import("html2canvas")).default
       ;(window as any).html2canvas = html2canvas
 
       // Add rendering class to body to temporarily hide navigation / apply printable light styles
       document.body.classList.add("export-pdf-rendering")
+      
+      // Wait a bit for the browser to apply styles and re-render
+      await new Promise(resolve => setTimeout(resolve, 500))
 
       // Find element
       const element = document.getElementById("lesson-pdf-content")
@@ -110,6 +114,7 @@ export function LessonReader({
 
       const filename = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-lektion.pdf`
 
+      console.log("Rendering HTML to PDF...")
       await doc.html(element, {
         x: 10,
         y: 10,
@@ -117,7 +122,13 @@ export function LessonReader({
         windowWidth: 800, // Fixed logical width for consistent responsive scale
         autoPaging: "text",
         margin: [10, 10, 10, 10],
+        html2canvas: {
+          useCORS: true,
+          logging: false,
+          scale: 1
+        },
         callback: function (pdf) {
+          console.log("PDF generation callback triggered")
           pdf.save(filename)
           document.body.classList.remove("export-pdf-rendering")
           setIsExporting(false)
@@ -136,11 +147,15 @@ export function LessonReader({
     if (isExportingSummary) return
     setIsExportingSummary(true)
     try {
+      console.log("Starting Summary PDF Export...")
       const { jsPDF } = await import("jspdf")
       const html2canvas = (await import("html2canvas")).default
       ;(window as any).html2canvas = html2canvas
 
       document.body.classList.add("export-pdf-rendering")
+      
+      // Wait for rendering
+      await new Promise(resolve => setTimeout(resolve, 500))
 
       const element = document.getElementById("summary-pdf-content")
       if (!element) throw new Error("Spickzettel-Inhalt nicht gefunden.")
@@ -154,6 +169,7 @@ export function LessonReader({
 
       const filename = `${lesson.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-spickzettel.pdf`
 
+      console.log("Rendering Summary HTML to PDF...")
       await doc.html(element, {
         x: 10,
         y: 10,
@@ -161,7 +177,13 @@ export function LessonReader({
         windowWidth: 800,
         autoPaging: "text",
         margin: [10, 10, 10, 10],
+        html2canvas: {
+          useCORS: true,
+          logging: false,
+          scale: 1
+        },
         callback: function (pdf) {
+          console.log("Summary PDF generation callback triggered")
           pdf.save(filename)
           document.body.classList.remove("export-pdf-rendering")
           setIsExportingSummary(false)

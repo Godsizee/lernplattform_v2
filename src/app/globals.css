@@ -320,6 +320,12 @@ body.export-pdf-rendering #summary-pdf-content {
   margin: 0 auto !important;
   box-shadow: none !important;
   border: none !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+body.export-pdf-rendering .export-only-title {
+  display: block !important;
 }
 
 body.export-pdf-rendering .prose {
