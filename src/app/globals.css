@@ -300,13 +300,26 @@ body.focus-mode main {
 body.export-pdf-rendering {
   background-color: #ffffff !important;
   color: #0f172a !important;
+  /* Override Tailwind v4 oklch variables with hex for html2canvas compatibility */
+  --color-primary: #8b5cf6 !important;
+  --color-secondary: #ec4899 !important;
+  --color-success: #10b981 !important;
+  --color-danger: #ef4444 !important;
+  --color-warning: #f59e0b !important;
+  --background: #ffffff !important;
+  --surface: #ffffff !important;
+  --foreground: #0f172a !important;
+  --border: #e2e8f0 !important;
+  --color-muted: #64748b !important;
 }
 
 body.export-pdf-rendering .no-pdf-export,
+body.export-pdf-rendering .no-export,
 body.export-pdf-rendering aside,
 body.export-pdf-rendering header,
 body.export-pdf-rendering .complete-lesson-bar,
 body.export-pdf-rendering .tutor-chat-window,
+body.export-pdf-rendering .no-pdf,
 body.export-pdf-rendering nav {
   display: none !important;
 }
@@ -335,7 +348,12 @@ body.export-pdf-rendering .prose {
 
 body.export-pdf-rendering .prose h1,
 body.export-pdf-rendering .prose h2,
-body.export-pdf-rendering .prose h3 {
+body.export-pdf-rendering .prose h3,
+body.export-pdf-rendering .prose h4 {
+  color: #0f172a !important;
+}
+
+body.export-pdf-rendering .prose strong {
   color: #0f172a !important;
 }
 
@@ -349,6 +367,15 @@ body.export-pdf-rendering .prose pre {
   background-color: #f8fafc !important;
   color: #0f172a !important;
   border-color: #e2e8f0 !important;
+}
+
+/* Force light mode for everything inside export container regardless of user theme */
+body.export-pdf-rendering .dark #lesson-pdf-content,
+body.export-pdf-rendering .dark #summary-pdf-content,
+.dark body.export-pdf-rendering #lesson-pdf-content,
+.dark body.export-pdf-rendering #summary-pdf-content {
+  background: #ffffff !important;
+  color: #0f172a !important;
 }
 
 

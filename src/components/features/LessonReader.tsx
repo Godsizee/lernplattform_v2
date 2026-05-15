@@ -556,12 +556,14 @@ export function LessonReader({
                   // Inject code-playgrounds directly inside lesson content!
                   playground: ({ ...props }: any) => {
                     return (
-                      <Playground 
-                        initialHtml={props.html}
-                        initialCss={props.css}
-                        initialJs={props.js}
-                        title={props.title}
-                      />
+                      <div className="no-pdf-export">
+                        <Playground 
+                          initialHtml={props.html}
+                          initialCss={props.css}
+                          initialJs={props.js}
+                          title={props.title}
+                        />
+                      </div>
                     )
                   }
                 } as any}
