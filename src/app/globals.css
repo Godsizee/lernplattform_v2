@@ -307,6 +307,9 @@ body.export-pdf-rendering * {
   border-color: #e2e8f0 !important;
   text-shadow: none !important;
   box-shadow: none !important;
+  letter-spacing: normal !important;
+  word-spacing: normal !important;
+  text-transform: none !important;
   /* Prevent any color-mix or oklch from leaking through */
 }
 

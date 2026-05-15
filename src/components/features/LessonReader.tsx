@@ -120,11 +120,11 @@ export function LessonReader({
         y: 10,
         width: 190, // A4 width (210) minus 20 margin
         windowWidth: 800, // Fixed logical width for consistent responsive scale
-        autoPaging: "text",
+        autoPaging: true,
         margin: [10, 10, 10, 10],
         html2canvas: {
           useCORS: true,
-          logging: false,
+          logging: true,
           scale: 1
         },
         callback: function (pdf) {
@@ -175,11 +175,11 @@ export function LessonReader({
         y: 10,
         width: 190,
         windowWidth: 800,
-        autoPaging: "text",
+        autoPaging: true,
         margin: [10, 10, 10, 10],
         html2canvas: {
           useCORS: true,
-          logging: false,
+          logging: true,
           scale: 1
         },
         callback: function (pdf) {
