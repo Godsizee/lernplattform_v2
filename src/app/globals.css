@@ -298,9 +298,9 @@ body.focus-mode main {
 
 /* === NATIVE BROWSER PRINT STYLES (window.print) === */
 @media print {
-  /* 1. Global Reset for Printing */
+  /* 1. Global Reset for Printing - Setting margin to 0 hides browser headers/footers */
   @page {
-    margin: 20mm;
+    margin: 0;
     size: auto;
   }
 
@@ -309,6 +309,7 @@ body.focus-mode main {
     color: black !important;
     font-size: 12pt;
     overflow: visible !important;
+    padding: 20mm !important; /* Re-add the margins here so content isn't at the very edge */
   }
 
   /* 2. Hide all UI elements */
