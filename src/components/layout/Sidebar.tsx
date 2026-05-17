@@ -156,6 +156,28 @@ export function Sidebar({
       <nav className={`flex-1 px-4 py-6 space-y-1.5 overflow-y-auto ${
         isCollapsed ? "lg:px-2" : ""
       }`}>
+        {/* Highlighted Warning / Announcement Link to Exam Topics Manager */}
+        <Link 
+          href="https://muss.dasdann.jetzt"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={onClose}
+          className={`flex items-center transition-all duration-300 rounded-xl border ${
+            isCollapsed 
+              ? "w-12 h-12 justify-center mx-auto border-amber-500/30 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20" 
+              : "w-full px-4 py-3 gap-3.5 border-amber-500/30 bg-amber-500/10 dark:bg-amber-500/5 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 dark:hover:bg-amber-500/10 hover:shadow-sm"
+          }`}
+          title={isCollapsed ? "Wichtig: Prüfungsthemen" : undefined}
+        >
+          <i className="ph-bold ph-warning-octagon text-xl shrink-0 animate-pulse text-amber-500"></i>
+          {!isCollapsed && (
+            <div className="flex flex-col items-start min-w-0">
+              <span className="text-[10px] font-black uppercase tracking-wider text-amber-500">Wichtig</span>
+              <span className="text-sm font-bold whitespace-nowrap animate-fade-in -mt-0.5">Prüfungsthemen</span>
+            </div>
+          )}
+        </Link>
+
         {/* Render standard main items */}
         {mainNavItems.map((item) => {
           const isActive = isItemActive(item.href)
