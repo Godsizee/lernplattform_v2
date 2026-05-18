@@ -12,9 +12,8 @@ export default async function AdminContentPage() {
 
   const userId = session.user.id
 
-  // Fetch all subjects owned by this admin
+  // Fetch all subjects
   const subjects = await prisma.subject.findMany({
-    where: { userId },
     include: {
       _count: {
         select: { lessons: true }
@@ -23,11 +22,8 @@ export default async function AdminContentPage() {
     orderBy: { title: "asc" }
   })
 
-  // Fetch all lessons belonging to subjects owned by this user
+  // Fetch all lessons
   const lessons = await prisma.lesson.findMany({
-    where: {
-      subject: { userId }
-    },
     orderBy: [
       { subjectId: "asc" },
       { sortOrder: "asc" }

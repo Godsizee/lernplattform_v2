@@ -13,15 +13,8 @@ export default async function LearningPage() {
 
   const userId = session.user.id
 
-  // Find the master curriculum owner (Admin user)
-  const admin = await prisma.user.findFirst({
-    where: { role: "admin" }
-  })
-  const curriculumUserId = admin ? admin.id : userId
-
   // Fetch subjects with lessons and user progress
   const subjects = await prisma.subject.findMany({
-    where: { userId: curriculumUserId },
     include: {
       lessons: {
         where: { status: "published" },

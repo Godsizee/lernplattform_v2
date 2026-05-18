@@ -10,7 +10,7 @@ export default async function UploadPage() {
   if (!session) redirect('/login')
 
   const subjects = await prisma.subject.findMany({
-    where: { userId: session.user.id },
+
     select: { id: true, title: true, color: true },
     orderBy: { title: 'asc' },
   })

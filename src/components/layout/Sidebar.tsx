@@ -177,7 +177,6 @@ export function Sidebar({
             </div>
           )}
         </Link>
-
         {/* Render standard main items */}
         {mainNavItems.map((item) => {
           const isActive = isItemActive(item.href)

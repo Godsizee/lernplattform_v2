@@ -113,7 +113,9 @@ export default async function LessonDetailPage({ params }: PageProps) {
       lesson={{
         id: lesson.id,
         title: lesson.title,
-        contentRaw: lesson.contentRaw || lesson.content,
+        contentRaw: (lesson.contentRaw && !lesson.contentRaw.startsWith("Rohdaten "))
+          ? lesson.contentRaw
+          : (lesson.content || lesson.contentRaw || ""),
         type: lesson.type,
         subjectId: lesson.subjectId
       }}

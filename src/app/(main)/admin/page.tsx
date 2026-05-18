@@ -74,16 +74,22 @@ export default async function AdminCockpitPage() {
           <h1 className="text-3xl font-black tracking-tight">Admin-Cockpit</h1>
           <p className="text-sm text-muted mt-1">Verwalte die Lernplattform, bearbeite Inhalte und überprüfe die Systemaktivität.</p>
         </div>
-        <div className="flex gap-2.5 shrink-0 w-full sm:w-auto">
+        <div className="flex flex-wrap gap-2.5 shrink-0 w-full sm:w-auto">
+          <Link 
+            href="/admin/database" 
+            className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-indigo-600/10 flex items-center gap-1.5 cursor-pointer"
+          >
+            <i className="ph ph-database text-sm"></i> Datenbank verwalten
+          </Link>
           <Link 
             href="/admin/settings" 
-            className="w-1/2 sm:w-auto justify-center px-4 py-2.5 bg-surface hover:bg-surface/80 border border-border text-foreground text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2.5 bg-surface hover:bg-surface/80 border border-border text-foreground text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
           >
             <i className="ph ph-gear text-sm"></i> Systemeinstellungen
           </Link>
           <Link 
             href="/admin/editor" 
-            className="w-1/2 sm:w-auto justify-center px-4 py-2.5 bg-primary hover:bg-primary/95 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-primary/10 flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2.5 bg-primary hover:bg-primary/95 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-primary/10 flex items-center gap-1.5 cursor-pointer"
           >
             <i className="ph ph-plus-circle text-sm"></i> Neue Lektion
           </Link>
