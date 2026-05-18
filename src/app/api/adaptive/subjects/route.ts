@@ -10,7 +10,6 @@ export async function GET() {
   }
 
   const subjects = await prisma.subject.findMany({
-
     orderBy: { createdAt: 'asc' },
     select: { id: true, title: true, color: true },
   })

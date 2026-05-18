@@ -27,7 +27,6 @@ export default async function ExamsPage() {
       orderBy: { uploadedAt: 'desc' },
     }),
     prisma.subject.findMany({
-
       select: { id: true, title: true, color: true },
       orderBy: { title: 'asc' },
     }),
