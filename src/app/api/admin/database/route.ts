@@ -261,10 +261,19 @@ export async function POST(req: NextRequest) {
       // Nur INSERT INTO / UPDATE / DELETE erlauben
       const illegalKeywords = ['drop', 'truncate', 'alter', 'create', 'grant', 'revoke']
       for (const stmt of rawStatements) {
-        const lower = stmt.toLowerCase()
-        if (illegalKeywords.some((keyword) => lower.startsWith(keyword) || lower.includes(` ${keyword} `))) {
+        // Entferne SQL-Kommentare für die Typprüfung
+        const cleanStmt = stmt
+          .replace(/--.*$/gm, '')
+          .replace(/\/\*[\s\S]*?\*\//g, '')
+          .trim()
+        
+        if (cleanStmt.length === 0) continue
+
+        const lower = cleanStmt.toLowerCase()
+        const firstWord = lower.split(/[\s(]+/)[0]
+        if (illegalKeywords.includes(firstWord)) {
           return NextResponse.json(
-            { error: `Ungültiger Befehl blockiert: Strukturänderungen sind im Batch-Import verboten.` },
+            { error: `Ungültiger Befehl blockiert: Strukturänderungen sind im Batch-Import verboten. (${firstWord.toUpperCase()} nicht erlaubt)` },
             { status: 400 }
           )
         }
