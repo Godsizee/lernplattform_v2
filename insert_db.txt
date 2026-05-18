@@ -1,0 +1,566 @@
+-- STREAMING_CHUNK: Initialisiere Dummy-Benutzer und Fach für referenzielle Integrität...
+-- ------------------------------------------------------------------------------
+-- Setup: User & Subject (Damit die Foreign Keys der Lessons funktionieren)
+-- ------------------------------------------------------------------------------
+INSERT IGNORE INTO users (id, name, email, password, role) 
+VALUES ('user_admin_01', 'Admin', 'admin@example.com', 'hashed_pw_123', 'admin');
+
+INSERT IGNORE INTO subjects (id, userId, title, color, icon) 
+VALUES ('subj_db_01', 'user_admin_01', 'Datenbanken', '#8b5cf6', 'ph-database');
+
+-- STREAMING_CHUNK: Füge Lektion 1 (Datenbanktheorie) in voller Länge ein...
+-- ------------------------------------------------------------------------------
+-- Lektion 1: Datenbanktheorie
+-- ------------------------------------------------------------------------------
+INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
+VALUES (
+    'lesson_db_01',
+    'subj_db_01',
+    'user_admin_01',
+    'Datenbanktheorie & Grundlagen',
+    10,
+    'published',
+    'Rohdaten Datenbanktheorie...',
+    '<h3>1. Datenbanktheorie</h3>
+
+<h4>1.1. Redundanz</h4>
+<ul>
+  <li>Wiederholtes Speichern gleicher Daten aus verschiedenen Anwendungsprogrammen in verschiedenen Dateien.</li>
+  <li>Verschwendung von Speicher.</li>
+  <li>Erhöhter Verwaltungs- und Verarbeitungsaufwand.</li>
+  <li>Z.B. wenn Adresse und Name eines Kunden bei jeder Bestellung erneut erfasst werden, anstatt sie nur einmalig zu speichern und zu verknüpfen.</li>
+</ul>
+
+<hr>
+
+<h4>1.2. Konsistenz bzw. Inkonsistenz</h4>
+<ul>
+  <li><strong>Datenbankkonsistenz (Consistency):</strong> stellt sicher, dass Daten widerspruchsfrei sind und vordefinierten Regeln entsprechen.</li>
+  <li><strong>Datenbankinkonsistenz:</strong> bezeichnet widersprüchliche Datenzustände, bei denen Informationen auf Grund von Redundanzen nicht einheitlich aktualisiert wurden.</li>
+  <li>Z.B. verschiedene Adressen für denselben Kunden.</li>
+  <li>Dies entsteht oft durch fehlerhafte Transaktionen oder Anomalien (Einfüge-, Aktualisierungs- und Löschanomalie).</li>
+</ul>
+
+<hr>
+
+<h4>1.3. Primärschlüssel (Primary Key)</h4>
+<p>Primärschlüssel (PK) identifizieren Datensätze in einer Tabelle <strong>eindeutig</strong> (z. B. KundenID, SteuerId etc.). Ein PK muss einzigartig und darf nicht leer (NOT NULL) sein.</p>
+
+<hr>
+
+<h4>1.4. Fremdschlüssel (Foreign Key)</h4>
+<p>Ein Fremdschlüssel (FK) verweist auf diese PKs in anderen Tabellen, um Beziehungen herzustellen bzw. die Tabellen zu verknüpfen. Ein FK kann und darf mehrfach vorkommen und darf auch leer (NULL) sein.</p>
+
+<hr>
+
+<h4>1.5. Referentielle Integrität</h4>
+<p>Referentielle Integrität ist ein zentrales Konzept in relationalen Datenbanken und sichert die Konsistenz zwischen verknüpften Tabellen. Sie garantiert, dass Fremdschlüssel stets auf existierende Primärschlüssel verweisen, wodurch verwaiste Datensätze vermieden werden.</p>
+<blockquote>
+  <strong>Regel:</strong> Ein Fremdschlüsselwert muss entweder NULL sein oder in der referenzierten Tabelle als Primärschlüssel existieren.
+</blockquote>
+
+<hr>
+
+<h4>1.6. Datenbankmanagementsystem (DBMS)</h4>
+<p>Ein DBMS ist eine Software zur effizienten Erstellung, Verwaltung, Abfrage und Änderung von Daten in einer Datenbank. Es fungiert als Schnittstelle zwischen Nutzern/Anwendungen und den physischen Daten.</p>
+<p>Dabei gewährleistet es unter anderem Datensicherheit, Integrität und Mehrbenutzerbetrieb.</p>
+<blockquote>
+  <strong>Achtung:</strong> Ein DBMS und die dazugehörige(n) Datenbank(en) (die Datenbasis) bilden zusammen das <strong>Datenbanksystem (DBS)</strong>!
+</blockquote>
+
+<h5>Aufgaben eines DBMS & Anforderung an ein DBS:</h5>
+<ul>
+  <li><strong>Datenintegrität und Konsistenz:</strong> Gewährleistung korrekter Daten, oft durch ACID-Prinzipien.</li>
+  <li><strong>Redundanzarmut:</strong> Vermeidung mehrfacher Speicherung gleicher Daten (Normalisierung).</li>
+  <li><strong>Datensicherheit und Zugriffsschutz:</strong> Schutz vor unberechtigtem Zugriff und Datenverlust (Backup-Mechanismen).</li>
+  <li><strong>Mehrbenutzerfähigkeit (Concurrency):</strong> Gleichzeitiger Zugriff mehrerer Benutzer ohne Datenkonflikte.</li>
+  <li><strong>Datenunabhängigkeit:</strong> Trennung von Datenstruktur und Anwendungsprogrammen.</li>
+  <li><strong>Organisation der Daten:</strong> Organisation der Daten auf Basis des Datenmodells (z.B. Tabellen).</li>
+  <li><strong>Protokollierung und Überwachung:</strong> Das DBMS führt ein Protokoll, das alle Änderungen an der Datenbank aufzeichnet. So können Sicherheitsvorfälle oder Leistungsprobleme identifiziert werden.</li>
+</ul>
+
+<hr>
+
+<h4>1.7. Transaktion</h4>
+<p>SQL-Transaktionen sind Folgen von Datenbankoperationen (INSERT, UPDATE, DELETE), die als eine einzige, unteilbare Arbeitseinheit ausgeführt werden.</p>
+<ul>
+  <li>Sie garantieren Datenintegrität und Datenkonsistenz nach dem ACID-Prinzip.</li>
+  <li>Änderungen werden entweder vollständig übernommen (COMMIT) oder bei Fehlern komplett rückgängig gemacht (ROLLBACK).</li>
+  <li>Wenn bereits eine einzige Anweisung fehlschlägt, schlägt die komplette Transaktion fehl.</li>
+</ul>
+
+<hr>
+
+<h4>1.8. ACID - Prinzip</h4>
+<p>Das ACID-Prinzip ist ein grundlegendes Konzept, das die Zuverlässigkeit von Datenbanktransaktionen garantiert. ACID stellt sicher, dass Datentransaktionen sicher, konsistent und fehlerfrei verarbeitet werden, oft genutzt in Banken oder E-Commerce-Systemen.</p>
+<ul>
+  <li><strong>A - Atomicity (Atomarität):</strong> Eine Transaktion wird entweder vollständig ausgeführt oder gar nicht. Bei einem Fehler wird die gesamte Aktion rückgängig gemacht (All-or-Nothing-Prinzip).</li>
+  <li><strong>C - Consistency (Konsistenz):</strong> Die Datenbank wechselt durch die Transaktion von einem gültigen Zustand in den nächsten. Datenintegritätsregeln werden eingehalten.</li>
+  <li><strong>I - Isolation (Isolation):</strong> Gleichzeitige Transaktionen beeinflussen sich nicht gegenseitig. Sie laufen so ab, als ob sie nacheinander ausgeführt würden.</li>
+  <li><strong>D - Durability (Dauerhaftigkeit):</strong> Nach erfolgreichem Abschluss sind die Daten dauerhaft gespeichert und gehen auch bei Systemausfällen nicht verloren.</li>
+</ul>
+
+<hr>
+
+<h4>1.9. Datenbanktypen</h4>
+<div class="overflow-x-auto my-4">
+  <table class="w-full text-sm text-left border border-border rounded-lg">
+    <thead class="text-xs uppercase bg-surface">
+      <tr>
+        <th class="px-4 py-3">Datenbanktyp</th>
+        <th class="px-4 py-3">Vorteile</th>
+        <th class="px-4 py-3">Nachteile</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-border">
+      <tr>
+        <td class="px-4 py-3 font-bold">Relationale Datenbanken</td>
+        <td class="px-4 py-3"><ul><li>Mathematisch fundiertes Modell (relationale Algebra)</li><li>Leicht programmierbar und weit verbreitet</li><li>Änderungen am Schema meist gut möglich</li></ul></td>
+        <td class="px-4 py-3"><ul><li>Komplexe Abfragen (z. B. viele Joins) können langsam sein</li><li>Bei sehr großen Datenmengen schwer horizontal zu skalieren</li></ul></td>
+      </tr>
+      <tr>
+        <td class="px-4 py-3 font-bold">Objektorientierte Datenbanken</td>
+        <td class="px-4 py-3"><ul><li>Daten können direkt als Objekte gespeichert werden</li><li>Gut geeignet für objektorientierte Programmiersprachen</li><li>Teilweise kompatibel zu relationalen Datenbanken</li></ul></td>
+        <td class="px-4 py-3"><ul><li>Geringere Verbreitung</li><li>Weniger Standardisierung</li><li>Teilweise komplexe Struktur und schwierige Integration mit bestehenden Systemen</li></ul></td>
+      </tr>
+      <tr>
+        <td class="px-4 py-3 font-bold">Hierarchische / Netzwerk-Datenbanken</td>
+        <td class="px-4 py-3"><ul><li>Sehr schnelle Zugriffe bei klaren Strukturen</li><li>Geringe Redundanz möglich</li></ul></td>
+        <td class="px-4 py-3"><ul><li>Struktur schwer zu ändern</li><li>Komplizierte Programmierung</li><li>Wenig flexibel</li></ul></td>
+      </tr>
+      <tr>
+        <td class="px-4 py-3 font-bold">NoSQL-Datenbanken</td>
+        <td class="px-4 py-3"><ul><li>Sehr gute horizontale Skalierbarkeit möglich</li><li>Flexible Datenmodelle</li><li>Hohe Geschwindigkeit bei großen Datenmengen</li></ul></td>
+        <td class="px-4 py-3"><ul><li>Fehlende Standardisierung</li><li>Teilweise keine vollständige Konsistenz der Daten</li></ul></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<h4>1.10. Anomalien</h4>
+<p>Anomalien in Datenbanken sind unerwünschte Zustände, die meist durch Datenredundanz bei schlechter Modellierung (fehlende Normalisierung) entstehen. Sie verursachen Inkonsistenzen bei Dateneingabe, -änderung oder -löschung.</p>
+
+<ul>
+  <li><strong>Einfügeanomalie (Insertion Anomaly):</strong> Daten können nicht eingefügt werden, weil notwendige Teilinformationen (z. B. Primärschlüssel) fehlen.</li>
+  <li><strong>Änderungsanomalie (Update Anomaly):</strong> Eine Information ist mehrfach gespeichert, wird aber nur an einer Stelle aktualisiert, was zu Widersprüchen führt.</li>
+  <li><strong>Löschanomalie (Delete Anomaly):</strong> Beim Löschen eines Datensatzes werden unbeabsichtigt andere, noch benötigte Daten mit entfernt.</li>
+</ul>'
+);
+
+-- STREAMING_CHUNK: Füge Lektion 2 (Normalisierung) mit allen Tabellenbeispielen ein...
+-- ------------------------------------------------------------------------------
+-- Lektion 2: Normalisierung
+-- ------------------------------------------------------------------------------
+INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
+VALUES (
+    'lesson_db_02',
+    'subj_db_01',
+    'user_admin_01',
+    'Normalisierung',
+    20,
+    'published',
+    'Rohdaten Normalisierung...',
+    '<h3>2. Normalisierung</h3>
+<p>Das Verfahren der Normalisierung ist eine formalisierte Vorgehensweise zur Vermeidung von Redundanzen, die zu Inkonsistenz führen können. Sie verhindert unerwünschte Seiteneffekte beim Ändern und Löschen (Anomalien). Dazu wurden mehrere Normalform-Regeln formuliert, die aufeinander aufbauen.</p>
+
+<span class="inline-flex items-center rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-black uppercase tracking-wider mt-4">Grundlage</span>
+<h4>2.1. 1 Normalform (1NF)</h4>
+<p>Eine Tabelle befindet sich in der 1. Normalform, wenn alle Attribute nur einfache Attributwerte aufweisen (<strong>atomar sind</strong>) und jede Tabelle über einen Primärschlüssel verfügt.</p>
+<blockquote>
+  <strong>Achtung - Funktionale Abhängigkeit:</strong> B ist von A funktional abhängig, wenn zu einem bestimmten Wert von A höchstens ein Wert von B gehört. Der Wert eines Attributs (oder einer Attributkombination) bestimmt eindeutig den Wert eines anderen Attributs.
+</blockquote>
+
+<hr>
+
+<span class="inline-flex items-center rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-black uppercase tracking-wider mt-4">Erweiterung</span>
+<h4>2.2. 2 Normalform (2NF)</h4>
+<p>Eine Tabelle befindet sich in der 2. Normalform, wenn sie schon in der 1. Normalform ist und <strong>jedes nicht zum Primärschlüssel gehörende Attribut voll vom Primärschlüssel abhängig ist</strong>.</p>
+<ul>
+  <li><strong>Volle Abhängigkeit:</strong> B ist von der Attributkombination A voll abhängig, wenn:</li>
+  <li>B vom gesamten Primärschlüssel abhängig ist.</li>
+  <li>B nicht bereits von einem Teil des Primärschlüssels abhängt.</li>
+  <li>A aus mindestens zwei Attributen besteht und den Primärschlüssel bildet.</li>
+</ul>
+
+<hr>
+
+<span class="inline-flex items-center rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-black uppercase tracking-wider mt-4">Ziel</span>
+<h4>2.3. 3 Normalform (3NF)</h4>
+<p>Eine Tabelle befindet sich in der 3. Normalform, wenn sie schon in der 2. Normalform ist und <strong>kein Nicht-Schlüsselattribut vom Primärschlüssel transitiv abhängig ist</strong>.</p>
+<ul>
+  <li><strong>Transitive Abhängigkeit:</strong> C ist von A transitiv abhängig, wenn:</li>
+  <li>A den Primärschlüssel bildet und B kein Schlüsselattribut ist.</li>
+  <li>C von B funktional abhängig ist.</li>
+  <li>B von A funktional abhängig ist.</li>
+  <li>C somit indirekt von A abhängig ist.</li>
+</ul>
+<p class="mt-2">Ein Attribut ist von einem anderen Attribut abhängig, das wiederum von einem Schlüsselattribut abhängig ist.</p>
+
+<hr>
+
+<h4>2.4. Beispiel für Normalisierung (0 - 3 NF)</h4>
+
+<h5>0. Normalform (Ausgangslage)</h5>
+<div class="overflow-x-auto my-2 border border-border rounded-lg">
+<table class="w-full text-xs text-left whitespace-nowrap">
+  <thead class="bg-surface"><tr><th class="px-2 py-1">PNr</th><th class="px-2 py-1">Name</th><th class="px-2 py-1">Skillschlüssel</th><th class="px-2 py-1">Fähigkeit</th><th class="px-2 py-1">Kostenstelle</th><th class="px-2 py-1">Abteilung</th></tr></thead>
+  <tbody class="divide-y divide-border">
+    <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1 text-red-500 font-bold">201,211</td><td class="px-2 py-1 text-red-500 font-bold">Cobol, C++</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+    <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1 text-red-500 font-bold">201,2</td><td class="px-2 py-1 text-red-500 font-bold">Cobol, Java</td><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
+    <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1 text-red-500 font-bold">223,229,241</td><td class="px-2 py-1 text-red-500 font-bold">Pascal, Basic, ABAP</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h5>1. Normalform (Atomare Werte)</h5>
+<div class="overflow-x-auto my-2 border border-border rounded-lg">
+<table class="w-full text-xs text-left whitespace-nowrap">
+  <thead class="bg-surface"><tr><th class="px-2 py-1">PNr</th><th class="px-2 py-1">Name</th><th class="px-2 py-1">Skillschlüssel</th><th class="px-2 py-1">Fähigkeit</th><th class="px-2 py-1">Kostenstelle</th><th class="px-2 py-1">Abteilung</th></tr></thead>
+  <tbody class="divide-y divide-border">
+    <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1">201</td><td class="px-2 py-1">Cobol</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+    <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1">211</td><td class="px-2 py-1">C++</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+    <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1">201</td><td class="px-2 py-1">Cobol</td><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
+    <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1">200</td><td class="px-2 py-1">Java</td><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
+    <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">223</td><td class="px-2 py-1">Pascal</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+    <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">229</td><td class="px-2 py-1">Basic</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+    <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">241</td><td class="px-2 py-1">ABAP</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h5>2. Normalform (Aufteilung nach voller Abhängigkeit)</h5>
+<div class="flex gap-4">
+  <div class="overflow-x-auto my-2 border border-border rounded-lg flex-1">
+    <table class="w-full text-xs text-left whitespace-nowrap">
+      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>PNr</u></th><th class="px-2 py-1">Name</th><th class="px-2 py-1">Kostenstelle</th><th class="px-2 py-1">Abteilung</th></tr></thead>
+      <tbody class="divide-y divide-border">
+        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
+        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="overflow-x-auto my-2 border border-border rounded-lg flex-1">
+    <table class="w-full text-xs text-left whitespace-nowrap">
+      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>PNr</u></th><th class="px-2 py-1"><u>Skillschlüssel</u></th></tr></thead>
+      <tbody class="divide-y divide-border">
+        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">201</td></tr>
+        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">211</td></tr>
+        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">201</td></tr>
+        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">200</td></tr>
+        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">223</td></tr>
+        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">229</td></tr>
+        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">241</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="overflow-x-auto my-2 border border-border rounded-lg flex-1">
+    <table class="w-full text-xs text-left whitespace-nowrap">
+      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>Skillschlüssel</u></th><th class="px-2 py-1">Fähigkeit</th></tr></thead>
+      <tbody class="divide-y divide-border">
+        <tr><td class="px-2 py-1">201</td><td class="px-2 py-1">Cobol</td></tr>
+        <tr><td class="px-2 py-1">211</td><td class="px-2 py-1">C++</td></tr>
+        <tr><td class="px-2 py-1">200</td><td class="px-2 py-1">Java</td></tr>
+        <tr><td class="px-2 py-1">223</td><td class="px-2 py-1">Pascal</td></tr>
+        <tr><td class="px-2 py-1">229</td><td class="px-2 py-1">Basic</td></tr>
+        <tr><td class="px-2 py-1">241</td><td class="px-2 py-1">ABAP</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h5>3. Normalform (Auflösung transitiver Abhängigkeiten)</h5>
+<div class="flex flex-wrap gap-4">
+  <div class="overflow-x-auto my-2 border border-border rounded-lg w-[48%]">
+    <table class="w-full text-xs text-left whitespace-nowrap">
+      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>PNr</u></th><th class="px-2 py-1">Name</th><th class="px-2 py-1"><em>Kostenstelle</em></th></tr></thead>
+      <tbody class="divide-y divide-border">
+        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1">5311</td></tr>
+        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1">5313</td></tr>
+        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">5311</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="overflow-x-auto my-2 border border-border rounded-lg w-[48%]">
+    <table class="w-full text-xs text-left whitespace-nowrap">
+      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>Kostenstelle</u></th><th class="px-2 py-1">Abteilung</th></tr></thead>
+      <tbody class="divide-y divide-border">
+        <tr><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
+        <tr><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="overflow-x-auto my-2 border border-border rounded-lg w-[48%]">
+    <table class="w-full text-xs text-left whitespace-nowrap">
+      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>PNr</u></th><th class="px-2 py-1"><u>Skillschlüssel</u></th></tr></thead>
+      <tbody class="divide-y divide-border">
+        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">201</td></tr>
+        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">211</td></tr>
+        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">201</td></tr>
+        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">200</td></tr>
+        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">223</td></tr>
+        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">229</td></tr>
+        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">241</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="overflow-x-auto my-2 border border-border rounded-lg w-[48%]">
+    <table class="w-full text-xs text-left whitespace-nowrap">
+      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>Skillschlüssel</u></th><th class="px-2 py-1">Fähigkeit</th></tr></thead>
+      <tbody class="divide-y divide-border">
+        <tr><td class="px-2 py-1">201</td><td class="px-2 py-1">Cobol</td></tr>
+        <tr><td class="px-2 py-1">211</td><td class="px-2 py-1">C++</td></tr>
+        <tr><td class="px-2 py-1">200</td><td class="px-2 py-1">Java</td></tr>
+        <tr><td class="px-2 py-1">223</td><td class="px-2 py-1">Pascal</td></tr>
+        <tr><td class="px-2 py-1">229</td><td class="px-2 py-1">Basic</td></tr>
+        <tr><td class="px-2 py-1">241</td><td class="px-2 py-1">ABAP</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>'
+);
+
+-- STREAMING_CHUNK: Füge Lektion 3 (Modellierung) ein...
+-- ------------------------------------------------------------------------------
+-- Lektion 3: Modellierung (ERM)
+-- ------------------------------------------------------------------------------
+INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
+VALUES (
+    'lesson_db_03',
+    'subj_db_01',
+    'user_admin_01',
+    'Modellierung',
+    30,
+    'published',
+    'Rohdaten Modellierung...',
+    '<h3>3. Modellierung</h3>
+
+<h4>3.1. Entity - Relationship - Modell (ERM)</h4>
+<p>Ein Entity-Relationship-Modell (ERM) ist ein konzeptionelles Datenmodell. Ein ER-Modell besteht aus dem ER-Diagramm und einer ergänzenden Beschreibung der Entitäten, Attribute und Schlüssel (Relationenschreibweise).</p>
+
+<ul>
+  <li><strong>Entität (Entity):</strong> Ein abstraktes Objekt der realen Welt, über das Daten gespeichert werden (z. B. Kunde, Produkt, Projekt etc.). Wird im ERD als <strong>Rechteck</strong> dargestellt.</li>
+  <li><strong>Attribut:</strong> Eigenschaften, die einen Entitätstyp näher beschreiben (z. B. Name, Preis, Bezeichnung etc.). Ein Attribut wird oft als Primärschlüssel (z. B. Kundennummer) zur eindeutigen Identifikation unterstrichen. Wird im ERD als <strong>Oval</strong> dargestellt.</li>
+  <li><strong>Beziehung (Relationship):</strong> Verbindung zwischen Entitätstypen, oft durch Verben ausgedrückt (z. B. Kunde kauft Produkt). Wird im ERD als <strong>Raute</strong> dargestellt.</li>
+</ul>
+
+<hr>
+
+<h4>3.2. Kardinalitäten (Chen - Notation)</h4>
+<p>Beziehungen werden durch Kardinalitäten spezifiziert, die angeben, wie viele Datensätze an einer Beziehung beteiligt sind.</p>
+
+<h5>1:1 ([0 oder 1] zu [1 oder 0])</h5>
+<p>Ein Schüler (kann) einen Schülerausweis besitzen und jeder Ausweis gehört zu genau einem Schüler.</p>
+
+<h5>1:n ([0 oder 1] zu beliebig vielen)</h5>
+<p>Eine Klasse hat viele (N) Schüler, aber ein Schüler ist in einer (1) Klasse.</p>
+
+<h5>m:n (beliebig viele zu beliebig vielen)</h5>
+<p>Ein Schüler kann viele (M) AGs besuchen, und eine AG wird von vielen (N) Schülern besucht.</p>
+
+<hr>
+
+<h4>3.2.1. Modifizierte Chen - Notation (MC - Notation)</h4>
+<div class="overflow-x-auto my-4">
+  <table class="w-full text-sm text-left border border-border rounded-lg">
+    <thead class="text-xs uppercase bg-surface">
+      <tr><th class="px-4 py-3">Kardinalität</th><th class="px-4 py-3">Beschreibung</th></tr>
+    </thead>
+    <tbody class="divide-y divide-border">
+      <tr><td class="px-4 py-3 font-medium">1</td><td class="px-4 py-3">Genau ein</td></tr>
+      <tr><td class="px-4 py-3 font-medium">c</td><td class="px-4 py-3">Kein oder ein (höchstens ein)</td></tr>
+      <tr><td class="px-4 py-3 font-medium">m</td><td class="px-4 py-3">Ein oder mehrere (mindestens ein)</td></tr>
+      <tr><td class="px-4 py-3 font-medium">mc</td><td class="px-4 py-3">Kein, ein oder mehrere (beliebig viele)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<hr>
+
+<h4>3.3. Relationenschreibweise</h4>
+<p>Die Relationenschreibweise ist eine kompakte Notation zur Darstellung von Datenbankstrukturen. Sie beschreibt jede Tabelle (Relation) mit ihren Attributen, Primärschlüsseln und Fremdschlüsseln.</p>
+<ul>
+  <li>Primärschlüssel werden in der Regel durchgehend unterstrichen.</li>
+  <li>Fremdschlüssel werden in der Regel gestrichelt unterstrichen (oder kursiv markiert).</li>
+</ul>
+
+<div class="bg-surface border border-border rounded-xl p-4 flex gap-3 my-4">
+  <span class="text-xl">💡</span>
+  <div>
+    <h4 class="font-bold m-0 text-sm">Allgemeine Schreibweise</h4>
+    <p class="text-xs text-muted m-0 mt-1">Tabellenname (<u>Schlüsselattribut</u>, Attribut1, Attribut2, ..., <em>Fremdschlüssel</em>)</p>
+  </div>
+</div>
+
+<h4>3.4. Beispiele</h4>
+<p><strong>Relationenschreibweise (Beispiel für Ort, Kunde, Artikel, Bestellung)</strong></p>
+<p>
+Ort (<u>OrtsId</u>, Plz, Name)<br>
+Kunde (<u>KundenId</u>, Vorname, Nachname, <em>OrtsId</em>)<br>
+Artikel (<u>ArtikelId</u>, Name, Preis)<br>
+Bestellung (<u>BestellId</u>, <em>KundenId</em>, <em>ArtikelId</em>, Datum)
+</p>'
+);
+
+-- STREAMING_CHUNK: Füge Lektion 4 (SQL DDL & DML) ein...
+-- ------------------------------------------------------------------------------
+-- Lektion 4: SQL DDL & DML
+-- ------------------------------------------------------------------------------
+INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
+VALUES (
+    'lesson_db_04',
+    'subj_db_01',
+    'user_admin_01',
+    'SQL: DDL & DML',
+    40,
+    'published',
+    'Rohdaten SQL DDL DML...',
+    '<h3>4. SQL (Structured Query Language)</h3>
+<p>SQL ist eine standardisierte Datenbanksprache, die zur Verwaltung und Manipulation von relationalen Datenbanken verwendet wird.</p>
+
+<h4>4.1. DDL (Data Definition Language)</h4>
+<p>DDL wird verwendet, um die Struktur einer Datenbank zu erstellen oder zu ändern. Damit werden Datenbanken, Tabellen, Spalten oder Schlüssel (Primär - und Fremdschlüssel) festgelegt.</p>
+<p><strong>DDL beschreibt und verändert die Struktur der Datenbank.</strong></p>
+
+<ul>
+  <li><strong>CREATE:</strong> Erstellt eine neue Datenbank bzw. eine neue Tabelle mit dem angegeben Namen und Attributen.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">CREATE DATABASE [IF NOT EXISTS] datenbankname;</code>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">CREATE TABLE tabellenname (<br>  attribut1 Datentyp [zusätzliche Parameter],<br>  ...<br>);</code>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">CREATE TABLE kunde (<br>  kundenId INTEGER PRIMARY KEY AUTO_INCREMENT,<br>  vorname VARCHAR(50),<br>  nachname VARCHAR(50) NOT NULL,<br>  eMail VARCHAR(50) UNIQUE<br>);</code>
+  </li>
+  
+  <li><strong>DROP:</strong> Löscht eine Datenbank bzw. Tabelle mit dem angegebenen Namen.<br>
+    <blockquote><strong>Achtung:</strong> Es gehen natürlich auch alle gespeicherten Daten(sätze) verloren!</blockquote>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">DROP DATABASE IF EXISTS datenbankname;</code>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">DROP TABLE tabellenname;</code>
+  </li>
+  
+  <li><strong>ALTER TABLE:</strong> Ändert die Struktur einer bestehenden Tabelle. Es können z.B. neue Attribute (Spalten) hinzugefügt, bestehenden Attribute geändert oder gelöscht werden. Es können auch (nachträglich) Fremdschlüsselbeziehungen definiert werden.<br>
+    <ul class="mt-2 text-sm">
+      <li><strong>Neues Attribut hinzufügen:</strong> Fügt eine neue Spalte „plz“ nach der Spalte „eMail“ vom Datentyp Integer ein.<br>
+        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden ADD COLUMN plz INTEGER NOT NULL AFTER eMail;</code></li>
+      <li><strong>Datentyp eines Attributs ändern:</strong> Ändert den Datentyp von „plz“ in eine Zeichenkette. Beim Ändern des Datentyps muss darauf geachtet werden, dass die Datensätze mit dem neuen Datentyp kompatibel sind!<br>
+        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden MODIFY plz VARCHAR(50) NOT NULL;</code></li>
+      <li><strong>Namen eines Attributs ändern:</strong> Ändert den Namen der Spalte „plz“ in „postleitzahl“ mit dem Datentyp VARCHAR(50).<br>
+        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden CHANGE COLUMN plz postleitzahl VARCHAR(50);</code></li>
+      <li><strong>Fremdschlüssel hinzufügen:</strong> Fügt einen Fremdschlüssel (plz) zwischen „kunden“ und „orte“ hinzu. Dabei muss die Tabelle Orte bereits erstellt worden sein. Auch das Attribut „plz“ muss zuvor in der Tabelle „kunden“ erstellt / definiert worden sein.<br>
+        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden ADD FOREIGN KEY (plz) REFERENCES orte (plz);</code></li>
+      <li><strong>Attribut löschen:</strong> Löscht die Spalte „postleitzahl“ aus der Tabelle.<br>
+        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden DROP COLUMN postleitzahl;</code></li>
+    </ul>
+  </li>
+</ul>
+
+<hr>
+
+<h4>4.2. DML (Data Manipulation Language)</h4>
+<p>DML wird verwendet, um Daten in Tabellen zu verändern (hinzufügen, ändern und löschen). <strong>DML ändert die gespeicherten Daten in einer Datenbank.</strong></p>
+
+<ul>
+  <li><strong>INSERT INTO:</strong> Fügt neue Datensätze in eine bestehende Tabelle ein.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block mt-1">INSERT INTO kunden (kundenId, vorname, nachname, eMail)<br>VALUES<br>(1, ''Max'', ''Mustermann'', ''max.mustermann@gmx.de''),<br>(2, ''Maria'', ''Musterfrau'', ''maria.musterfrau@web.de'');</code>
+  </li>
+  <li><strong>UPDATE:</strong> Aktualisiert bestehende Datensätze. Die „Where“ - Klausel ist notwendig, da sonst alle Datensätze in einer Tabelle aktualisiert werden würden. Es können auch mehrere Attributwerte in einem Befehl aktualisiert werden.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block mt-1">UPDATE kunden SET nachname = ''Kobel'' WHERE kundenId = 3;</code><br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block mt-1">UPDATE kunden SET nachname = ''Kobel'', eMail = ''kobel@web.de'' WHERE kundenId = 3;</code>
+  </li>
+  <li><strong>DELETE:</strong> Löscht Datensätze. Auch hier ist die „Where“ - Klausel unbedingt notwendig, da ansonsten ALLE Datensätze gelöscht werden.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block mt-1">DELETE FROM kunden WHERE kNr = 1;</code>
+  </li>
+</ul>'
+);
+
+-- STREAMING_CHUNK: Füge Lektion 5 (SQL DQL) ein...
+-- ------------------------------------------------------------------------------
+-- Lektion 5: SQL DQL (Data Query Language)
+-- ------------------------------------------------------------------------------
+INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
+VALUES (
+    'lesson_db_05',
+    'subj_db_01',
+    'user_admin_01',
+    'SQL: DQL (Abfragen)',
+    50,
+    'published',
+    'Rohdaten SQL DQL...',
+    '<h3>4.3. DQL (Data Query Language)</h3>
+<p>DQL dient dazu, Daten aus einer Datenbank abzufragen. Man kann die Daten dabei (logisch) aufbereiten. <strong>DQL liest Daten aus der Datenbank.</strong></p>
+
+<h4>Die grundlegende SELECT-Struktur</h4>
+<div class="bg-surface border border-border rounded-xl p-4 flex gap-3 my-4">
+  <span class="text-xl">💡</span>
+  <div>
+    <h4 class="font-bold m-0 text-sm">Aufbau</h4>
+    <p class="text-xs text-muted m-0 mt-1">
+      SELECT [DISTINCT] Spalte1 [, Spalte2, ...]<br>
+      FROM Tabelle1<br>
+      JOIN Tabelle2 ON Tabelle1.Attribut = Tabelle2.Attribut<br>
+      WHERE Bedingung<br>
+      GROUP BY Spaltenname<br>
+      HAVING Bedingung<br>
+      ORDER BY Spaltenname [ASC | DESC]<br>
+      [LIMIT]<br>
+      [OFFSET];
+    </p>
+  </div>
+</div>
+
+<ul>
+  <li><strong>SELECT:</strong> Bestimmt welche Spalten (Attribute) ausgegeben werden sollen. Ein „*“ gibt alle Spalten (Attribute) aus.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT name, preis FROM produkte;</code> Zeigt die Spalten „name“ und „preis“ aus der Tabelle „produkte“.</li>
+  <li><strong>DISTINCT:</strong> Entfernt doppelte Werte aus dem Ergebnis.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT DISTINCT stadt FROM kunden;</code> Jede Stadt wird nur einmal angezeigt.</li>
+  <li><strong>FROM:</strong> Legt fest, aus welcher Tabelle die Daten gelesen werden. Hier wird eine „Basisrelation“ ausgewählt.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT name FROM kunden;</code> Daten kommen aus der Tabelle „kunden“.</li>
+</ul>
+
+<hr>
+
+<h4>[INNER | LEFT | RIGHT] JOIN</h4>
+<p>Verbindet mehrere Tabellen (logisch) miteinander.</p>
+<ul>
+  <li><strong>INNER JOIN:</strong> Bei einem (Inner) Join enthält die Ergebnistabelle nur die Schnittmenge beider Tabellen T1 und T2. Es werden nur Datensätze angezeigt, bei denen es in beiden Tabellen übereinstimmende Werte gibt.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT k.name, b.datum FROM kunden AS k INNER JOIN bestellungen AS b ON k.kundenId = b.kundenId;</code><br>Es werden nur Kunden angezeigt, die auch mindestens eine Bestellung getätigt haben.</li>
+  <li><strong>LEFT JOIN:</strong> Bei einem Left Join enthält die Ergebnistabelle die Schnittmenge beider Tabellen T1 und T2 sowie alle Tupel der linken Tabelle T1. Gibt es keine Schnittmenge, werden die Spalten von T2 mit [NULL] - Werten aufgefüllt.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT k.name, b.datum FROM kunden AS k LEFT JOIN bestellungen AS b ON k.kundenId = b.kundenId;</code><br>Es werden ALLE Kunden angezeigt, und die jeweilige Bestellung, falls der Kunde mindestens schon eine aufgegeben hat. Sind keine Bestellungen vorhanden, wird der Kunde dennoch namentlich angezeigt und das Datum mit „Null“ - Werten aufgefüllt.</li>
+  <li><strong>RIGHT JOIN:</strong> Bei einem Right Join enthält die Ergebnistabelle die Schnittmenge beider Tabellen T1 und T2 sowie alle Tupel der rechten Tabelle T2. Gibt es keine Schnittmenge, werden die Spalten von T1 mit [NULL] - Werten aufgefüllt.</li>
+</ul>
+
+<hr>
+
+<h4>Weitere Klauseln</h4>
+<ul>
+  <li><strong>WHERE:</strong> Filtert Zeilen nach einer Bedingung. Die Filterung findet vor einem GROUP BY statt (bevor eine Aggregatfunktion angewendet wird).<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT name FROM kunden WHERE stadt = ''Berlin'';</code> Es werden nur Kunden (Namen) angezeigt, die aus Berlin kommen.</li>
+  <li><strong>GROUP BY:</strong> Gruppiert Datensätze, z. B. für Aggregatfunktionen (COUNT, SUM, AVG).<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT stadt, COUNT(kundenId) FROM kunden GROUP BY stadt;</code> Gibt die Anzahl der Kunden pro Stadt zurück.</li>
+  <li><strong>HAVING:</strong> Filtert Gruppen (nach GROUP BY). HAVING wird nach GROUP BY angewendet (nachdem eine Aggregatfunktion angewendet wurde).<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT stadt, COUNT(kundenId) FROM kunden GROUP BY stadt HAVING COUNT(*) > 5;</code> Zeigt nur Städte mit mehr als 5 Kunden.</li>
+  <li><strong>ORDER BY:</strong> Sortiert das Ergebnis. ASC (aufsteigend → A - Z oder Klein - Groß), DESC (absteigend → Z - A oder Groß - Klein).<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT name, preis FROM produkte ORDER BY preis DESC;</code> Gibt die Produkte absteigend nach dem Preis sortiert aus.</li>
+  <li><strong>LIMIT:</strong> Begrenzt die Anzahl der ausgegebenen Zeilen.<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT * FROM produkte LIMIT 5;</code> Zeigt nur die ersten 5 Datensätze des Ergebnisses an.</li>
+  <li><strong>OFFSET:</strong> Überspringt eine bestimmte Anzahl von Zeilen (oft für Pagination).<br>
+    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT * FROM produkte LIMIT 5 OFFSET 10;</code> Zeigt 5 Datensätze ab dem 11. Datensatz.</li>
+</ul>
+
+<hr>
+
+<h4>4.3.2. Aggregatfunktionen</h4>
+<div class="overflow-x-auto my-4">
+  <table class="w-full text-sm text-left border border-border rounded-lg">
+    <thead class="text-xs uppercase bg-surface">
+      <tr><th class="px-4 py-3">Operator</th><th class="px-4 py-3">Erklärung</th></tr>
+    </thead>
+    <tbody class="divide-y divide-border">
+      <tr><td class="px-4 py-3 font-bold">MAX(...)</td><td class="px-4 py-3">Gibt den größten Wert zurück</td></tr>
+      <tr><td class="px-4 py-3 font-bold">MIN(...)</td><td class="px-4 py-3">Gibt den kleinsten Wert zurück</td></tr>
+      <tr><td class="px-4 py-3 font-bold">AVG(...)</td><td class="px-4 py-3">Berechnet den Mittelwert und gibt ihn zurück</td></tr>
+      <tr><td class="px-4 py-3 font-bold">SUM(...)</td><td class="px-4 py-3">Summiert alle Werte auf</td></tr>
+      <tr><td class="px-4 py-3 font-bold">COUNT(...)</td><td class="px-4 py-3">Zählt alle Zeilen zusammen, die den Bedingungen entsprechen</td></tr>
+    </tbody>
+  </table>
+</div>'
+);

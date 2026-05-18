@@ -1,0 +1,339 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String
+  role          String    @default("student")  // "student" | "admin"
+  streak        Int       @default(0)
+  bio           String    @default("")
+  theme         String    @default("dark")
+  isBanned      Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  gdprConsentAt DateTime?
+  occupation    String?
+
+  accounts      Account[]
+  sessions      Session[]
+  subjects      Subject[]
+  progress      UserProgress[]
+  bookmarks     Bookmark[]
+  notes         LessonNote[]
+  auditLogs     AuditLog[]
+  lessons       Lesson[]    @relation("AuthoredLessons")
+
+  // Adaptive Lernplattform Relationen
+  documents          Document[]
+  conceptNodes       ConceptNode[]
+  taskAttempts       TaskAttempt[]
+  nodeMasteries      NodeMastery[]
+  learningSession    LearningSession?
+  exams              Exam[]
+  subjectAssessments SubjectAssessment[]
+
+  @@map("users")
+}
+
+model Subject {
+  id                 String   @id @default(cuid())
+  userId             String
+  title              String
+  color              String   @default("#3b82f6")
+  icon               String   @default("ph-book")
+  createdAt          DateTime @default(now())
+
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessons            Lesson[]
+  documents          Document[]
+  subjectAssessments SubjectAssessment[]
+
+  @@unique([userId, title])
+  @@map("subjects")
+}
+
+model Lesson {
+  id         String   @id @default(cuid())
+  subjectId  String
+  authorId   String?
+  title      String
+  content    String   @db.LongText   // Gerendertes HTML (MySQL LongText)
+  contentRaw String   @db.LongText   // Markdown / Quiz-JSON
+  type       String   @default("article")  // "article" | "quiz"
+  status     String   @default("published")  // "draft" | "published"
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  subject   Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  author    User?          @relation("AuthoredLessons", fields: [authorId], references: [id], onDelete: SetNull)
+  progress  UserProgress[]
+  bookmarks Bookmark[]
+  notes     LessonNote[]
+
+  @@map("lessons")
+}
+
+model UserProgress {
+  userId    String
+  lessonId  String
+  status    String    @default("completed")  // "pending" | "completed"
+  score     Int?
+  updatedAt DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, lessonId])
+  @@map("user_progress")
+}
+
+model Bookmark {
+  userId    String
+  lessonId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, lessonId])
+  @@map("bookmarks")
+}
+
+model LessonNote {
+  userId    String
+  lessonId  String
+  content   String   @db.Text
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, lessonId])
+  @@map("lesson_notes")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
+
+model SystemSetting {
+  settingKey   String   @id
+  settingValue String   @db.Text
+  updatedAt    DateTime @updatedAt
+
+  @@map("system_settings")
+}
+
+// --- Adaptive Lernplattform Modelle ---
+
+enum Level {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model SubjectAssessment {
+  userId      String
+  subjectId   String
+  level       Level
+  completedAt DateTime @default(now()) @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, subjectId])
+  @@map("subject_assessments")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  userId      String
+  filename    String
+  storagePath String
+  status      String   @default("uploaded") // 'uploaded', 'processing', 'processed', 'error'
+  subjectId   String?
+  uploadedAt  DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subject      Subject?      @relation(fields: [subjectId], references: [id], onDelete: SetNull)
+  conceptNodes ConceptNode[]
+  exams        Exam[]        @relation("ExamDocuments")
+
+  @@map("documents")
+}
+
+model ConceptNode {
+  id          String   @id @default(cuid())
+  userId      String
+  documentId  String
+  title       String
+  description String   @db.Text
+  createdAt   DateTime @default(now())
+
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document        Document          @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  cachedTasks     CachedTask[]
+  mastery         NodeMastery[]
+  learningSession LearningSession[]
+  exams           Exam[]            @relation("ExamNodes")
+
+  incomingEdges   ConceptEdge[]     @relation("DependentEdges")
+  outgoingEdges   ConceptEdge[]     @relation("PrerequisiteEdges")
+
+  @@map("concept_nodes")
+}
+
+model ConceptEdge {
+  prerequisiteNodeId String
+  dependentNodeId    String
+
+  prerequisiteNode   ConceptNode @relation("PrerequisiteEdges", fields: [prerequisiteNodeId], references: [id], onDelete: Cascade)
+  dependentNode      ConceptNode @relation("DependentEdges", fields: [dependentNodeId], references: [id], onDelete: Cascade)
+
+  @@id([prerequisiteNodeId, dependentNodeId])
+  @@map("concept_edges")
+}
+
+model CachedTask {
+  id             String   @id @default(cuid())
+  nodeId         String
+  taskContent    String   @db.Text
+  expectedAnswer String   @db.Text
+  contextVariant Int      @default(1)
+  reportCount    Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  node             ConceptNode       @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  attempts         TaskAttempt[]
+  learningSessions LearningSession[]
+
+  @@map("cached_tasks")
+}
+
+model TaskAttempt {
+  id          String   @id @default(cuid())
+  taskId      String
+  userId      String
+  answer      String   @db.Text
+  isCorrect   Boolean
+  errorType   String?
+  feedback    String   @db.Text
+  submittedAt DateTime @default(now())
+
+  cachedTask CachedTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("task_attempts")
+}
+
+model NodeMastery {
+  id         String   @id @default(cuid())
+  userId     String
+  nodeId     String
+  masteredAt DateTime @default(now())
+
+  user User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  node ConceptNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, nodeId])
+  @@map("node_mastery")
+}
+
+model LearningSession {
+  userId     String    @id
+  lastNodeId String?
+  lastTaskId String?
+  updatedAt  DateTime  @updatedAt
+
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastNode ConceptNode? @relation(fields: [lastNodeId], references: [id], onDelete: SetNull)
+  lastTask CachedTask?  @relation(fields: [lastTaskId], references: [id], onDelete: SetNull)
+
+  @@map("learning_sessions")
+}
+
+model Exam {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  examDate  DateTime
+  createdAt DateTime @default(now())
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents Document[] @relation("ExamDocuments")
+  nodes     ConceptNode[] @relation("ExamNodes")
+
+  @@map("exams")
+}
+
+model LlmCallLog {
+  id           String   @id @default(cuid())
+  model        String
+  outputTokens Int?
+  promptTokens Int?
+  durationMs   Int
+  operation    String
+  error        String?  @db.Text
+  createdAt    DateTime @default(now())
+
+  @@map("llm_call_logs")
+}
+
+// --- Auth.js Pflichtmodelle ---
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
