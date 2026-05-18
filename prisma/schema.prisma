@@ -73,7 +73,7 @@ model Lesson {
   status     String   @default("published")  // "draft" | "published"
   sortOrder  Int      @default(0)
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime @default(now()) @updatedAt
 
   subject   Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
   author    User?          @relation("AuthoredLessons", fields: [authorId], references: [id], onDelete: SetNull)
