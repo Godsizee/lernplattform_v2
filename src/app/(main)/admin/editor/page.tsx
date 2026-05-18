@@ -20,9 +20,8 @@ export default async function AdminEditorPage({ searchParams }: PageProps) {
   const userId = session.user.id
   const { lessonId } = await searchParams
 
-  // Fetch subjects of this admin user to select in form dropdown
+  // Fetch all subjects to select in form dropdown
   const subjects = await prisma.subject.findMany({
-    where: { userId },
     select: { id: true, title: true }
   })
 
@@ -34,7 +33,7 @@ export default async function AdminEditorPage({ searchParams }: PageProps) {
       include: { subject: true }
     })
 
-    if (!fetchedLesson || fetchedLesson.subject.userId !== userId) {
+    if (!fetchedLesson) {
       notFound()
     }
 
