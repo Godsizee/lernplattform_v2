@@ -342,17 +342,47 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: 'SQL-Befehl darf nicht leer sein' }, { status: 400 })
     }
 
-    const trimmed = sql.trim().toLowerCase()
+    // Einzelne SQL-Befehle parsen (Aufteilung an Semikolons außerhalb von Hochkommas)
+    const rawStatements = sql
+      .split(/;(?=(?:[^']*'[^']*')*[^']*$)/g) // Splittet an Semikolons, ignoriert Semikolons in Strings
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0)
 
-    // Keine DDL-Befehlsbeschränkungen mehr - Admins dürfen alles ausführen.
-
-    // Wenn es ein SELECT-Befehl oder SHOW-Befehl ist, Ergebnisse ausgeben
-    if (trimmed.startsWith('select') || trimmed.startsWith('show') || trimmed.startsWith('describe') || trimmed.startsWith('explain')) {
-      const result = await prisma.$queryRawUnsafe(sql)
-      return NextResponse.json({ success: true, isQuery: true, data: result })
+    if (rawStatements.length === 1) {
+      const singleSql = rawStatements[0]
+      const singleTrimmed = singleSql.toLowerCase()
+      if (
+        singleTrimmed.startsWith('select') ||
+        singleTrimmed.startsWith('show') ||
+        singleTrimmed.startsWith('describe') ||
+        singleTrimmed.startsWith('explain')
+      ) {
+        const result = await prisma.$queryRawUnsafe(singleSql)
+        return NextResponse.json({ success: true, isQuery: true, data: result })
+      } else {
+        const affectedRows = await prisma.$executeRawUnsafe(singleSql)
+        return NextResponse.json({ success: true, isQuery: false, affectedRows })
+      }
     } else {
-      // DML (Insert, Update, Delete)
-      const affectedRows = await prisma.$executeRawUnsafe(sql)
+      // Mehrere Statements in einer Transaktion ausführen (inklusive Deaktivierung der Foreign Keys)
+      let affectedRows = 0
+      await prisma.$transaction(async (tx) => {
+        await tx.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 0;')
+        for (const stmt of rawStatements) {
+          const stmtTrimmed = stmt.toLowerCase()
+          if (
+            stmtTrimmed.startsWith('select') ||
+            stmtTrimmed.startsWith('show') ||
+            stmtTrimmed.startsWith('describe') ||
+            stmtTrimmed.startsWith('explain')
+          ) {
+            await tx.$queryRawUnsafe(stmt)
+          } else {
+            affectedRows += await tx.$executeRawUnsafe(stmt)
+          }
+        }
+        await tx.$executeRawUnsafe('SET FOREIGN_KEY_CHECKS = 1;')
+      })
       return NextResponse.json({ success: true, isQuery: false, affectedRows })
     }
   } catch (err: any) {
