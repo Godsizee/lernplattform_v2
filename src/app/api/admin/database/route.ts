@@ -258,26 +258,7 @@ export async function POST(req: NextRequest) {
         .map((s) => s.trim())
         .filter((s) => s.length > 0)
 
-      // Nur INSERT INTO / UPDATE / DELETE erlauben
-      const illegalKeywords = ['drop', 'truncate', 'alter', 'create', 'grant', 'revoke']
-      for (const stmt of rawStatements) {
-        // Entferne SQL-Kommentare für die Typprüfung
-        const cleanStmt = stmt
-          .replace(/--.*$/gm, '')
-          .replace(/\/\*[\s\S]*?\*\//g, '')
-          .trim()
-        
-        if (cleanStmt.length === 0) continue
-
-        const lower = cleanStmt.toLowerCase()
-        const firstWord = lower.split(/[\s(]+/)[0]
-        if (illegalKeywords.includes(firstWord)) {
-          return NextResponse.json(
-            { error: `Ungültiger Befehl blockiert: Strukturänderungen sind im Batch-Import verboten. (${firstWord.toUpperCase()} nicht erlaubt)` },
-            { status: 400 }
-          )
-        }
-      }
+      // Keine Befehlsbeschränkungen mehr - Admins dürfen alles ausführen.
 
       await prisma.$transaction(async (tx) => {
         // Fremdschlüssel-Prüfungen temporär ausschalten
@@ -363,11 +344,7 @@ export async function PUT(req: NextRequest) {
 
     const trimmed = sql.trim().toLowerCase()
 
-    // Destruktive DDL-Befehle blockieren zur Sicherheit der Plattform
-    const blockedKeywords = ['drop database', 'alter database', 'flush privileges']
-    if (blockedKeywords.some((keyword) => trimmed.includes(keyword))) {
-      return NextResponse.json({ error: 'Sicherheitsfehler: Dieser administrative Befehl ist blockiert.' }, { status: 403 })
-    }
+    // Keine DDL-Befehlsbeschränkungen mehr - Admins dürfen alles ausführen.
 
     // Wenn es ein SELECT-Befehl oder SHOW-Befehl ist, Ergebnisse ausgeben
     if (trimmed.startsWith('select') || trimmed.startsWith('show') || trimmed.startsWith('describe') || trimmed.startsWith('explain')) {
