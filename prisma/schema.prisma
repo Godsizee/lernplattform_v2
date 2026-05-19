@@ -47,13 +47,13 @@ model User {
 
 model Subject {
   id                 String   @id @default(cuid())
-  userId             String
+  userId             String?
   title              String
   color              String   @default("#3b82f6")
   icon               String   @default("ph-book")
   createdAt          DateTime @default(now())
 
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user               User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   lessons            Lesson[]
   documents          Document[]
   subjectAssessments SubjectAssessment[]

@@ -1,12 +1,6 @@
--- STREAMING_CHUNK: Initialisiere Dummy-Benutzer und Fach für referenzielle Integrität...
--- ------------------------------------------------------------------------------
--- Setup: User & Subject (Damit die Foreign Keys der Lessons funktionieren)
--- ------------------------------------------------------------------------------
-INSERT IGNORE INTO users (id, name, email, password, role) 
-VALUES ('user_admin_01', 'Admin', 'admin@example.com', 'hashed_pw_123', 'admin');
-
+-- Der Dummy-Benutzer 'user_admin_01' wird nicht mehr benötigt, da das Fach global ist.
 INSERT IGNORE INTO subjects (id, userId, title, color, icon) 
-VALUES ('subj_db_01', 'user_admin_01', 'Datenbanken', '#8b5cf6', 'ph-database');
+VALUES ('subj_db_01', NULL, 'Datenbanken', '#8b5cf6', 'ph-database');
 
 -- STREAMING_CHUNK: Füge Lektion 1 (Datenbanktheorie) in voller Länge ein...
 -- ------------------------------------------------------------------------------
@@ -16,7 +10,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentR
 VALUES (
     'lesson_db_01',
     'subj_db_01',
-    'user_admin_01',
+    NULL,
     'Datenbanktheorie & Grundlagen',
     10,
     'published',
@@ -157,7 +151,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentR
 VALUES (
     'lesson_db_02',
     'subj_db_01',
-    'user_admin_01',
+    NULL,
     'Normalisierung',
     20,
     'published',
@@ -330,7 +324,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentR
 VALUES (
     'lesson_db_03',
     'subj_db_01',
-    'user_admin_01',
+    NULL,
     'Modellierung',
     30,
     'published',
@@ -412,7 +406,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentR
 VALUES (
     'lesson_db_04',
     'subj_db_01',
-    'user_admin_01',
+    NULL,
     'SQL: DDL & DML',
     40,
     'published',
@@ -480,7 +474,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentR
 VALUES (
     'lesson_db_05',
     'subj_db_01',
-    'user_admin_01',
+    NULL,
     'SQL: DQL (Abfragen)',
     50,
     'published',

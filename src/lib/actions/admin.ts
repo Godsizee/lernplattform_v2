@@ -388,7 +388,7 @@ export async function updateSubject(subjectId: string, rawData: { title: string;
     throw new Error("Fach nicht gefunden")
   }
 
-  if (subject.userId !== userId) {
+  if (subject.userId && subject.userId !== userId) {
     throw new Error("Berechtigung verweigert: Dieses Fach gehört einem anderen Benutzer")
   }
 
@@ -433,7 +433,7 @@ export async function deleteSubject(subjectId: string) {
     throw new Error("Fach nicht gefunden")
   }
 
-  if (subject.userId !== userId) {
+  if (subject.userId && subject.userId !== userId) {
     throw new Error("Berechtigung verweigert: Dieses Fach gehört einem anderen Benutzer")
   }
 

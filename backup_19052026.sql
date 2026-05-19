@@ -1,121 +1,17 @@
 -- Code & Cash Lernplattform Next.js - SQL Dump
--- Generiert am: 2026-05-18T07:57:26.219Z
+-- Generiert am: 2026-05-19T14:03:43.856Z
 
 SET FOREIGN_KEY_CHECKS=0;
 
--- ==============================================================================
--- DATABASE DROP & RECREATE SECTION (Für eine saubere, leere Datenbankstruktur)
--- ==============================================================================
-
-DROP TABLE IF EXISTS lesson_notes;
-DROP TABLE IF EXISTS bookmarks;
-DROP TABLE IF EXISTS user_progress;
-DROP TABLE IF EXISTS audit_logs;
-DROP TABLE IF EXISTS lessons;
-DROP TABLE IF EXISTS subjects;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS system_settings;
-
-CREATE TABLE users (
-    id VARCHAR(191) PRIMARY KEY,
-    name VARCHAR(191) NOT NULL,
-    email VARCHAR(191) UNIQUE NOT NULL,
-    emailVerified DATETIME NULL,
-    image VARCHAR(191) NULL,
-    password VARCHAR(191) NOT NULL,
-    role VARCHAR(50) DEFAULT 'student',
-    streak INT DEFAULT 0,
-    bio TEXT NULL,
-    theme VARCHAR(50) DEFAULT 'dark',
-    isBanned BOOLEAN DEFAULT FALSE,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    gdprConsentAt DATETIME NULL,
-    occupation VARCHAR(191) NULL
-);
-
-CREATE TABLE subjects (
-    id VARCHAR(191) PRIMARY KEY,
-    userId VARCHAR(191) NOT NULL,
-    title VARCHAR(191) NOT NULL,
-    color VARCHAR(50) DEFAULT '#3b82f6',
-    icon VARCHAR(191) DEFAULT 'ph-book',
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_user_subject (userId, title)
-);
-
-CREATE TABLE lessons (
-    id VARCHAR(191) PRIMARY KEY,
-    subjectId VARCHAR(191) NOT NULL,
-    authorId VARCHAR(191) NULL,
-    title VARCHAR(191) NOT NULL,
-    content LONGTEXT NOT NULL,
-    contentRaw LONGTEXT NULL,
-    type VARCHAR(50) DEFAULT 'article',
-    status VARCHAR(50) DEFAULT 'published',
-    sortOrder INT DEFAULT 0,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (subjectId) REFERENCES subjects(id) ON DELETE CASCADE,
-    FOREIGN KEY (authorId) REFERENCES users(id) ON DELETE SET NULL
-);
-
-CREATE TABLE user_progress (
-    userId VARCHAR(191) NOT NULL,
-    lessonId VARCHAR(191) NOT NULL,
-    status VARCHAR(50) DEFAULT 'completed',
-    score INT NULL,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (userId, lessonId),
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (lessonId) REFERENCES lessons(id) ON DELETE CASCADE
-);
-
-CREATE TABLE bookmarks (
-    userId VARCHAR(191) NOT NULL,
-    lessonId VARCHAR(191) NOT NULL,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (userId, lessonId),
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (lessonId) REFERENCES lessons(id) ON DELETE CASCADE
-);
-
-CREATE TABLE lesson_notes (
-    userId VARCHAR(191) NOT NULL,
-    lessonId VARCHAR(191) NOT NULL,
-    content TEXT NOT NULL,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (userId, lessonId),
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (lessonId) REFERENCES lessons(id) ON DELETE CASCADE
-);
-
-CREATE TABLE audit_logs (
-    id VARCHAR(191) PRIMARY KEY,
-    userId VARCHAR(191) NOT NULL,
-    action VARCHAR(191) NOT NULL,
-    details TEXT NULL,
-    createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE
-);
-
-CREATE TABLE system_settings (
-    settingKey VARCHAR(191) PRIMARY KEY,
-    settingValue TEXT NOT NULL,
-    updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- ==============================================================================
--- END OF DROP & RECREATE SECTION
--- ==============================================================================
-
-
 -- Table: users
 DELETE FROM users;
-INSERT INTO users (id, name, email, emailVerified, image, password, role, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('u5ilhtdcn9ycti9tbmc', 'Basti', 'badesebastian@outlook.com', NULL, NULL, '$2b$10$2WbVIYbGwverqpYtarEtC.1hb4NCX3tAFqpcW43yMbF8oH7qTUGzy', 'admin', '', 'dark', 0, '2026-04-25 19:20:24', NULL, NULL);
-INSERT INTO users (id, name, email, emailVerified, image, password, role, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('ubdbfowdpbr1hcolcxx', 'Dominik Kraft', 'dominik-kraft@gmx.de', NULL, NULL, '$2y$10$GrSz.ipRNSevIdiFTk6b.OiSndd5X1PKrAdSjJ4Bb3oRXZ8kXBs3O', 'student', '', 'dark', 0, '2026-05-07 07:39:43', NULL, NULL);
-INSERT INTO users (id, name, email, emailVerified, image, password, role, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('ujj55mi4az7sklm9sdf', 'Alexander', 'seitz-alexander@gmx.de', NULL, NULL, '$2y$10$ElqJGzMLqwp2VgP.W0/hGuDf7av7KvJY7MobwB8tjI9eEs6GF85o6', 'admin', '', 'dark', 0, '2026-04-27 13:57:18', NULL, NULL);
-INSERT INTO users (id, name, email, emailVerified, image, password, role, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('up764f99o00pcq1v0xo', 'Natalie Lutz', 'lutznatalie@gmx.de', NULL, NULL, '$2y$10$PJhisoBaZwyka3gGSsd5u.JDXdeXsZF1K0XT1XflM0dG/ba9Mj0vS', 'student', '', 'dark', 0, '2026-04-26 19:29:31', NULL, NULL);
+INSERT INTO users (id, name, email, emailVerified, image, password, role, streak, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('cmpcdhpsq0018q0s9re88ypww', 'Ich', 'eztokk@gmail.com', NULL, NULL, '$2b$10$srgw77yvigH..C5mlaS7.OwGc/daQ0u/amf0h5gqau0UUZkDJH/Qy', 'student', 0, '', 'dark', 0, '2026-05-19 08:30:24', NULL, NULL);
+INSERT INTO users (id, name, email, emailVerified, image, password, role, streak, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('cmpckovvq000gzzeaj7rnx3xd', 'Thorsten', 'hoffmann.thorsten@me.com', NULL, NULL, '$2b$10$rl/rFk/nkXaa15PVlFVEM.qvPDOUQomdnInokYSQ.TX3KxKxUaJ5G', 'student', 0, '', 'dark', 0, '2026-05-19 11:51:56', NULL, NULL);
+INSERT INTO users (id, name, email, emailVerified, image, password, role, streak, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('cmpckth8b000xzzeafc2ym700', 'Dominik Kowalsky', 'dominik-kowalsky9294@gmx.de', NULL, NULL, '$2b$10$UQfe2nqFzqaUzW9tQXutqu2cGCavMLILN3qFSv479baCe96OIwvj2', 'student', 0, '', 'dark', 0, '2026-05-19 11:55:30', NULL, NULL);
+INSERT INTO users (id, name, email, emailVerified, image, password, role, streak, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('u5ilhtdcn9ycti9tbmc', 'Basti', 'badesebastian@outlook.com', NULL, NULL, '$2b$10$2WbVIYbGwverqpYtarEtC.1hb4NCX3tAFqpcW43yMbF8oH7qTUGzy', 'admin', 0, '', 'dark', 0, '2026-04-25 19:20:24', NULL, NULL);
+INSERT INTO users (id, name, email, emailVerified, image, password, role, streak, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('ubdbfowdpbr1hcolcxx', 'Dominik Kraft', 'dominik-kraft@gmx.de', NULL, NULL, '$2y$10$GrSz.ipRNSevIdiFTk6b.OiSndd5X1PKrAdSjJ4Bb3oRXZ8kXBs3O', 'student', 0, '', 'dark', 0, '2026-05-07 07:39:43', NULL, NULL);
+INSERT INTO users (id, name, email, emailVerified, image, password, role, streak, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('ujj55mi4az7sklm9sdf', 'Alexander', 'seitz-alexander@gmx.de', NULL, NULL, '$2y$10$ElqJGzMLqwp2VgP.W0/hGuDf7av7KvJY7MobwB8tjI9eEs6GF85o6', 'admin', 0, '', 'dark', 0, '2026-04-27 13:57:18', NULL, NULL);
+INSERT INTO users (id, name, email, emailVerified, image, password, role, streak, bio, theme, isBanned, createdAt, gdprConsentAt, occupation) VALUES ('up764f99o00pcq1v0xo', 'Natalie Lutz', 'lutznatalie@gmx.de', NULL, NULL, '$2y$10$PJhisoBaZwyka3gGSsd5u.JDXdeXsZF1K0XT1XflM0dG/ba9Mj0vS', 'student', 0, '', 'dark', 0, '2026-04-26 19:29:31', NULL, NULL);
 
 -- Table: subjects
 DELETE FROM subjects;
@@ -164,7 +60,7 @@ class Dog implements Animal {
     public void breathe() { 
         System.out.println("Dog is breathing"); 
     }
-}</code></pre></div>', '', 'article', 'published', 58, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 58, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l06i4gbhx8vi6y485sc', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Datenaustauschformate: CSV, XML & JSON', '<h3>1. Die großen Drei der Web-Entwicklung</h3>
 <p>Um Daten zwischen verschiedenen Systemen (z.B. Backend und Frontend) zu speichern und reibungslos auszutauschen, haben sich im Laufe der Jahre verschiedene strukturierte Formate etabliert.</p>
 
@@ -222,7 +118,7 @@ Max,25,Berlin</code></pre></div>
     <li style="margin-bottom: 10px;"><strong>Hierarchische Schachtelung:</strong> Tags müssen in der exakt umgekehrten Reihenfolge geschlossen werden, in der sie geöffnet wurden (LIFO-Prinzip).</li>
     <li style="margin-bottom: 10px;"><strong>Attributwerte in Anführungszeichen:</strong> Müssen immer z.B. so formatiert sein: <code>&lt;element id="123"&gt;</code>.</li>
     <li><strong>Vordefinierte Entitäten maskieren:</strong> Sonderzeichen brechen den Code. Aus <code>&lt;</code> wird <code>&amp;lt;</code>, aus <code>&gt;</code> wird <code>&amp;gt;</code> und aus <code>&amp;</code> wird zwingend <code>&amp;amp;</code>.</li>
-</ol>', '', 'article', 'published', 62, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</ol>', '', 'article', 'published', 62, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l0bjafm0yze0m9sl6p5', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Praxis: Die OpenAI API Response parsen', '<h3>1. Die Antwort der KI strukturieren</h3>
 <p>Haben wir erfolgreich einen POST-Request an z. B. OpenAI gesendet, erhalten wir im Response-Body einen großen JSON-String zurück. Dieser enthält viele Metadaten, aber uns interessiert meistens nur der generierte Text und eventuell die verwendeten Tokens.</p>
 
@@ -301,45 +197,7 @@ public class OpenAIParser {
         // Fallback, wenn etwas schiefgeht
         return new GPTResponse("error", "Fehler beim Auslesen des JSON.");
     }
-}</code></pre></div>', '', 'article', 'published', 71, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-    <thead>
-        <tr style="background: linear-gradient(135deg, #2c3e50, #34495e); color: #fff;">
-            <th style="padding: 15px; text-align: left; width: 25%;">Constraint</th>
-            <th style="padding: 15px; text-align: left; width: 75%;">Wirkung & Praxisbeispiel</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #c0392b; font-family: monospace;">PRIMARY KEY</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Definiert den eindeutigen Schlüssel der Tabelle. Erlaubt keine doppelten Werte und verbietet leere Zellen (NULL). Eine Tabelle kann nur einen Primärschlüssel haben.</td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #2980b9; font-family: monospace;">FOREIGN KEY</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Sichert die referentielle Integrität ab. Erlaubt in einer Spalte nur Werte, die im Primärschlüssel der verknüpften Tabelle tatsächlich existieren.</td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #e67e22; font-family: monospace;">UNIQUE</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Stellt sicher, dass alle Werte in einer Spalte unterschiedlich sind. Perfekt für Felder wie <code>email</code> oder <code>benutzername</code>. Im Gegensatz zum Primärschlüssel darf eine Tabelle beliebig viele UNIQUE-Constraints haben.</td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #8e44ad; font-family: monospace;">NOT NULL</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Erzwingt, dass dieses Feld bei der Dateneingabe zwingend ausgefüllt werden muss (Darf nicht leer gelassen werden). Sinnvoll für Felder wie <code>nachname</code>.</td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; font-weight: bold; color: #27ae60; font-family: monospace;">CHECK</td>
-            <td style="padding: 15px; color: #333;">Überprüft eine logische Bedingung vor dem Speichern. Zum Beispiel: <code>CHECK (alter >= 18)</code> oder <code>CHECK (preis > 0)</code>. Schlägt die Prüfung fehl, wird die Speicherung hart blockiert.</td>
-        </tr>
-    </tbody>
-</table>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #2ecc71; margin: 1.5rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.95rem; line-height: 1.6;">-- Ein perfektes Praxisbeispiel für Constraints
-CREATE TABLE produkte (
-    produkt_id SERIAL PRIMARY KEY,
-    bezeichnung VARCHAR(100) NOT NULL UNIQUE,
-    preis DECIMAL(10,2) NOT NULL CHECK (preis > 0),
-    kategorie_id INT,
-    FOREIGN KEY (kategorie_id) REFERENCES kategorien(kategorie_id)
-);</code></pre></div>', '', 'article', 'published', 13, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 71, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l0mfwbi4992cj2yqgyi', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 4', '', '[
     {
         "chapter": 4,
@@ -519,7 +377,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#lektion-4-4-gleitender-preis"
     }
-]', 'quiz', 'published', 99, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 99, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l0t0n5zghuti9yp48q8', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 6', '', '[
     {
         "chapter": 6,
@@ -578,7 +436,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k6-l2"
     }
-]', 'quiz', 'published', 110, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 110, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l1hikhxll5onngtyr8v', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Abschreibungen auf Sachanlagen (AfA)', '
             <h3>1. Ursachen, Buchung und Wirkung</h3>
             <p>Das Anlagevermögen (z.B. Gebäude, Maschinen, Computer) soll dem Unternehmen <strong>langfristig</strong> dienen. Da diese Gegenstände aber nicht ewig halten, mindert sich ihr Wert. Diese Wertminderung wird in der Buchführung als <strong>Aufwand</strong> erfasst.</p>
@@ -698,7 +556,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                     <li>Büromöbel: 13 Jahre</li>
                 </ul>
             </div>
-        ', '', 'article', 'published', 30, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 30, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l1t5mgbs3hz6wpdfwfo', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4F10 - Kapitel 8', '', '[
     {
         "chapter": "Kapitel 8",
@@ -743,11 +601,11 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4f10"
     }
-]', 'quiz', 'published', 79, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 79, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l1v2d54ttihocge9123', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Entnahmen & Leistungen', '
             <h3>Buchung</h3>
             <p>Warenentnahmen für private Zwecke sind umsatzsteuerpflichtig. Sie werden wie ein Verkauf an sich selbst behandelt.</p>
-        ', '', 'article', 'published', 32, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 32, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l22195cnwor7o5pwp09', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Grundlagen ordnungsgemäßer Buchführung (GoB)', '
             <h3>Einführung: Die Spielregeln</h3>
             <p>Die GoB (Grundsätze ordnungsmäßiger Buchführung) sind ein System aus geschriebenen (HGB) und ungeschriebenen Regeln. Sie dienen dem Gläubigerschutz und sollen sicherstellen, dass die Buchführung eines Kaufmanns transparent und nachvollziehbar ist.</p>
@@ -788,40 +646,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             
             <h4>D. Höchstwertprinzip (Passiva)</h4>
             <p>Bei Schulden muss im Zweifel der höhere Wert angesetzt werden (z.B. Währungsschwankung erhöht Kreditlast).</p>
-        ', '', 'article', 'published', 23, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-CREATE VIEW aktive_kunden AS
-SELECT vorname, nachname, email
-FROM kunden
-WHERE ist_aktiv = true;
-
--- 2. Den View aufrufen (Verhält sich exakt wie eine echte Tabelle!)
-SELECT * FROM aktive_kunden ORDER BY nachname;</code></pre></div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>2. Warum nutzt man Views?</h3>
-<table style="width: 100%; border-collapse: collapse; margin-top: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 0.95rem; border-radius: 8px; overflow: hidden;">
-    <thead>
-        <tr style="background: linear-gradient(135deg, #2c3e50, #34495e); color: #fff;">
-            <th style="padding: 15px; text-align: left; width: 30%;">Vorteil</th>
-            <th style="padding: 15px; text-align: left; width: 70%;">Erläuterung in der Praxis</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #e74c3c;">🔐 Sicherheit</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Du willst Mitarbeitern Zugriff auf die Mitarbeiter-Tabelle geben, aber das Gehalt verstecken? Erstelle einen View ohne die Gehalts-Spalte und vergib nur Leserechte für diesen View!</td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #2980b9;">🧩 Komplexität verbergen</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Eine Abfrage benötigt 5 INNER JOINs und hunderte Zeilen SQL-Code? Speichere sie als View. Programmierer können dann einfach <code>SELECT * FROM mein_view</code> nutzen, ohne die komplexe Logik dahinter kennen zu müssen.</td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; font-weight: bold; color: #27ae60;">🔀 Logische Datenunabhängigkeit</td>
-            <td style="padding: 15px; color: #333;">Erinnere dich an das ANSI-SPARC Modell: Wenn sich die internen Basis-Tabellen ändern (Spalten werden umbenannt), kann der View einfach so angepasst werden, dass er nach außen hin wieder die alte Struktur simuliert. Externe Programme stürzen nicht ab.</td>
-        </tr>
-    </tbody>
-</table>', '', 'article', 'published', 20, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 23, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l26nwl2cgwya7gpvaaj', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Deckungsbeitragsrechnung (DBR)', '
             <h3>1. Das Grundprinzip</h3>
             <p>Die Deckungsbeitragsrechnung ist eine <strong>Teilkostenrechnung</strong>. Sie fragt nicht: "Was kostet das Produkt voll?", sondern: "Was trägt das Produkt zur Deckung der Fixkosten bei, nachdem die variablen Kosten bezahlt sind?"</p>
@@ -879,7 +704,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                     <td style="padding: 12px; text-align: right; color: #e65100;">1.210.000,00 €</td>
                 </tr>
             </table>
-        ', '', 'article', 'published', 45, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 45, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l2n4e1ogyysuakpu9wx', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4F10 - Kapitel 3', '', '[
     {
         "chapter": "Kapitel 3",
@@ -1070,7 +895,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4f10"
     }
-]', 'quiz', 'published', 74, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 74, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l3aum9a2bp173xyr4u5', 'sxh3e5ewi0qahenr6jg', 'u5ilhtdcn9ycti9tbmc', '5. Ausnahmebehandlung (Exception Handling)', '<div style="margin-bottom: 3rem;">
     <span style="display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399;">Sicherheit</span>
     <h1 style="font-size: 2.5rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.5rem; letter-spacing: -0.025em;">Fehler abfangen & kontrollieren</h1>
@@ -1117,7 +942,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             </div>
         </div>
     </div>
-</div>', '', 'article', 'published', 51, '2026-04-28 19:54:37', '2026-04-28 19:54:37');
+</div>', '', 'article', 'published', 51, '2026-04-28 19:54:37', '2026-04-28 19:54:38');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l3et9ihaj3kkemafb5x', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Mischkosten (Energie etc.)', '
             <h3>Was sind Mischkosten?</h3>
             <p>Mischkosten enthalten sowohl fixe als auch variable Bestandteile. Das klassische Beispiel sind <strong>Energiekosten</strong> oder Telefonkosten (Grundgebühr + Verbrauch).</p>
@@ -1152,7 +977,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
 
             <p><strong>Relevanz für die KLR:</strong><br>
             In der Teilkostenrechnung müssen Mischkosten <strong>aufgespalten</strong> werden (Kostenauflösung), um den fixen und variablen Teil sauber zu trennen.</p>
-        ', '', 'article', 'published', 44, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 44, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l3y7c7q6zog02uvkkwp', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 1', '', '[
     {
         "chapter": 1,
@@ -1245,7 +1070,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-fiori-ux"
     }
-]', 'quiz', 'published', 115, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 115, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l4qfr36jz9grez2cohi', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Break-Even-Point (Gewinnschwelle)', '
             <h3>1. Die Gewinnschwellenmenge</h3>
             <p>Der Break-Even-Point ist die Stückzahl, bei der die Erlöse genau die Gesamtkosten decken. Der Gewinn ist 0.</p>
@@ -1303,7 +1128,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                     <li>Eine Preiserhöhung senkt die Gewinnschwelle (man ist früher profitabel), birgt aber das Risiko von Absatzrückgang.</li>
                 </ul>
             </div>
-        ', '', 'article', 'published', 46, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 46, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l4z77an022xa1odymis', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4550 - Kapitel 1', '', '[
     {
         "chapter": "Kapitel 1",
@@ -1472,7 +1297,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4550#l1-1"
     }
-]', 'quiz', 'published', 80, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 80, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l543soy2pazium3kvg6', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Sichere Null-Behandlung: Optionals (Java 8+)', '<h3>1. Der Kampf gegen die NullPointerException</h3>
 <p>Früher (vor Java 8) mussten Entwickler unzählige <code>if (obj != null)</code> Prüfungen schreiben, um gefürchtete <em>NullPointerExceptions</em> zu vermeiden. Das machte den Code unleserlich und fehleranfällig.</p>
 
@@ -1534,65 +1359,14 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         // Elegantes Laden mit Fallback Exception
         // Article sichererArtikel = art1.orElseThrow(() -> new RuntimeException("Artikel fehlt!"));
     }
-}</code></pre></div>', '', 'article', 'published', 54, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 54, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l5msm0f22axmqm0clxg', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'KLR Grundlagen', '
             <h3>Abgrenzung</h3>
             <ul>
                 <li><strong>Finanzbuchhaltung:</strong> Aufwand / Ertrag (Gesamtunternehmen).</li>
                 <li><strong>KLR:</strong> Kosten / Leistungen (Betriebszweckbezogen).</li>
             </ul>
-        ', '', 'article', 'published', 36, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-    
-    <!-- Update-Anomalie -->
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fffaf0; border-left: 4px solid #f39c12; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #d35400;">📝 Update-Anomalie (Änderung)</h4>
-        <p style="color: #555; font-size: 0.9rem;"><strong>Das Problem:</strong> Ein Kunde zieht um. Da seine Daten aber in 20 verschiedenen Bestell-Zeilen stehen, muss die Adresse 20 Mal geändert werden. Wird nur eine Zeile vergessen, ist die Datenbank widersprüchlich (inkonsistent).</p>
-    </div>
-
-    <!-- Delete-Anomalie -->
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fef2f2; border-left: 4px solid #e74c3c; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #c0392b;">🗑️ Delete-Anomalie (Löschung)</h4>
-        <p style="color: #555; font-size: 0.9rem;"><strong>Das Problem:</strong> Ein Student meldet sich von seinem einzigen und letzten Kurs ab. Wenn wir die Kurs-Belegung löschen, löschen wir versehentlich auch den Namen und die Adresse des Studenten aus der Datenbank, da alles in einer Zeile stand!</p>
-    </div>
-
-    <!-- Insert-Anomalie -->
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #f8fcfd; border-left: 4px solid #3498db; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #2980b9;">➕ Insert-Anomalie (Einfügung)</h4>
-        <p style="color: #555; font-size: 0.9rem;"><strong>Das Problem:</strong> Wir wollen ein neues Produkt in den Katalog aufnehmen. Das geht aber nicht, weil noch kein Kunde dieses Produkt bestellt hat (und die Kunden-ID Teil des Primärschlüssels unserer riesigen Tabelle ist, der nicht NULL sein darf).</p>
-    </div>
-
-</div>
-
-<div style="background: #fff3cd; padding: 1.2rem; border-left: 4px solid #ffc107; margin: 2rem 0; border-radius: 4px; color: #856404; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    <strong>💡 Die Lösung:</strong> Um diese Anomalien zu verhindern, müssen große Tabellen in kleinere, logisch getrennte Tabellen aufgeteilt werden. Diesen Prozess nennt man <strong>Normalisierung</strong>.
-</div>', '', 'article', 'published', 7, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-CREATE TABLE kunden (
-    -- Spaltenname | Datentyp | Constraints
-    kunden_id INT PRIMARY KEY,
-    vorname VARCHAR(50) NOT NULL,
-    nachname VARCHAR(50) NOT NULL,
-    email VARCHAR(100) UNIQUE,
-    geburtsdatum DATE,
-    ist_aktiv BOOLEAN DEFAULT TRUE
-);</code></pre></div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>2. Bestehende Strukturen verändern (ALTER & DROP)</h3>
-<p>Manchmal ändern sich die Anforderungen im Laufe eines Softwareprojekts. Für diese Fälle bietet SQL Werkzeuge, um das Schema nachträglich anzupassen, ohne die eigentlichen Daten zu verlieren.</p>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #3498db; margin: 1.5rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.95rem; line-height: 1.6;">-- Eine neue Spalte hinzufügen
-ALTER TABLE kunden ADD telefonnummer VARCHAR(30);
-
--- Den Datentyp einer bestehenden Spalte ändern
-ALTER TABLE kunden ALTER COLUMN nachname TYPE VARCHAR(100);
-
--- Eine Spalte komplett entfernen
-ALTER TABLE kunden DROP COLUMN telefonnummer;</code></pre></div>
-
-<div style="background: #fef2f2; padding: 1.2rem; border-left: 4px solid #e74c3c; margin: 2rem 0; border-radius: 4px; color: #c0392b; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    <strong>🚨 Gefahr! Der DROP-Befehl:</strong> Der Befehl <code>DROP TABLE kunden;</code> löscht die <strong>gesamte Tabelle inklusive aller darin enthaltenen Daten</strong> unwiderruflich aus der Datenbank. Er ist mit extremer Vorsicht zu genießen!
-</div>', '', 'article', 'published', 12, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 36, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l6zbun54sj9gzbpw07o', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4F10 - Kapitel 6', '', '[
     {
         "chapter": "Kapitel 6",
@@ -1696,7 +1470,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4f10"
     }
-]', 'quiz', 'published', 77, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 77, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l77u348qdlw99hpvrpr', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 2', '', '[
     {
         "chapter": 2,
@@ -1775,14 +1549,14 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-help-functions"
     }
-]', 'quiz', 'published', 116, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 116, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l7vjvkix2dys26ych1j', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Rechtsformen Einführung', '
             <h3>Unterschiede</h3>
             <ul>
                 <li><strong>Personengesellschaft (OHG, KG):</strong> Haftung oft persönlich/unbeschränkt. Kein Mindestkapital.</li>
                 <li><strong>Kapitalgesellschaft (GmbH, AG):</strong> Haftung auf Einlage beschränkt. Juristische Person. Mindestkapital (25k / 50k).</li>
             </ul>
-        ', '', 'article', 'published', 35, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 35, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l7y7yksbpu9qlxjub2t', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 6', '', '[
     {
         "chapter": 6,
@@ -1815,7 +1589,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4220.php#k6-l2"
     }
-]', 'quiz', 'published', 92, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 92, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l82g0lsaci79ast81og', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 1', '', '[
     {
         "chapter": 1,
@@ -1833,7 +1607,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4220.php#k1-l1"
     }
-]', 'quiz', 'published', 87, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 87, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l85owpbrhaiiiy3rj0h', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 9', '', '[
     {
         "chapter": 9,
@@ -1874,7 +1648,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k9-l3"
     }
-]', 'quiz', 'published', 113, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 113, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l89n7amw0lsj17d9dn5', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Werteveränderungen in der Bilanz', '
             <h3>Grundregel</h3>
             <p>Jeder Geschäftsfall wirkt sich auf mindestens zwei Posten der Bilanz aus (Doppelte Buchführung). Dabei bleibt das Gleichgewicht der Bilanz (Aktiva = Passiva) stets erhalten. Es gibt vier Grundfälle der Werteveränderung.</p>
@@ -1944,7 +1718,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                 <li>Wie wirkt sich der Geschäftsfall aus (Zunahme oder Abnahme)?</li>
                 <li>Um welche der vier Arten der Wertveränderung handelt es sich?</li>
             </ol>
-        ', '', 'article', 'published', 26, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 26, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l8b8rxd1ngsacgdwqxo', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 9', '', '[
     {
         "chapter": 9,
@@ -1963,42 +1737,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#kapitel-9"
     }
-]', 'quiz', 'published', 104, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
-    <thead>
-        <tr style="background: linear-gradient(135deg, #2c3e50, #34495e); color: #fff;">
-            <th style="padding: 15px; text-align: left; width: 25%;">Join-Typ</th>
-            <th style="padding: 15px; text-align: left; width: 75%;">Verhalten</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #2980b9;">LEFT (OUTER) JOIN</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Gibt <strong>ALLE</strong> Datensätze aus der <em>linken</em> Tabelle (die vor dem JOIN im FROM steht) zurück. Findet er keinen Partner in der rechten Tabelle, füllt das DBMS die fehlenden Spalten einfach mit <code>NULL</code> auf.</td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #d35400;">RIGHT (OUTER) JOIN</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Exakt das Gegenteil: Gibt alle Datensätze der <em>rechten</em> Tabelle zurück. Wird in der Praxis sehr selten genutzt, da man das Statement meist einfach umdreht und einen LEFT JOIN nutzt.</td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; font-weight: bold; color: #8e44ad;">FULL (OUTER) JOIN</td>
-            <td style="padding: 15px; color: #333;">Kombiniert LEFT und RIGHT Join. Liefert alle Datensätze beider Tabellen zurück, gepaart wo möglich, andernfalls mit NULL aufgefüllt.</td>
-        </tr>
-    </tbody>
-</table>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>2. Ein genialer Praxis-Trick: Die NULL-Prüfung</h3>
-<p>Mit einem LEFT JOIN kann man nicht nur alle Kunden anzeigen, sondern durch einen cleveren Trick auch ganz gezielt <strong>Waisen-Datensätze</strong> finden (z.B. "Zeige mir alle Kunden, die Karteileichen sind und noch nie im Shop gekauft haben").</p>
-
-<p>Wir machen einen LEFT JOIN auf die Bestellungen. Bei Kunden ohne Bestellung setzt die Datenbank die <code>bestellung_id</code> auf <code>NULL</code>. Genau danach filtern wir!</p>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #e74c3c; margin: 1.5rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.95rem; line-height: 1.6;">-- Trick: Finde Kunden OHNE Bestellungen
-SELECT kunden.vorname, kunden.nachname
-FROM kunden
-LEFT JOIN bestellungen ON kunden.kunden_id = bestellungen.kunden_id
--- Wir filtern gezielt nach den "gescheiterten" Verknüpfungen!
-WHERE bestellungen.bestellung_id IS NULL;</code></pre></div>', '', 'article', 'published', 18, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+]', 'quiz', 'published', 104, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('l8i2i0x4efqh9vvkoso', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4550 - Kapitel 5', '', '[
     {
         "chapter": "Kapitel 5",
@@ -2507,7 +2246,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4550"
     }
-]', 'quiz', 'published', 84, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 84, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('la6yw9f3b8s870c9nhh', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 3', '', '[
     {
         "chapter": 3,
@@ -2613,31 +2352,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4220.php#k3-l3"
     }
-]', 'quiz', 'published', 89, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
-CREATE TABLE kunden (
-    kunde_id SERIAL PRIMARY KEY,
-    name VARCHAR(100) NOT NULL
-);
-
--- Tabelle 2: Die Bestellung (Die "N-Seite")
-CREATE TABLE bestellungen (
-    bestellung_id SERIAL PRIMARY KEY,
-    bestelldatum DATE,
-    -- Hier ist der Fremdschlüssel: Er verweist auf kunden!
-    kunde_id INT NOT NULL,
-    FOREIGN KEY (kunde_id) REFERENCES kunden(kunde_id)
-);</code></pre></div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>3. Referentielle Integrität (Die eiserne Regel)</h3>
-<p>Das DBMS überwacht die Verknüpfungen durch Fremdschlüssel rigoros. Die Regel der <strong>referentiellen Integrität</strong> besagt:</p>
-
-<div style="background: #fff3cd; padding: 1.2rem; border-left: 4px solid #ffc107; margin: 1.5rem 0; border-radius: 4px; color: #856404; box-shadow: 0 4px 6px rgba(0,0,0,0.05); font-size: 1.1rem; text-align: center;">
-    Ein Fremdschlüsselwert muss entweder auf einen <strong>tatsächlich existierenden</strong> Primärschlüssel verweisen oder <strong>NULL</strong> (leer) sein!
-</div>
-
-<p><em>Beispiel:</em> Wenn wir versuchen, eine Bestellung für die <code>kunde_id = 999</code> anzulegen, den Kunden 999 in der Kundentabelle aber gar nicht gibt, wird das DBMS mit einer Fehlermeldung crashen und das <code>INSERT</code> hart blockieren. Ebenso können wir den Kunden 1 nicht löschen, wenn er noch Bestellungen im System hat (außer wir nutzen Regeln wie <code>ON DELETE CASCADE</code>, die dann die Bestellungen direkt mitlöschen).</p>', '', 'article', 'published', 6, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+]', 'quiz', 'published', 89, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lbb3towwxomb50ephcu', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4550 - Kapitel 3', '', '[
     {
         "chapter": "Kapitel 3",
@@ -2962,7 +2677,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4550"
     }
-]', 'quiz', 'published', 82, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 82, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lbl61lsn7i0knzea537', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Der Buchungskreislauf & Jahresabschluss', '
             <h3>1. Geschäftsgang mit Bestands- und Erfolgskonten</h3>
             <p>Hier fließen alle Fäden zusammen. Wir sehen, wie Bestandskonten (Bilanz) und Erfolgskonten (GuV) interagieren und wie der Gewinn das Eigenkapital erhöht.</p>
@@ -3129,43 +2844,12 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             <div style="text-align: center; margin-top: 10px; font-weight: bold; padding: 10px; background: #fff9c4; border: 2px solid #fbc02d; border-radius: 8px;">
                 Verbindung: Saldo GuV (Gewinn/Verlust) &rarr; Eigenkapital
             </div>
-        ', '', 'article', 'published', 29, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-    
-    <!-- Zahlen -->
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #f8fcfd; border-left: 4px solid #3498db; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #2980b9;">🔢 Zahlen (Numerisch)</h4>
-        <ul style="color: #555; font-size: 0.9rem; padding-left: 1.2rem; margin-bottom: 0;">
-            <li><code style="color: #2980b9;">INT</code> oder <code style="color: #2980b9;">INTEGER</code>: Ganze Zahlen (z. B. für IDs oder Mengen).</li>
-            <li><code style="color: #2980b9;">DECIMAL(p, s)</code>: Exakte Kommazahlen. Das <em>p</em> steht für die Gesamtzahl der Ziffern, <em>s</em> für die Nachkommastellen (z. B. <code>DECIMAL(8,2)</code> für Geldbeträge bis 999.999,99).</li>
-        </ul>
-    </div>
-
-    <!-- Zeichenketten -->
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fffaf0; border-left: 4px solid #f39c12; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #d35400;">🔤 Zeichenketten (Strings)</h4>
-        <ul style="color: #555; font-size: 0.9rem; padding-left: 1.2rem; margin-bottom: 0;">
-            <li><code style="color: #d35400;">VARCHAR(n)</code>: Text mit variabler Länge bis maximal <em>n</em> Zeichen (z. B. für Namen, E-Mails). Spart Speicherplatz!</li>
-            <li><code style="color: #d35400;">CHAR(n)</code>: Text mit exakt <em>n</em> Zeichen Länge (z. B. für feste Länderkürzel wie ''DE'').</li>
-            <li><code style="color: #d35400;">TEXT</code>: Für sehr lange Texte (Beschreibungen, Blogbeiträge).</li>
-        </ul>
-    </div>
-
-    <!-- Datum & Zeit -->
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #f0fdf4; border-left: 4px solid #2ecc71; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #27ae60;">📅 Datum und Uhrzeit</h4>
-        <ul style="color: #555; font-size: 0.9rem; padding-left: 1.2rem; margin-bottom: 0;">
-            <li><code style="color: #27ae60;">DATE</code>: Nur das Datum (YYYY-MM-DD).</li>
-            <li><code style="color: #27ae60;">TIME</code>: Nur die Uhrzeit (HH:MI:SS).</li>
-            <li><code style="color: #27ae60;">TIMESTAMP</code> / <code style="color: #27ae60;">DATETIME</code>: Datum inklusive exakter Uhrzeit (ideal für Erstellungsdaten oder Logs).</li>
-        </ul>
-    </div>
-
-</div>', '', 'article', 'published', 11, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 29, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lcovqdraffdjdngnvis', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Betriebsabrechnungsbogen', '
             <h3>Ziel</h3>
             <p>Ermittlung der Gemeinkostenzuschlagssätze für Material, Fertigung, Verwaltung und Vertrieb.</p>
             <p><code>Zuschlagssatz = (Gemeinkosten * 100) / Einzelkosten</code></p>
-        ', '', 'article', 'published', 38, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 38, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ld07i8xwb3iqxvx4ly0', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Netzwerk: HTTP POST Requests in Java', '<h3>1. API-Anfragen mit Java</h3>
 <p>Um aus einer Java-Anwendung heraus eine Schnittstelle (wie die OpenAI API) anzusprechen, müssen wir als <strong>Client</strong> fungieren. Seit Java 11 gibt es dafür den hochmodernen und einfachen <code>java.net.http.HttpClient</code>.</p>
 
@@ -3218,7 +2902,7 @@ public class ApiService {
             e.printStackTrace();
         }
     }
-}</code></pre></div>', '', 'article', 'published', 70, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 70, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lda3u3ju6uhqf29mvai', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Bestandsveränderungen (BV)', '
             <h3>1. Das Problem: Produktion ≠ Absatz</h3>
             <p>In einem Industriebetrieb stimmen die hergestellte Menge und die verkaufte Menge selten genau überein.</p>
@@ -3294,7 +2978,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                 <li><strong>Schlussbestand (SB) < Anfangsbestand (AB):</strong><br>
                 = Bestandsminderung -> Buchung: <code>BV an Fertige Erzeugnisse</code> (Aufwand)</li>
             </ul>
-        ', '', 'article', 'published', 33, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 33, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ldfw46i7c20qcougmhl', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4F10 - Kapitel 1', '', '[
     {
         "chapter": "Kapitel 1",
@@ -3359,7 +3043,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4f10#l1-1"
     }
-]', 'quiz', 'published', 72, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 72, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ldycw8jhs7dxqz2420w', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Grundlagen 1: Objektorientierung (OOP)', '<h3>1. Die Welt in Objekten modellieren</h3>
 <p>Unter Objektorientierung versteht man ein Programmierparadigma, das stark an die echte Welt angelehnt ist. Die Komplexität eines Programms wird reduziert, indem Daten und Funktionen in <strong>Objekten</strong> gekapselt werden.</p>
 
@@ -3392,36 +3076,7 @@ public class PrintedCup extends Cup {
 <div style="background: #e8f4f8; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #3498db; margin: 1.5rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
     <h4 style="margin-top:0; color: #2980b9;">🧬 Methoden überschreiben (Overriding)</h4>
     <p style="margin: 0; color: #2c3e50;">Eine erbende Klasse kann Methoden der Basisklasse verändern ("überschreiben"). In Java geschieht dies völlig nahtlos, es empfiehlt sich jedoch, die Annotation <code>@Override</code> darüber zu schreiben, damit der Compiler dies überprüft. Mit dem Schlüsselwort <code>super.setMaterial()</code> kann die originale Methode der Basisklasse weiterhin aufgerufen werden.</p>
-</div>', '', 'article', 'published', 52, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-CREATE INDEX idx_kunden_nachname ON kunden(nachname);
-
--- Diese Abfrage ist jetzt selbst bei Millionen von Datensätzen extrem schnell:
-SELECT vorname, email FROM kunden WHERE nachname = ''Müller'';</code></pre></div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>2. Die Vor- und Nachteile von Indizes</h3>
-<p>Das DBMS organisiert Indizes meistens in sogenannten <strong>B-Bäumen</strong> (balancierten Suchbäumen). Dadurch sinkt die Suchzeit drastisch (von O(N) auf O(log N)). Aber Indizes haben auch ihren Preis!</p>
-
-<div style="display: flex; gap: 2rem; margin: 2rem 0; flex-wrap: wrap;">
-    <div style="flex: 1; background: #e9f7ef; padding: 1.5rem; border-radius: 8px; border-left: 5px solid #27ae60;">
-        <h4 style="color: #1e8449; margin-top: 0;">✅ Die Vorteile</h4>
-        <ul style="color: #2c3e50;">
-            <li>Extrem schnelles Suchen (<code>WHERE</code>).</li>
-            <li>Enorme Beschleunigung beim Verknüpfen von Tabellen (<code>JOIN</code>).</li>
-            <li>Schnelles Sortieren (<code>ORDER BY</code>).</li>
-            <li><em>Hinweis:</em> Auf Spalten mit <code>PRIMARY KEY</code> legt das System automatisch und unsichtbar einen Index!</li>
-        </ul>
-    </div>
-    <div style="flex: 1; background: #fdedec; padding: 1.5rem; border-radius: 8px; border-left: 5px solid #e74c3c;">
-        <h4 style="color: #c0392b; margin-top: 0;">❌ Die Nachteile</h4>
-        <ul style="color: #2c3e50;">
-            <li><strong>Langsames Schreiben:</strong> Bei jedem <code>INSERT</code>, <code>UPDATE</code> oder <code>DELETE</code> muss das DBMS nicht nur die Daten, sondern auch alle Index-Bäume neu sortieren und updaten!</li>
-            <li>Ein Index verbraucht (oft massiv) zusätzlichen Speicherplatz auf der Festplatte.</li>
-            <li>Man sollte also <em>niemals</em> blind auf jede Spalte einen Index legen!</li>
-        </ul>
-    </div>
-</div>', '', 'article', 'published', 21, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</div>', '', 'article', 'published', 52, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('le4e2rp5wonvijx99dp', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Nebenläufigkeit mit Threads', '<h3>1. Was sind Threads?</h3>
 <p>Threads ermöglichen in Java die parallele Ausführung von Code (Nebenläufigkeit). Sie erlauben es, rechenintensive Aufgaben im Hintergrund auszuführen oder mehrere Aufgaben gleichzeitig abzuarbeiten, um die Gesamtperformance und Reaktionsfähigkeit der Anwendung drastisch zu steigern.</p>
 
@@ -3459,7 +3114,7 @@ public class Main {
         Thread t2 = new Thread(new DownloadTask());
         t2.start();
     }
-}</code></pre></div>', '', 'article', 'published', 55, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 55, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lejz8k8zkj55fnb5kby', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 6', '', '[
     {
         "chapter": 6,
@@ -3487,14 +3142,14 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-ecosystem"
     }
-]', 'quiz', 'published', 120, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 120, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lepul5iggn5pg0cpef7', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Finanzierung Grundlagen', '
             <h3>Arten</h3>
             <ul>
                 <li><strong>Außenfinanzierung:</strong> Kredit, Einlagen.</li>
                 <li><strong>Innenfinanzierung:</strong> Selbstfinanzierung (Gewinn), Rückstellungen, Abschreibungen.</li>
             </ul>
-        ', '', 'article', 'published', 34, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 34, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('levew4cv06227dhj939', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4F10 - Kapitel 4', '', '[
     {
         "chapter": "Kapitel 4",
@@ -3706,7 +3361,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4f10"
     }
-]', 'quiz', 'published', 75, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 75, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lfb7rattxqrx8casb76', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 5', '', '[
     {
         "chapter": 5,
@@ -3738,7 +3393,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-controlling-org-units"
     }
-]', 'quiz', 'published', 119, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 119, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lfjyj7mo8yvby0jll6z', 'sxh3e5ewi0qahenr6jg', 'u5ilhtdcn9ycti9tbmc', '4. Modularisierung & Architekturobjekte', '<div style="margin-bottom: 3rem;">
     <span style="display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24;">Clean Code</span>
     <h1 style="font-size: 2.5rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.5rem; letter-spacing: -0.025em;">Modularisierungstechniken</h1>
@@ -3770,7 +3425,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             </div>
         </div>
     </div>
-</div>', '', 'article', 'published', 50, '2026-04-28 19:54:37', '2026-04-28 19:54:37');
+</div>', '', 'article', 'published', 50, '2026-04-28 19:54:37', '2026-04-28 19:54:38');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lfn77r6airavx65nxoh', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 7', '', '[
     {
         "chapter": 7,
@@ -3819,39 +3474,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4220.php#k7-l2"
     }
-]', 'quiz', 'published', 93, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
--- Das DBMS fasst alle Kunden der gleichen Stadt zu EINER Zeile zusammen.
-
-SELECT stadt, COUNT(*) as anzahl_kunden
-FROM kunden
-GROUP BY stadt
-ORDER BY anzahl_kunden DESC;</code></pre></div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>3. Prüfungs-Klassiker: WHERE vs. HAVING</h3>
-<p>Wenn du das verstanden hast, gehört die Datenbank-Prüfung dir! Beide Befehle filtern Daten, aber sie greifen an völlig unterschiedlichen Zeitpunkten in der internen Verarbeitungslogik des DBMS ein:</p>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 1.5rem 0;">
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fffaf0; border-left: 4px solid #f39c12;">
-        <h4 style="margin-top:0; color: #d35400;">1. WHERE (Der Türsteher)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Filtert die <strong>Rohdaten</strong>, <em>BEVOR</em> sie gruppiert werden! Aggregatfunktionen (wie SUM oder COUNT) dürfen hier niemals verwendet werden.</p>
-    </div>
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #f0fdf4; border-left: 4px solid #27ae60;">
-        <h4 style="margin-top:0; color: #27ae60;">2. HAVING (Der Nachkontrolleur)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Filtert die <strong>bereits gruppierten und aggregierten</strong> Daten. Wird immer <em>NACH</em> einem <code>GROUP BY</code> verwendet.</p>
-    </div>
-</div>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #3498db; margin: 1.5rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.95rem; line-height: 1.6;">-- Finde den Gesamtumsatz pro Kunde.
--- Aber nur für Kunden aus Deutschland (WHERE filtert vor der Summenbildung).
--- Zeige am Ende nur die Kunden, deren Gesamtumsatz 1000€ übersteigt (HAVING).
-
-SELECT kunden_id, SUM(rechnungsbetrag) as gesamtumsatz
-FROM bestellungen
-WHERE land = ''DE''               -- 1. Filtere die rohen Rechnungen
-GROUP BY kunden_id             -- 2. Bilde Gruppen pro Kunde
-HAVING SUM(rechnungsbetrag) > 1000; -- 3. Wirf Gruppen weg, die das Ziel nicht erreichen</code></pre></div>', '', 'article', 'published', 16, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+]', 'quiz', 'published', 93, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lfw5ioknbmsqyz1w1mj', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Datenstrukturen: Arrays vs. ArrayLists', '<h3>1. Das klassische Array `[]`</h3>
 <p>Ein Array ist ein starrer Container, der eine <strong>feste und nachträglich unveränderliche</strong> Anzahl von Werten eines bestimmten Typs enthält. Die Adressierung erfolgt über einen Index, der immer bei <code>0</code> beginnt.</p>
 
@@ -3933,7 +3556,7 @@ public class ListExample {
             <td style="padding: 15px;">Leichter Overhead (Auto-Resizing)</td>
         </tr>
     </tbody>
-</table>', '', 'article', 'published', 61, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</table>', '', 'article', 'published', 61, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lg57yp9h5pf37sx8fhn', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Webservices: REST vs. SOAP', '<h3>1. Wie Anwendungen miteinander sprechen</h3>
 <p>Wenn ein Frontend (z. B. eine JavaFX-App oder Webseite) Daten von einem Backend benötigt oder Aktionen ausführen möchte, kommunizieren diese über eine <strong>API (Application Programming Interface)</strong>. Zwei der weltweit bekanntesten Architekturkonzepte hierfür sind <strong>SOAP</strong> und <strong>REST</strong>.</p>
 
@@ -3987,7 +3610,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
 
 <div style="background: #fff3cd; padding: 1.2rem; border-left: 4px solid #ffc107; margin: 2rem 0; border-radius: 4px; color: #856404; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
     <strong>💡 HTTP Status-Codes (Zusatzwissen):</strong> Der Server antwortet immer mit einem Statuscode. Die wichtigsten sind: <strong>200 OK</strong> (Alles super), <strong>201 Created</strong> (Ressource erstellt), <strong>400 Bad Request</strong> (Fehler in deiner Anfrage), <strong>401 Unauthorized</strong> (Falsches Passwort/Token), <strong>404 Not Found</strong> (Nicht gefunden) und <strong>500 Internal Server Error</strong> (Server ist gecrasht).
-</div>', '', 'article', 'published', 69, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</div>', '', 'article', 'published', 69, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lgesc5zd2ng2tv5grrr', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Bilanz', '
             <h3>1. Grundlagen und Rechtsvorschriften</h3>
             <p>Das Inventar ist zwar sehr detailliert, aber aufgrund seines Umfangs unübersichtlich. Um einen schnellen Überblick zu ermöglichen, verlangt das Gesetz eine Zusammenfassung: <strong>die Bilanz</strong>.</p>
@@ -4156,7 +3779,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                     </td>
                 </tr>
             </table>
-        ', '', 'article', 'published', 25, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 25, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lgi81nff47qe65s1tty', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Generics (Generische Programmierung)', '<h3>1. Was sind Generics?</h3>
 <p>Die generische Programmierung in Java wird durch <strong>Generics</strong> ermöglicht. Dieser Begriff steht für Platzhalter-Typen, welche als Parameter an Klassen oder Methoden übergeben werden können.</p>
 
@@ -4197,7 +3820,7 @@ public class GenericsExample {
         System.out.println("String Value: " + strValue);
         
     }
-}</code></pre></div>', '', 'article', 'published', 60, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 60, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lgl6ppohznxpbl4x3cj', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 3', '', '[
     {
         "chapter": 3,
@@ -4294,7 +3917,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#lektion-3-3"
     }
-]', 'quiz', 'published', 98, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 98, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lgszk4wtsuhhmrx9k0d', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Kompakte Datenklassen: Records', '<h3>1. Das Problem: Boilerplate-Code</h3>
 <p>Bei der Erstellung von Klassen, die primär als reine Datencontainer dienen (sogenannte <em>Data Transfer Objects</em> oder <em>POJOs</em>), fällt in Java traditionell massiv immergleicher Standardcode an: Attribute, Konstruktoren, Getter, Setter, <code>equals()</code>, <code>hashCode()</code> und <code>toString()</code>. Diesen unnötigen Code-Ballast nennt man <strong>Boilerplate</strong>.</p>
 
@@ -4345,7 +3968,7 @@ int age = person.age();</code></pre></div>
     <li>Alle Attribute sind automatisch <strong>private final</strong> (sie sind <strong>immutable</strong> / zur Laufzeit unveränderlich!).</li>
     <li>Es gibt <strong>keine Setter</strong> und sie dürfen auch nicht manuell implementiert werden.</li>
     <li>Es dürfen keine zusätzlichen Instanzvariablen definiert werden (alles muss in den runden Klammern oben stehen).</li>
-</ul>', '', 'article', 'published', 66, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</ul>', '', 'article', 'published', 66, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lhocehsjg5nkbnkn12e', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 8', '', '[
     {
         "chapter": 8,
@@ -4422,7 +4045,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4220.php#k8-l7"
     }
-]', 'quiz', 'published', 94, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 94, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lhwrgzfxvlmgnnsa4ev', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Die Kostenfunktion & Beschäftigung', '
             <h3>1. Die lineare Kostenfunktion</h3>
             <p>Um Kosten planen zu können, zerlegen wir die Gesamtkosten (K) in zwei Blöcke: Kosten, die sich mit der Menge ändern (variabel) und Kosten, die gleich bleiben (fix).</p>
@@ -4452,7 +4075,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
 
             <p><strong>Schritt 3: Prognose für 225.000 Stück</strong><br>
             <code>K(225.000) = 28,54 · 225.000 + 4.000.000 = 10.421.500,00 €</code></p>
-        ', '', 'article', 'published', 41, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 41, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('liexf963nt2nknfr6vx', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4550 - Kapitel 6', '', '[
     {
         "chapter": "Kapitel 6",
@@ -4670,7 +4293,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4550"
     }
-]', 'quiz', 'published', 85, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 85, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lihs5xsearb9sx8h8g8', 'sxh3e5ewi0qahenr6jg', 'u5ilhtdcn9ycti9tbmc', '2. Entwicklungsumgebung & Repository', '<div style="margin-bottom: 3rem;">
     <span style="display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem; background: rgba(236, 72, 153, 0.15); border: 1px solid rgba(236, 72, 153, 0.3); color: #f472b6;">Umgebung</span>
     <h1 style="font-size: 2.5rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.5rem; letter-spacing: -0.025em;">Das ABAP Repository</h1>
@@ -4700,50 +4323,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             <p style="color: #94a3b8; margin-bottom: 1rem; font-size: 0.95rem;">Einstellung des Systems auf betriebswirtschaftliche Anforderungen. Hier wird <u>kein</u> Code geschrieben. Die Daten sind meist <strong>mandantenabhängig</strong>.</p>
         </div>
     </div>
-</div>', '', 'article', 'published', 48, '2026-04-28 19:54:37', '2026-04-28 19:54:37');
-    <h4 style="margin-top:0; color: #2980b9;">Die Anatomie einer Abfrage</h4>
-    <p style="margin: 0; color: #2c3e50; font-size: 1.1rem;"><code>SELECT [Spalten] FROM [Tabelle] WHERE [Bedingung] ORDER BY [Sortierung];</code></p>
-</div>
-
-<h3>2. Filtern mit der WHERE-Klausel</h3>
-<p>Würden wir immer nur <code>SELECT * FROM kunden;</code> ausführen, würde der Server bei einer Million Kunden unter der Last zusammenbrechen. Wir müssen filtern!</p>
-
-<table style="width: 100%; border-collapse: collapse; margin-top: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 0.95rem; border-radius: 8px; overflow: hidden;">
-    <thead>
-        <tr style="background: linear-gradient(135deg, #2c3e50, #34495e); color: #fff;">
-            <th style="padding: 15px; text-align: left; width: 25%;">Operator</th>
-            <th style="padding: 15px; text-align: left; width: 75%;">Bedeutung & Beispiel</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #c0392b; font-family: monospace;">=, !=, &lt;, &gt;</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Standard-Vergleichsoperatoren. <em>Beispiel: <code>WHERE alter &gt;= 18</code> oder <code>WHERE stadt != ''Berlin''</code></em></td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #2980b9; font-family: monospace;">LIKE</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Mustererkennung in Strings. Nutzt <code>%</code> als Platzhalter für beliebige Zeichen. <em>Beispiel: <code>WHERE name LIKE ''M%''</code> (Alle, die mit M beginnen)</em></td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #e67e22; font-family: monospace;">IN (...)</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Prüft, ob der Wert in einer vorgegebenen Liste liegt. <em>Beispiel: <code>WHERE stadt IN (''München'', ''Hamburg'')</code></em></td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; font-weight: bold; color: #27ae60; font-family: monospace;">BETWEEN x AND y</td>
-            <td style="padding: 15px; color: #333;">Findet Werte in einem Bereich (inklusive der Ränder). <em>Beispiel: <code>WHERE preis BETWEEN 10 AND 50</code></em></td>
-        </tr>
-    </tbody>
-</table>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #a972ff; margin: 2rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.95rem; line-height: 1.6;">-- Praxisbeispiel: Finde alle aktiven Kunden aus Berlin oder München, 
--- sortiert nach Nachnamen (aufsteigend) und limitiere auf 10 Ergebnisse.
-
-SELECT kunden_id, vorname, nachname, email 
-FROM kunden 
-WHERE ist_aktiv = true 
-  AND (stadt = ''Berlin'' OR stadt = ''München'')
-ORDER BY nachname ASC
-LIMIT 10;</code></pre></div>', '', 'article', 'published', 15, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</div>', '', 'article', 'published', 48, '2026-04-28 19:54:37', '2026-04-28 19:54:38');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('liuaqx2nab7fqopawqq', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 4', '', '[
     {
         "chapter": 4,
@@ -4833,7 +4413,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k4-l5"
     }
-]', 'quiz', 'published', 108, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 108, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lj9lsug7imew42v4pu4', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Design Patterns: Die Factory Method', '<h3>1. Was ist das Factory Pattern?</h3>
 <p>Das Factory Pattern (Fabrikmethode) ist ein <strong>Erzeugungsmuster</strong> in der Softwareentwicklung. Es lagert die Instanziierung (Erstellung) von Objekten in eine spezielle Fabrik-Klasse aus, anstatt Objekte überall im Code verstreut mit <code>new</code> zu erzeugen.</p>
 
@@ -4887,7 +4467,7 @@ public class Main {
         Furniture myChair = factory.getFurniture(FurnitureType.CHAIR);
         myChair.build(); // Ausgabe: Baue Stuhl...
     }
-}</code></pre></div>', '', 'article', 'published', 67, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 67, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ljqhypeipckhfj395r9', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Entwurfsmuster (Design Patterns)', '<h3>1. Was sind Entwurfsmuster?</h3>
 <p>Design Patterns (Entwurfsmuster) sind wiederverwendbare, formal korrekte Vorlagen zur Lösung von wiederkehrenden Designproblemen in der Softwareentwicklung. Ihren weltweiten Durchbruch feierten sie 1994 durch das berühmte Buch der <strong>"Gang of Four" (GoF)</strong>.</p>
 
@@ -4952,32 +4532,7 @@ public class Main {
         
         System.out.println(myCoffee.getDescription() + " kostet " + myCoffee.getCost() + " Euro");
     }
-}</code></pre></div>', '', 'article', 'published', 57, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-    <thead>
-        <tr style="background: linear-gradient(135deg, #8e44ad, #9b59b6); color: #fff;">
-            <th style="padding: 15px; text-align: left; width: 25%;">Datenbank-Typ</th>
-            <th style="padding: 15px; text-align: left; width: 75%;">Architektur & Bekannte Vertreter</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #333;">📄 Dokumentenorientiert</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #555;">Speichert Daten oft in verschachtelten JSON-Dokumenten. Jedes Dokument darf eine völlig andere Struktur haben. Keine fixen Tabellenschemata nötig!<br><em>Bekanntester Vertreter: <strong>MongoDB</strong></em></td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #333;">🔑 Key-Value-Stores</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #555;">Das simpelste Konzept überhaupt: Ein eindeutiger Schlüssel verweist auf einen Wert (z. B. ein Bild oder ein Objekt). Extrem schnell, oft komplett im Arbeitsspeicher (In-Memory). Ideal als Caching-Layer.<br><em>Bekanntester Vertreter: <strong>Redis</strong></em></td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #333;">🕸️ Graphendatenbanken</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #555;">Speichert Daten in Form von Knoten (Personen) und Kanten (Beziehungen). Perfekt für Netzwerke wie Facebook ("Wer ist über wie viele Ecken mit wem befreundet?"). Komplexe JOINs entfallen.<br><em>Bekanntester Vertreter: <strong>Neo4j</strong></em></td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; font-weight: bold; color: #333;">🏛️ Spaltenorientiert</td>
-            <td style="padding: 15px; color: #555;">Die Daten werden nicht zeilenweise, sondern spaltenweise auf der Festplatte gespeichert. Das macht Aggregationen (z. B. "Summe aller Umsätze") pfeilschnell, da man nicht jede ganze Zeile in den RAM laden muss.<br><em>Bekanntester Vertreter: <strong>Cassandra</strong></em></td>
-        </tr>
-    </tbody>
-</table>', '', 'article', 'published', 22, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 57, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lk878en415cfn68jth9', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4F10 - Kapitel 5', '', '[
     {
         "chapter": "Kapitel 5",
@@ -5142,133 +4697,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4f10"
     }
-]', 'quiz', 'published', 76, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
-    <h4 style="margin-top:0; color: #2980b9;">Die eiserne Regel der 1. Normalform (1NF)</h4>
-    <p style="margin: 0; color: #2c3e50; font-size: 1.1rem; font-weight: bold;">"Die Wertebereiche der Attribute müssen atomar sein."</p>
-</div>
-
-<h3>2. Was bedeutet "atomar"?</h3>
-<p>Atomar bedeutet "unteilbar". In einem Tabellenfeld (einer Zelle) darf immer nur <strong>genau ein einziger Wert</strong> stehen. Es sind keine Aufzählungen, kommagetrennten Listen oder Mengen erlaubt!</p>
-
-<table style="width: 100%; border-collapse: collapse; margin-top: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 0.95rem; border-radius: 8px; overflow: hidden;">
-    <thead>
-        <tr style="background: #e74c3c; color: #fff;">
-            <th colspan="3" style="padding: 10px; text-align: center;">❌ FALSCH: Nicht in 1. Normalform (Werte nicht atomar)</th>
-        </tr>
-        <tr style="background: #fdf2f2;">
-            <th style="padding: 10px; text-align: left; border: 1px solid #f5b7b1;">Mitarbeiter_ID</th>
-            <th style="padding: 10px; text-align: left; border: 1px solid #f5b7b1;">Name</th>
-            <th style="padding: 10px; text-align: left; border: 1px solid #f5b7b1;">Programmiersprachen</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="background: #fff;">
-            <td style="padding: 10px; border: 1px solid #f5b7b1;">1</td>
-            <td style="padding: 10px; border: 1px solid #f5b7b1;">Max</td>
-            <td style="padding: 10px; border: 1px solid #f5b7b1; color: #c0392b; font-weight: bold;">Java, Python, SQL</td>
-        </tr>
-    </tbody>
-</table>
-
-<p style="margin-top: 1.5rem;">Wenn wir nun nach allen Mitarbeitern suchen wollen, die Python können, müsste die Datenbank extrem aufwendige Text-Suchen durchführen. Das ist ineffizient. Wir teilen die Daten auf!</p>
-
-<table style="width: 100%; border-collapse: collapse; margin-top: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-size: 0.95rem; border-radius: 8px; overflow: hidden;">
-    <thead>
-        <tr style="background: #27ae60; color: #fff;">
-            <th colspan="3" style="padding: 10px; text-align: center;">✅ RICHTIG: In 1. Normalform (Werte sind atomar)</th>
-        </tr>
-        <tr style="background: #e9f7ef;">
-            <th style="padding: 10px; text-align: left; border: 1px solid #a9dfbf;">Mitarbeiter_ID</th>
-            <th style="padding: 10px; text-align: left; border: 1px solid #a9dfbf;">Name</th>
-            <th style="padding: 10px; text-align: left; border: 1px solid #a9dfbf;">Programmiersprache</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="background: #fff;">
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">1</td>
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">Max</td>
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">Java</td>
-        </tr>
-        <tr style="background: #f9fdfa;">
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">1</td>
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">Max</td>
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">Python</td>
-        </tr>
-        <tr style="background: #fff;">
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">1</td>
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">Max</td>
-            <td style="padding: 10px; border: 1px solid #a9dfbf;">SQL</td>
-        </tr>
-    </tbody>
-</table>', '', 'article', 'published', 8, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-
-UPDATE konten SET saldo = saldo - 100 WHERE konto_id = 1;
-UPDATE konten SET saldo = saldo + 100 WHERE konto_id = 2;
-
-COMMIT; -- Schreibt die Daten endgültig auf die Festplatte
--- ROLLBACK; -- Alternativ: Macht ALLES seit dem BEGIN rückgängig!</code></pre></div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>2. Das ACID-Prinzip (Prüfungsrelevant!)</h3>
-<p>Jedes professionelle relationale Datenbanksystem garantiert die sichere Verarbeitung von Transaktionen durch vier eiserne Regeln, das sogenannte <strong>ACID-Prinzip</strong>:</p>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fffaf0; border-left: 4px solid #f39c12; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #d35400;">🅰️ Atomarität (Atomicity)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Eine Transaktion wird entweder <strong>komplett</strong> ausgeführt oder <strong>gar nicht</strong>. Scheitert auch nur ein winziger Teilschritt, wird die gesamte Transaktion automatisch rückgängig gemacht (Rollback).</p>
-    </div>
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #f0fdf4; border-left: 4px solid #27ae60; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #27ae60;">🅲 Konsistenz (Consistency)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Die Datenbank befindet sich vor und nach der Transaktion in einem logisch gültigen Zustand. Alle Constraints (z. B. <code>CHECK</code> oder <code>FOREIGN KEY</code>) bleiben strikt gewahrt.</p>
-    </div>
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #f8fcfd; border-left: 4px solid #3498db; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #2980b9;">ℹ️ Isolation (Isolation)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Gleichzeitig ablaufende Transaktionen dürfen sich nicht gegenseitig stören! Keine Transaktion darf die halbfertigen (noch nicht ge-committeten) Daten einer anderen Transaktion lesen.</p>
-    </div>
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fef2f2; border-left: 4px solid #e74c3c; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #c0392b;">🅳 Dauerhaftigkeit (Durability)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Wenn eine Transaktion erfolgreich war (<code>COMMIT</code>), sind die Daten sicher und dauerhaft auf dem Speichermedium fixiert – selbst bei einem sofortigen Stromausfall in der nächsten Sekunde.</p>
-    </div>
-</div>', '', 'article', 'published', 19, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-    <h4 style="margin-top:0; color: #d35400;">Die eiserne Regel der 2. Normalform (2NF)</h4>
-    <p style="margin: 0; color: #2c3e50; font-size: 1.1rem; font-weight: bold;">"Jedes Nicht-Schlüssel-Attribut muss voll funktional abhängig vom gesamten Primärschlüssel sein."</p>
-</div>
-
-<p><strong>Wichtig:</strong> Diese Regel ist <em>nur</em> dann relevant, wenn die Tabelle einen <strong>zusammengesetzten Primärschlüssel</strong> hat (ein Primärschlüssel, der aus mehreren Spalten besteht). Hat die Tabelle nur einen einfachen Primärschlüssel (z. B. <code>kunden_id</code>), befindet sie sich automatisch in der 2NF!</p>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>2. Das Problem der partiellen Abhängigkeit</h3>
-<p>Schauen wir uns eine Tabelle <em>Rechnungspositionen</em> an. Der Primärschlüssel besteht aus <code>Rechnung_ID</code> + <code>Artikel_ID</code>.</p>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #e74c3c; margin: 1rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.9rem;">| Rechnung_ID (PK) | Artikel_ID (PK) | Menge | Artikel_Name |
-|------------------|-----------------|-------|--------------|
-| 100              | A1              | 5     | Laptop       |
-| 100              | A2              | 1     | Maus         |
-| 101              | A1              | 2     | Laptop       |</code></pre></div>
-
-<p><strong>Die Fehleranalyse:</strong></p>
-<ul>
-    <li>Die <strong>Menge</strong> hängt logischerweise von <em>beiden</em> Schlüsseln ab (Wie viel von welchem Artikel wurde auf welcher Rechnung gekauft?).</li>
-    <li>Der <strong>Artikel_Name</strong> hingegen hängt <em>nur</em> von der <code>Artikel_ID</code> ab. Die <code>Rechnung_ID</code> ist dafür völlig egal! Er ist also nur von einem <strong>Teil</strong> des Primärschlüssels abhängig (partielle Abhängigkeit). Dadurch entsteht Redundanz (Laptop steht doppelt da).</li>
-</ul>
-
-<h3>3. Die Lösung</h3>
-<p>Wir spalten die Tabelle auf! Alles, was nur teilweise abhängig ist, bekommt eine eigene Tabelle.</p>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #27ae60; margin: 1rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.9rem;">-- Tabelle 1: Artikel (Hier liegt der Artikelname sicher und redundanzfrei)
-| Artikel_ID (PK) | Artikel_Name |
-|-----------------|--------------|
-| A1              | Laptop       |
-| A2              | Maus         |
-
--- Tabelle 2: Rechnungspositionen (Ist jetzt in der 2NF!)
-| Rechnung_ID (PK) | Artikel_ID (PK) | Menge |
-|------------------|-----------------|-------|
-| 100              | A1              | 5     |
-| 100              | A2              | 1     |
-| 101              | A1              | 2     |</code></pre></div>', '', 'article', 'published', 9, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+]', 'quiz', 'published', 76, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('llm3sdqj69how061qob', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 4', '', '[
     {
         "chapter": 4,
@@ -5302,7 +4731,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4220.php#k4-l2"
     }
-]', 'quiz', 'published', 90, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 90, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('llo8gybkwmniv1gtpec', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 8', '', '[
     {
         "chapter": 8,
@@ -5365,7 +4794,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k8-l3"
     }
-]', 'quiz', 'published', 112, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 112, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lm47j655ukmqbj4dhgq', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Exception Handling (Fehlerbehandlung)', '<h3>1. Was sind Exceptions?</h3>
 <p>Exception Handling ist ein Mechanismus, um zur Laufzeit auftretende Fehler (Exceptions) zu erkennen und kontrolliert darauf zu reagieren. Das Ziel: Das Programm soll davor geschützt werden, unkontrolliert abzustürzen.</p>
 
@@ -5431,7 +4860,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
     System.err.println("Ein unerwarteter Fehler: " + e.getMessage());
 } finally {
     System.out.println("Wird immer ausgeführt! Ideal für Cleanups.");
-}</code></pre></div>', '', 'article', 'published', 59, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 59, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lm5uxx27a9h7ovum0is', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Vollkosten- vs. Teilkostenrechnung', '
             <h3>1. Das Problem der "Proportionalisierung"</h3>
             <p>Die Vollkostenrechnung verteilt <strong>alle</strong> Kosten (auch die fixen wie Miete oder Gehälter) auf die Produkte. In früheren "Verkäufermärkten" (Nachfrage > Angebot) funktionierte das, weil man die Preise diktieren konnte.</p>
@@ -5483,7 +4912,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem;">
                 <strong>Merke:</strong> Für kurzfristige Entscheidungen (z.B. Annahme eines Zusatzauftrags) liefert nur die Teilkostenrechnung die richtigen Daten (Deckungsbeitrag). Langfristig müssen aber alle Kosten gedeckt sein.
             </div>
-        ', '', 'article', 'published', 40, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 40, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lmj5463ixvvovprn6s5', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4550 - Kapitel 7', '', '[
     {
         "chapter": "Kapitel 7",
@@ -5530,7 +4959,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4550"
     }
-]', 'quiz', 'published', 86, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 86, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lmjdowp2siag3ehrj6j', 'sxh3e5ewi0qahenr6jg', 'u5ilhtdcn9ycti9tbmc', '3. Datenmodellierung (ABAP Dictionary)', '<div style="margin-bottom: 3rem;">
     <span style="display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem; background: rgba(6, 182, 212, 0.15); border: 1px solid rgba(6, 182, 212, 0.3); color: #22d3ee;">Data Dictionary</span>
     <h1 style="font-size: 2.5rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.5rem; letter-spacing: -0.025em;">Das Domainenkonzept</h1>
@@ -5563,7 +4992,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             </div>
         </div>
     </div>
-</div>', '', 'article', 'published', 49, '2026-04-28 19:54:37', '2026-04-28 19:54:37');
+</div>', '', 'article', 'published', 49, '2026-04-28 19:54:37', '2026-04-28 19:54:38');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lmsg9pd4k2d3a54zgpe', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 6', '', '[
     {
         "chapter": 6,
@@ -5611,7 +5040,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#kapitel-6"
     }
-]', 'quiz', 'published', 101, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 101, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lmufkgf17007dypc5qk', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 2', '', '[
     {
         "chapter": 2,
@@ -5639,7 +5068,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k2-l1"
     }
-]', 'quiz', 'published', 106, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 106, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ln3atj14otm7grzdm69', 'sxh3e5ewi0qahenr6jg', 'u5ilhtdcn9ycti9tbmc', '1. Systemarchitektur & Transportwesen (CTS)', '<div style="margin-bottom: 3rem;">
     <span style="display: inline-block; padding: 0.35rem 1rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1.5rem; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); color: #a78bfa;">Architektur</span>
     <h1 style="font-size: 2.5rem; font-weight: 800; color: #f8fafc; margin-bottom: 1.5rem; letter-spacing: -0.025em;">Das SAP 3-Schichten-Modell</h1>
@@ -5690,7 +5119,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             </div>
         </div>
     </div>
-</div>', '', 'article', 'published', 47, '2026-04-28 19:54:05', '2026-04-28 19:54:05');
+</div>', '', 'article', 'published', 47, '2026-04-28 19:54:05', '2026-04-28 19:54:06');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lnefunbbtpvo4se3b89', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 1', '', '[
     {
         "chapter": 1,
@@ -5723,7 +5152,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#kapitel-1-grundlagen"
     }
-]', 'quiz', 'published', 96, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 96, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lny65xsksagps83h3f1', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4550 - Kapitel 4', '', '[
     {
         "chapter": "Kapitel 4",
@@ -6278,7 +5707,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4550"
     }
-]', 'quiz', 'published', 83, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 83, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lo1tw0ronxubd8aqjvi', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Grundlagen der Sortieralgorithmen', '<h3>1. Kriterien zur Einordnung</h3>
 <p>Es gibt unzählige Algorithmen, um Daten zu sortieren. Welcher der beste ist, hängt stark vom jeweiligen Anwendungsfall ab. Wir ordnen sie nach drei Hauptkriterien ein:</p>
 
@@ -6327,7 +5756,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             <td style="padding: 15px;">In der Regel Standard-Algorithmus in Frameworks. Hohe Effizienz in der Praxis.</td>
         </tr>
     </tbody>
-</table>', '', 'article', 'published', 65, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</table>', '', 'article', 'published', 65, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lo6d03o03pa4lvl9sah', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 1', '', '[
     {
         "chapter": 1,
@@ -6369,7 +5798,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k1-l1"
     }
-]', 'quiz', 'published', 105, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 105, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lo7mkqlvdmc7rad5k3m', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 7', '', '[
     {
         "chapter": 7,
@@ -6421,7 +5850,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-hana-platform"
     }
-]', 'quiz', 'published', 121, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 121, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lok6im91j0qqmijcryd', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4F10 - Kapitel 7', '', '[
     {
         "chapter": "Kapitel 7",
@@ -6462,7 +5891,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4f10"
     }
-]', 'quiz', 'published', 78, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 78, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('loqa3w822ofk70nl0wm', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 10', '', '[
     {
         "chapter": 10,
@@ -6506,7 +5935,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k10-l3"
     }
-]', 'quiz', 'published', 114, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 114, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('loxb5e8s1onskprh7d3', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 3', '', '[
     {
         "chapter": 3,
@@ -6596,7 +6025,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-document-principle"
     }
-]', 'quiz', 'published', 117, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 117, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lp30n72bb9fluidyudi', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 7', '', '[
     {
         "chapter": 7,
@@ -6814,7 +6243,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#kapitel-7"
     }
-]', 'quiz', 'published', 102, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 102, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lplubwbrf2d420r0tkd', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Verhalten der Fixkosten', '
             <h3>1. Definition</h3>
             <p>Fixkosten fallen unabhängig von der Produktionsmenge an. Sie sind "eh da kosten" (Bereitschaftskosten).<br>
@@ -6850,7 +6279,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             </div>
 
             <p><strong>Fazit:</strong> Je höher die Auslastung, desto günstiger wird das Produkt, weil der "Fixkostenrucksack" pro Produkt kleiner wird.</p>
-        ', '', 'article', 'published', 43, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 43, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lpovul9m3zf2s7qalf7', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 5', '', '[
     {
         "chapter": 5,
@@ -6907,28 +6336,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k5-l2"
     }
-]', 'quiz', 'published', 109, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
-        <h4 style="margin-top: 0; text-align: center; color: #7f8c8d; font-size: 0.9rem; text-transform: uppercase;">Beispiel: Tabelle "Kunden" (Relation)</h4>
-        <table style="width: 100%; border-collapse: collapse; font-family: monospace; font-size: 0.9rem;">
-            <tr style="background: #e9ecef;">
-                <th style="padding: 8px; border: 1px solid #ccc;">K_ID <span style="color:#c0392b;">(PK)</span></th>
-                <th style="padding: 8px; border: 1px solid #ccc;">Vorname</th>
-                <th style="padding: 8px; border: 1px solid #ccc;">Nachname</th>
-            </tr>
-            <tr>
-                <td style="padding: 8px; border: 1px solid #ccc; text-align: center;">1</td>
-                <td style="padding: 8px; border: 1px solid #ccc;">Max</td>
-                <td style="padding: 8px; border: 1px solid #ccc;">Muster</td>
-            </tr>
-            <tr style="background: #f8f9fa;">
-                <td style="padding: 8px; border: 1px solid #ccc; text-align: center;">2</td>
-                <td style="padding: 8px; border: 1px solid #ccc;">Anna</td>
-                <td style="padding: 8px; border: 1px solid #ccc;">Schmidt</td>
-            </tr>
-        </table>
-        <p style="text-align: center; font-size: 0.8rem; color: #999; margin-top: 10px;">Jede Spalte hat einen fest definierten Datentyp (z.B. INT, VARCHAR).</p>
-    </div>
-</div>', '', 'article', 'published', 5, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+]', 'quiz', 'published', 109, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lrtejquivkao6t4oq3w', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Inventur, Inventar und Bilanz', '
             <h3>1. Grundlagen (§ 240 HGB)</h3>
             <p>Nach § 240 HGB ist der Kaufmann verpflichtet, Vermögensgegenstände und Schulden zu Beginn der Geschäftstätigkeit und am Schluss eines jeden Geschäftsjahres zu verzeichnen.</p>
@@ -7270,7 +6678,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             Ø Eigenkapital = (12.200.000 + 14.000.000) / 2 = 13.100.000 €<br><br>
             Rentabilität = (1.610.000 € * 100) / 13.100.000 € = <strong>12,29 %</strong></p>
             <p><em>Bewertung: Die Verzinsung ist deutlich höher als bei einer Bankanlage. Das unternehmerische Risiko hat sich gelohnt.</em></p>
-        ', '', 'article', 'published', 24, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 24, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lry6iiuizj5b78roycg', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Qualitätssicherung: Automatische Tests', '<h3>1. Warum automatisiert testen?</h3>
 <p>Automatische Softwaretests sind das Rückgrat jeder professionellen Anwendung. Sie automatisieren wiederkehrende Prüfprozesse, sparen bei Code-Änderungen massiv Zeit und verhindern, dass alte Fehler ("Regressionen") unbemerkt wieder auftreten.</p>
 
@@ -7363,32 +6771,7 @@ public class MathUtilityTest {
         // Assert
         assertEquals(7.0, result, "Die Multiplikation sollte 7.0 ergeben!");
     }
-}</code></pre></div>', '', 'article', 'published', 68, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-    DBS = DB (Daten) + DBMS (Verwaltungs-Software)
-</div>
-
-<h3>2. Probleme der frühen Datenverarbeitung</h3>
-<p>Bevor es moderne relationale Datenbanken gab, wurden Daten meist in einfachen, voneinander isolierten Text- oder Binärdateien (Dateisystemen) gespeichert. Das führte zu massiven Problemen in Unternehmen:</p>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fef2f2; border-left: 4px solid #e74c3c; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #c0392b;">🔄 Datenredundanz</h4>
-        <p style="color: #555; font-size: 0.9rem;">Die gleichen Daten (z. B. Adressen von Kunden) wurden mehrfach in verschiedenen Dateien gespeichert. Das verschwendet Speicherplatz und führt schnell zu Chaos.</p>
-    </div>
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fffaf0; border-left: 4px solid #f39c12; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #d35400;">⚠️ Dateninkonsistenz</h4>
-        <p style="color: #555; font-size: 0.9rem;">Die direkte Folge von Redundanz: Ändert sich die Adresse eines Kunden, muss sie in allen Dateien geändert werden. Wird eine Datei vergessen, widersprechen sich die Daten (Inkonsistenz).</p>
-    </div>
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #f8f9fa; border-left: 4px solid #7f8c8d; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #34495e;">🔗 Datenabhängigkeit</h4>
-        <p style="color: #555; font-size: 0.9rem;">Programme und Datenstrukturen waren starr miteinander verknüpft. Wenn sich das Format der Datei änderte, musste das gesamte Programm umgeschrieben werden.</p>
-    </div>
-</div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>3. Die Lösung: Relationale Datenbanken</h3>
-<p>Um diese Probleme zu beheben, wurden Datenbanksysteme entwickelt. Die Daten werden zentral gespeichert, von einer intelligenten Software verwaltet und Programme greifen nicht mehr direkt auf Dateien zu, sondern schicken standardisierte Abfragen (SQL) an das DBMS.</p>', '', 'article', 'published', 1, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 68, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lsa3eegvlqsh19wido0', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 8', '', '[
     {
         "chapter": 8,
@@ -7438,7 +6821,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-intro"
     }
-]', 'quiz', 'published', 122, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 122, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lsf2tz1pg34fow2ec1c', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 2', '', '[
     {
         "chapter": 2,
@@ -7509,7 +6892,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#lektion-2-2"
     }
-]', 'quiz', 'published', 97, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 97, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lsfvclfdcv04mqjgt9z', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 8', '', '[
     {
         "chapter": 8,
@@ -7542,118 +6925,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#kapitel-8"
     }
-]', 'quiz', 'published', 103, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
-    <div style="border: 2px solid #2980b9; padding: 10px; margin: 0 auto 15px auto; width: 60%; background: #eaf2f8; font-weight: bold; color: #2c3e50;">Entität (z.B. Kunde, Auto, Artikel)</div>
-    <h4 style="margin-top:0; color: #2980b9;">Die Entität (Rechteck)</h4>
-    <p style="color: #555; font-size: 0.9rem; text-align: left;">Ein eindeutig identifizierbares und unterscheidbares Objekt der realen Welt. Eine Entität wird in einem ER-Diagramm stets als <strong>Rechteck</strong> dargestellt.</p>
-</div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>2. Referentielle Integrität: Keine halben Sachen</h3>
-<div style="background: #fff3cd; padding: 1.2rem; border-left: 4px solid #ffc107; margin: 2rem 0; border-radius: 4px; color: #856404; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    <p>Die referentielle Integrität stellt sicher, dass Beziehungen zwischen Tabellen immer korrekt bleiben. Sie gewährleistet, dass Fremdschlüssel (Foreign Keys) in einer Tabelle <strong>nur auf gültige Primärschlüssel</strong> in einer anderen Tabelle verweisen. So wird verhindert, dass traurige, "verwaiste" Datensätze entstehen.</p>
-    <ul style="margin-bottom: 0;">
-        <li>Man kann keinen Ort löschen, solange ein Kunde in diesem Ort wohnt.</li>
-        <li>Man kann keinen Kunden gelöschen, solange es zu diesem Kunden eine Bestellung gibt.</li>
-        <li>Dies wird durch <em>Foreign Key Constraints</em> (Fremdschlüsselbeschränkungen) implementiert.</li>
-        <li>Man kann keine Datensätze in Tabelle B löschen oder ändern, solange sie von einem Fremdschlüssel in Tabelle A referenziert werden.</li>
-    </ul>
-</div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>3. Relationenschreibweise: Sleek & Compact</h3>
-<p>Die Relationenschreibweise ist eine super kompakte Notation zur Darstellung von Datenbankstrukturen und gilt als <strong>logisches Datenmodell</strong>. Sie beschreibt jede Tabelle (Relation) mit ihren Attributen, Primärschlüsseln und Fremdschlüsseln.</p>
-
-<div style="background: #2c3e50; padding: 1.5rem; border-radius: 8px; color: #ecf0f1; font-family: monospace; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin: 1.5rem 0;">
-    <span style="color: #bdc3c7;">// Primärschlüssel werden durchgehend unterstrichen</span><br>
-    <span style="color: #bdc3c7;">// Fremdschlüssel werden gestrichelt unterstrichen</span><br><br>
-    Kunde (<u>KundenId</u>, Vorname, Nachname, Geburtsdatum)<br>
-    Bestellung (<u>BestellId</u>, Bestelldatum, Gesamtpreis, <span style="border-bottom: 1px dashed #ecf0f1;">KundenId</span>)
-</div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>4. Kardinalitäten: Wer mit wem? (Und wie viele?)</h3>
-<p>Kardinalität beschreibt, wie viele Entitäten in einer Datenbankbeziehung miteinander in Verbindung stehen können. Es geht darum, die Anzahl der möglichen Beziehungen zu definieren.</p>
-
-<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fdfefe; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #8e44ad;">1:1 (0 oder 1 zu 1)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Jede Entität aus der ersten Menge kann mit <strong>höchstens einer</strong> Entität aus der zweiten Menge in Beziehung stehen.<br><br><em>Beispiel:</em> Eine Person besitzt höchstens einen Reisepass. Ein Reisepass gehört immer genau einer Person.</p>
-    </div>
-
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fdfefe; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #27ae60;">1:n (0 oder 1 zu n)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Jede Entität der ersten Menge kann mit <strong>beliebig vielen</strong> der zweiten in Beziehung stehen.<br><br><strong>Wichtig:</strong> Die Entität, welche die 1-Kardinalität sieht, bekommt den Fremdschlüssel.</p>
-    </div>
-
-    <div style="border: 1px solid #eee; border-radius: 8px; padding: 1.5rem; background: #fffaf0; border-left: 4px solid #e67e22; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-        <h4 style="margin-top:0; color: #e67e22;">m:n (Viele zu Vielen)</h4>
-        <p style="color: #555; font-size: 0.9rem;">Beliebig viele zu beliebig vielen! Das führt im Modell <strong>immer zu 3 Tabellen</strong> (es wird eine sogenannte Hilfstabelle erstellt). Die Primärschlüssel der ursprünglichen Tabellen werden zu Fremdschlüsseln in der Hilfstabelle und bilden dort in der Regel den neuen, gemeinsamen Primärschlüssel.</p>
-    </div>
-</div>
-
-<h4>Die MC-Notation (Modifizierte Chen-Notation) im Überblick:</h4>
-<ul>
-    <li><strong>1:</strong> Genau ein</li>
-    <li><strong>c:</strong> Kein oder ein (höchstens ein)</li>
-    <li><strong>m:</strong> Ein oder mehrere (mindestens ein)</li>
-    <li><strong>mc:</strong> Kein, ein oder mehrere (beliebig viele)</li>
-</ul>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 3rem 0;">
-
-<h3>Praxis-Beispiel: Das Pizza-ERM</h3>
-<p>Grau ist alle Theorie! Lass uns ein simples Entity-Relationship-Modell am Beispiel einer Pizzeria aufbauen.</p>
-
-<!-- CSS Magie ERM Diagramm (Kunde -> Bestellung -> Pizza) -->
-<div class="erm-container">
-    <div class="erm-wrapper">
-        <div class="erm-entity">Kunde</div>
-        <div class="erm-line" style="width: 140px; margin: 0 15px;">
-            <span class="erm-cardinality" style="left: 5px;">1</span>
-            <span style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">bestellt</span>
-            <span class="erm-cardinality" style="right: 5px;">mc</span>
-        </div>
-        <div class="erm-entity">Bestellung</div>
-        <div class="erm-line" style="width: 140px; margin: 0 15px;">
-            <span class="erm-cardinality" style="left: 5px;">1</span>
-            <span style="position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">enthält</span>
-            <span class="erm-cardinality" style="right: 5px;">m</span>
-        </div>
-        <div class="erm-entity">Pizza</div>
-    </div>
-</div>
-
-<div style="background: #eaf2f8; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #3498db; margin-top: 2rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    <h4 style="margin-top: 0; color: #2980b9;">Was sehen wir hier?</h4>
-    <ul style="margin-bottom: 0; color: #2c3e50;">
-        <li><strong>Drei Entitäten (Rechtecke):</strong> Den <code>Kunden</code>, die <code>Bestellung</code> und die <code>Pizza</code>.</li>
-        <li><strong>Verbindungslinien:</strong> Einfache Linien verbinden die Entitäten direkt miteinander. Die Verben über den Linien ("bestellt", "enthält") klären den Zweck der Beziehung.</li>
-        <li><strong>Die Kardinalitäten (Modifizierte Chen-Notation):</strong> 
-            <br><br>➔ <strong>Kunde zu Bestellung (1 : mc):</strong> <em>Ein</em> bestimmter Kunde (1) kann <em>keine, eine oder mehrere</em> Bestellungen (mc) aufgeben. <em>Jede</em> bestimmte Bestellung gehört im System aber immer exakt zu <em>einem</em> Kunden (1).
-            <br><br>➔ <strong>Bestellung zu Pizza (1 : m):</strong> <em>Eine</em> bestimmte Bestellung (1) enthält <em>mindestens eine oder mehrere</em> Pizzen (m). (Eine leere Bestellung ergibt keinen Sinn). <em>Jede</em> zubereitete Pizza auf dem Kassenbon gehört exakt zu <em>einer</em> bestimmten Bestellung (1).
-        </li>
-    </ul>
-</div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 3rem 0;">
-
-<h3>5. Der finale Showdown: Konzeptuell vs. Physisch</h3>
-<div style="background: #f0fdf4; padding: 1.2rem; border-left: 4px solid #2ecc71; margin: 2rem 0; border-radius: 4px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    <p style="margin-top: 0;"><strong>Konzeptionelles Datenmodell:</strong></p>
-    <ul>
-        <li>Keine leeren Schlüssel erlaubt.</li>
-        <li>Primär- und Fremdschlüssel dürfen nicht leer (NULL) sein.</li>
-    </ul>
-    <p><strong>Physisches Datenmodell:</strong></p>
-    <ul>
-        <li>Nur hierarchische Beziehungen erlaubt.</li>
-        <li>Das bedeutet: Alle konditionellen und netzwerkförmigen Beziehungen müssen aufgelöst werden!</li>
-    </ul>
-</div>', '', 'article', 'published', 3, '2026-04-27 09:46:06', '2026-04-28 18:44:23');
+]', 'quiz', 'published', 103, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lsx9vp787422awxn831', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Grundlagen 2: Arrays & Schleifen', '<h3>1. Arrays: Daten in Regalen speichern</h3>
 <p>Ein Array lässt sich am besten als Regal mit einer exakten Anzahl von Fächern vorstellen. In diesem Regal können Werte des <strong>gleichen Typs</strong> gespeichert werden. Der Zugriff auf ein Fach erfolgt über den sogenannten <strong>Index</strong>, der in Java immer bei <code>0</code> beginnt.</p>
 
@@ -7698,7 +6970,7 @@ do {
 } while (runLoop);</code></pre></div>
     </div>
 
-</div>', '', 'article', 'published', 53, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</div>', '', 'article', 'published', 53, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lton211waov1h4qt2qj', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Buchen auf Bestandskonten & Abschluss', '
             <h3>1. Auflösung der Bilanz in Bestandskonten</h3>
             <p>Die Bilanz ist eine stichtagsbezogene Momentaufnahme. Um die täglichen Geschäftsvorfälle zu erfassen, wird die Bilanz in <strong>Konten</strong> aufgelöst. Für jeden Bilanzposten wird ein eigenes Konto geführt.</p>
@@ -7826,7 +7098,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                     <div style="background: #fff3e0; padding: 8px 20px; border-radius: 15px; border: 1px solid #ffcc80;">7. Schlussbilanz</div>
                 </div>
             </div>
-        ', '', 'article', 'published', 27, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 27, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ltqzwwy3649lztdz7x3', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 9', '', '[
     {
         "chapter": 9,
@@ -7892,7 +7164,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         },
         "link": "s4220.php#k9-l1"
     }
-]', 'quiz', 'published', 95, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 95, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ltt9l9k7g9fn4ttj86v', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'JSON Parsing in Java', '<h3>1. Die Problemstellung beim Datenaustausch</h3>
 <p>Wenn wir Daten über das Netzwerk austauschen (z.B. durch eine REST-API Anfrage), erhalten wir diese oft nur als simplen, endlosen JSON-String. Um in Java objektorientiert damit arbeiten zu können, müssen wir diesen Textbaum in konkrete Java-Objekte übersetzen. Diesen fundamentalen Prozess nennt man <strong>Parsen</strong>.</p>
 
@@ -7974,7 +7246,7 @@ public class JsonHelper {
 
         return personList;
     }
-}</code></pre></div>', '', 'article', 'published', 63, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+}</code></pre></div>', '', 'article', 'published', 63, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ltzfklrotc70hvin285', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 9', '', '[
     {
         "chapter": 9,
@@ -8002,7 +7274,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-ecosystem"
     }
-]', 'quiz', 'published', 123, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 123, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lu93oypa4xri9xzgn3k', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 7', '', '[
     {
         "chapter": 7,
@@ -8043,7 +7315,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k7-l1"
     }
-]', 'quiz', 'published', 111, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 111, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ludgy1o6ecc8pbmj6w6', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Umsatzsteuer & Vorsteuer', '
             <h3>1. Das System der Mehrwertsteuer</h3>
             <p>Die Umsatzsteuer ist für Unternehmen ein <strong>durchlaufender Posten</strong>. Sie wird vom Endverbraucher getragen. Auf jeder Stufe der Wertschöpfungskette wird nur der geschaffene <strong>Mehrwert</strong> besteuert (Allphasen-Netto-Umsatzsteuer mit Vorsteuerabzug).</p>
@@ -8178,7 +7450,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             <p style="font-size: 0.9em; color: #666; margin-top: 1rem;">
                 <em>Hinweis zur Bilanzierung:</em> Besteht am Jahresende noch eine Zahllast, wird diese als „Sonstige Verbindlichkeit“ passiviert. Ein Vorsteuerüberhang wird als „Sonstige Forderung“ aktiviert.
             </p>
-        ', '', 'article', 'published', 31, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 31, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('ludnn2ct4n5kgeteczl', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4550 - Kapitel 2', '', '[
     {
         "chapter": "Kapitel 2",
@@ -8328,7 +7600,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4550"
     }
-]', 'quiz', 'published', 81, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 81, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('luoimrmgvgswg2yduxf', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Verhalten der variablen Kosten', '
             <h3>1. Proportionale Kosten (Der Normalfall)</h3>
             <p>Die Kosten steigen im gleichen Verhältnis wie die Menge (z.B. Rohholz für Tische). 1 Tisch = 10€ Holz, 2 Tische = 20€ Holz.</p>
@@ -8372,7 +7644,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                     </ul>
                 </div>
             </div>
-        ', '', 'article', 'published', 42, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 42, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lv8x56d516e4hm28wpn', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4600 - Kapitel 3', '', '[
     {
         "chapter": 3,
@@ -8470,17 +7742,17 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4600.php#k3-l5"
     }
-]', 'quiz', 'published', 107, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 107, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lvs1nbbnka07t6ffs72', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Abgrenzungsrechnung', '
             <h3>Ergebnistabelle</h3>
             <p>Herausrechnen neutraler Aufwendungen (Spenden, Steuernachzahlungen). Hinzufügen kalkulatorischer Kosten (Unternehmerlohn, kalk. Miete).</p>
-        ', '', 'article', 'published', 37, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 37, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lweb475fwv9eicrhakg', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Kostenträgerrechnung', '
             <h3>Schema</h3>
             <p>MEK + MGK + FL + FGK = <strong>Herstellkosten</strong></p>
             <p>HK + VwGK + VtGK = <strong>Selbstkosten</strong></p>
             <p>Selbstkosten + Gewinn = <strong>Verkaufspreis</strong></p>
-        ', '', 'article', 'published', 39, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 39, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lwkbyififie8pi3jrs2', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 5', '', '[
     {
         "chapter": 5,
@@ -8562,7 +7834,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4220.php#k5-l6"
     }
-]', 'quiz', 'published', 91, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 91, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lx19bsb4zi2vomw1717', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Aufzählungstypen (Enums)', '<h3>1. Was ist ein Enum?</h3>
 <p>Ein <code>enum</code> (kurz für <em>enumeration</em>) ist ein spezieller Datentyp in Java, der eine feste, vorgegebene Menge von Konstanten repräsentiert. Da Bezeichner von Konstanten in Java konventionell komplett großgeschrieben werden, gilt das auch für Enums.</p>
 
@@ -8612,7 +7884,7 @@ switch (today) {
 
 // Verwendung:
 Planet planet = Planet.ERDE;
-System.out.println("Masse von " + planet + ": " + planet.getMass());</code></pre></div>', '', 'article', 'published', 64, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+System.out.println("Masse von " + planet + ": " + planet.getMass());</code></pre></div>', '', 'article', 'published', 64, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lx2vxzf8knzdpkrhm2k', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4F10 - Kapitel 2', '', '[
     {
         "chapter": "Kapitel 2",
@@ -8649,7 +7921,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "\\/module?id=s4f10"
     }
-]', 'quiz', 'published', 73, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 73, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lxc71ecqnd57mvswfkt', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4500 - Kapitel 5', '', '[
     {
         "chapter": 5,
@@ -8777,7 +8049,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4500.php#kapitel-5"
     }
-]', 'quiz', 'published', 100, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 100, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lxf9p89pybnjdajhfdw', 'sc65ozlek3mbpfnrwg4', 'u5ilhtdcn9ycti9tbmc', 'Buchen auf Erfolgskonten (GuV)', '
             <h3>1. Aufwendungen und Erträge</h3>
             <p>Bisher haben wir nur Bestandsveränderungen (Aktivtausch, Passivtausch) betrachtet, die den Gewinn nicht beeinflussen. Im Unternehmensalltag entstehen jedoch ständig Werteverzehre und Wertezuwächse, die das <strong>Eigenkapital</strong> verändern.</p>
@@ -8893,28 +8165,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
                 Saldo GuV (Gewinn) -> Eigenkapital (Haben)<br>
                 Saldo Eigenkapital -> Schlussbilanz (Passiva)
             </div>
-        ', '', 'article', 'published', 28, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-    <p style="color: #2c3e50; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px;">Das Venn-Diagramm des INNER JOIN</p>
-    <div style="display: flex; justify-content: center; align-items: center; margin: 10px 0;">
-        <div style="width: 100px; height: 100px; border-radius: 50%; background: rgba(52, 152, 219, 0.2); border: 2px solid #3498db; margin-right: -30px; z-index: 1;"></div>
-        <div style="width: 100px; height: 100px; border-radius: 50%; background: rgba(46, 204, 113, 0.2); border: 2px solid #2ecc71; margin-left: -30px; z-index: 1;"></div>
-        <!-- Schnittmenge simulieren -->
-        <div style="position: absolute; width: 40px; height: 75px; border-radius: 50%; background: #9b59b6; z-index: 2;"></div>
-    </div>
-    <p style="color: #555; font-size: 0.9rem;">Nur die violette Schnittmenge wird ausgegeben.<br>Kunden ohne Bestellung und Bestellungen ohne Kunden (Gott bewahre!) fallen weg.</p>
-</div>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1.5rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #a972ff; margin: 2rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.95rem; line-height: 1.6;">-- Syntax: Welche Spalten wollen wir sehen?
-SELECT kunden.vorname, kunden.nachname, bestellungen.rechnungsbetrag
--- Von welcher Haupttabelle gehen wir aus?
-FROM kunden
--- Wie heißt die zweite Tabelle und wie sind sie verknüpft?
-INNER JOIN bestellungen ON kunden.kunden_id = bestellungen.kunden_id;</code></pre></div>
-
-<div style="background: #fef2f2; padding: 1.2rem; border-left: 4px solid #e74c3c; margin: 2rem 0; border-radius: 4px; color: #c0392b; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    <strong>🚨 Wichtig: Das kartesische Produkt (Gefahr!)</strong><br>
-    Wenn man das <code>ON ... = ...</code> beim Verknüpfen vergisst, kombiniert SQL <em>jeden</em> Datensatz der ersten Tabelle mit <em>jedem</em> Datensatz der zweiten Tabelle. Bei 1.000 Kunden und 1.000 Bestellungen liefert die Datenbank plötzlich 1.000.000 unsinnige Zeilen zurück!
-</div>', '', 'article', 'published', 17, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+        ', '', 'article', 'published', 28, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lxt5fg1waq3bxc0zw8s', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4H00 - Kapitel 4', '', '[
     {
         "chapter": 4,
@@ -9015,77 +8266,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4h00.php#topic-accounts-receivable"
     }
-]', 'quiz', 'published', 118, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
-    <thead>
-        <tr style="background: linear-gradient(135deg, #2c3e50, #34495e); color: #fff;">
-            <th style="padding: 15px; text-align: left; width: 15%;">Typ</th>
-            <th style="padding: 15px; text-align: left; width: 45%;">Erklärung</th>
-            <th style="padding: 15px; text-align: left; width: 40%;">Beispiel aus der Praxis</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #e74c3c; font-size: 1.2rem;">1 : 1</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Jedem Datensatz aus Tabelle A ist exakt ein Datensatz aus Tabelle B zugeordnet (und umgekehrt). Oft werden diese Daten direkt in einer gemeinsamen Tabelle zusammengefasst.</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #555;">Ein <strong>Bürger</strong> besitzt genau einen aktiven <strong>Personalausweis</strong>. Ein Ausweis gehört genau einem Bürger.</td>
-        </tr>
-        <tr>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; font-weight: bold; color: #f39c12; font-size: 1.2rem;">1 : N</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #333;">Die häufigste Beziehungsart! Ein Datensatz aus Tabelle A darf mit beliebig vielen (N) Datensätzen aus Tabelle B verknüpft sein. Ein Datensatz aus B gehört aber zu exakt einem Datensatz aus A.</td>
-            <td style="padding: 15px; border-bottom: 1px solid #eee; color: #555;">Ein <strong>Kunde</strong> kann N <strong>Bestellungen</strong> tätigen. Eine bestimmte Bestellung gehört aber immer genau einem Kunden.</td>
-        </tr>
-        <tr style="background: #f8f9fa;">
-            <td style="padding: 15px; font-weight: bold; color: #27ae60; font-size: 1.2rem;">M : N</td>
-            <td style="padding: 15px; color: #333;">Jeder Datensatz aus A kann beliebig viele Partner in B haben, und jeder Datensatz aus B kann beliebig viele Partner in A haben. (Wird in SQL später durch eine Zwischentabelle aufgelöst).</td>
-            <td style="padding: 15px; color: #555;">Ein <strong>Student</strong> belegt M <strong>Kurse</strong>. Ein Kurs wird wiederum von N <strong>Studenten</strong> besucht.</td>
-        </tr>
-    </tbody>
-</table>
-
-<div style="background: #e8f4f8; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #3498db; margin: 2rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-    <h4 style="margin-top:0; color: #2980b9;">🧠 Die (min, max)-Notation (Erweiterung)</h4>
-    <p style="margin: 0; color: #2c3e50;">Eine modernere, präzisere Art Kardinalitäten darzustellen, ist die (min, max)-Notation. Hier gibt man direkt am Strich zur Entität an, wie oft sie <em>mindestens</em> und <em>maximal</em> teilnehmen darf. Beispiel: <strong>Kunde (1, N) &mdash; kauft &mdash; (1, N) Produkt</strong> bedeutet: Ein Kunde kauft mindestens 1, maximal N Produkte. Ein Produkt wird von mindestens 1, maximal N Kunden gekauft.</p>
-</div>', '', 'article', 'published', 4, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
-    <h4 style="margin-top:0; color: #27ae60;">Die eiserne Regel der 3. Normalform (3NF)</h4>
-    <p style="margin: 0; color: #2c3e50; font-size: 1.1rem; font-weight: bold;">"Kein Nicht-Schlüssel-Attribut darf von einem anderen Nicht-Schlüssel-Attribut abhängen."</p>
-    <p style="margin-top: 10px; color: #555; font-style: italic;">(Fachsprache: Es dürfen keine transitiven Abhängigkeiten bestehen).</p>
-</div>
-
-<hr style="border: 0; border-top: 1px solid #eee; margin: 2rem 0;">
-
-<h3>2. Das klassische PLZ-Problem</h3>
-<p>Schauen wir uns eine einfache Kundentabelle an. Der Primärschlüssel (PK) ist die <code>Kunden_ID</code>. Damit ist sie in 1NF und (da es kein zusammengesetzter Schlüssel ist) auch direkt in 2NF.</p>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #e74c3c; margin: 1rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.9rem;">| Kunden_ID (PK) | Name     | PLZ   | Stadt     |
-|----------------|----------|-------|-----------|
-| 1              | Müller   | 10115 | Berlin    |
-| 2              | Schmidt  | 80331 | München   |
-| 3              | Meier    | 10115 | Berlin    |</code></pre></div>
-
-<p><strong>Die Fehleranalyse:</strong></p>
-<p>Der Name, die PLZ und die Stadt hängen alle von der <code>Kunden_ID</code> ab (Wir wissen, wer der Kunde ist). <strong>ABER:</strong> Die <code>Stadt</code> hängt eigentlich direkt von der <code>PLZ</code> ab! (Wenn ich die PLZ kenne, kenne ich die Stadt).<br>
-Hier hängt also ein Nicht-Schlüssel (Stadt) von einem anderen Nicht-Schlüssel (PLZ) ab. Das führt wieder zu Redundanz (Berlin wird doppelt gespeichert).</p>
-
-<h3>3. Die Lösung</h3>
-<p>Auch hier spalten wir die Tabelle auf und lagern die transitive Abhängigkeit aus!</p>
-
-<div class="code-block" style="background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); border-left: 4px solid #27ae60; margin: 1rem 0;"><pre style="margin: 0;"><code style="font-family: ''Fira Code'', Consolas, monospace; font-size: 0.9rem;">-- Tabelle 1: Orte
-| PLZ (PK) | Stadt     |
-|----------|-----------|
-| 10115    | Berlin    |
-| 80331    | München   |
-
--- Tabelle 2: Kunden (Ist jetzt in der 3NF!)
-| Kunden_ID (PK) | Name     | PLZ (FK) |
-|----------------|----------|----------|
-| 1              | Müller   | 10115    |
-| 2              | Schmidt  | 80331    |
-| 3              | Meier    | 10115    |</code></pre></div>
-
-<div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; border-left: 4px solid #8e44ad; margin-top: 2rem;">
-    <p style="margin: 0; font-size: 1.1rem; text-align: center;"><strong>Der bekannte Merksatz der Datenbank-Entwickler:</strong></p>
-    <p style="margin: 10px 0 0 0; text-align: center; font-style: italic; color: #8e44ad;">"Every non-key attribute must provide a fact about the key, the whole key, and nothing but the key... so help me Codd."</p>
-</div>', '', 'article', 'published', 10, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+]', 'quiz', 'published', 118, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lzazc2746vsc730gi8c', 's7lwkngmjvwoajhz3cf', 'u5ilhtdcn9ycti9tbmc', 'Software Design Prinzipien', '<h3>1. Die goldenen Regeln für sauberen Code</h3>
 <p>Gute Software zeichnet sich nicht nur dadurch aus, dass sie für den Endanwender fehlerfrei funktioniert, sondern vor allem auch dadurch, dass sie für Entwickler lesbar, wartbar und leicht erweiterbar ist. Dafür gibt es fest etablierte Design-Prinzipien.</p>
 
@@ -9126,7 +8307,7 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
             <td style="padding: 15px; color: #333;">Module höherer Ebenen sollten nicht direkt von Modulen niedrigerer Ebenen abhängen. Beide Ebenen sollten stets von <strong>Abstraktionen</strong> (wie Java Interfaces) abhängen.</td>
         </tr>
     </tbody>
-</table>', '', 'article', 'published', 56, '2026-04-27 09:46:06', '2026-04-27 09:46:06');
+</table>', '', 'article', 'published', 56, '2026-04-27 09:46:06', '2026-04-27 09:46:07');
 INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, status, sortOrder, createdAt, updatedAt) VALUES ('lzp59kntr088aaq2ff5', 'sciiifndcvaztls7lnh', 'u5ilhtdcn9ycti9tbmc', 'Quiz: S4220 - Kapitel 2', '', '[
     {
         "chapter": 2,
@@ -9144,10 +8325,13 @@ INSERT INTO lessons (id, subjectId, authorId, title, content, contentRaw, type, 
         ],
         "link": "s4220.php#k2-l1"
     }
-]', 'quiz', 'published', 88, '2026-05-04 08:39:56', '2026-05-04 08:39:56');
+]', 'quiz', 'published', 88, '2026-05-04 08:39:56', '2026-05-04 08:39:57');
 
 -- Table: user_progress
 DELETE FROM user_progress;
+INSERT INTO user_progress (userId, lessonId, status, score, updatedAt) VALUES ('cmpckovvq000gzzeaj7rnx3xd', 'l1t5mgbs3hz6wpdfwfo', 'completed', 67, '2026-05-19 11:59:07');
+INSERT INTO user_progress (userId, lessonId, status, score, updatedAt) VALUES ('cmpckovvq000gzzeaj7rnx3xd', 'ldfw46i7c20qcougmhl', 'completed', 100, '2026-05-19 11:54:23');
+INSERT INTO user_progress (userId, lessonId, status, score, updatedAt) VALUES ('cmpckovvq000gzzeaj7rnx3xd', 'lok6im91j0qqmijcryd', 'completed', 67, '2026-05-19 11:58:41');
 INSERT INTO user_progress (userId, lessonId, status, score, updatedAt) VALUES ('u5ilhtdcn9ycti9tbmc', 'l22195cnwor7o5pwp09', 'pending', NULL, '2026-04-25 19:59:00');
 INSERT INTO user_progress (userId, lessonId, status, score, updatedAt) VALUES ('u5ilhtdcn9ycti9tbmc', 'ldycw8jhs7dxqz2420w', 'pending', NULL, '2026-04-26 17:35:07');
 INSERT INTO user_progress (userId, lessonId, status, score, updatedAt) VALUES ('u5ilhtdcn9ycti9tbmc', 'lm47j655ukmqbj4dhgq', 'pending', NULL, '2026-04-26 17:39:18');
@@ -9302,9 +8486,12 @@ INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70oe
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70olrw000xl8eaqwanhiwk', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Das DBMS und seine Sprachen"', '2026-05-15 14:32:59');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70oop3000zl8eaawjvhv1e', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "DML: Daten einfügen, ändern und löschen"', '2026-05-15 14:33:03');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70oqqq0011l8ea409qfa5r', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Anforderungen an ein Datenbanksystem"', '2026-05-15 14:33:06');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70p5wd0013l8ea41v2xz6z', 'u5ilhtdcn9ycti9tbmc', 'Lektion gelöscht: "Das DBMS und seine Sprachen"', 'ID: lil8trw69rk85h2x3xb, Fach: Datenbanken (SQL)', '2026-05-15 14:33:25');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70p7tw0015l8eaxi10uw5j', 'u5ilhtdcn9ycti9tbmc', 'Lektion gelöscht: "Anforderungen an ein Datenbanksystem"', 'ID: lm9asjcye4c9uvbfhlt, Fach: Datenbanken (SQL)', '2026-05-15 14:33:28');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70pn6p0017l8ea1obzlu5n', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "DML: Daten einfügen, ändern und löschen"', '2026-05-15 14:33:48');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70prgz0019l8ea4sfk1fue', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Datenbanktheorie: Was ist ein Datenbanksystem?"', '2026-05-15 14:33:53');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70pxwj001bl8eayga4y9f1', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "DML: Daten einfügen, ändern und löschen"', '2026-05-15 14:34:02');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp70qf1l001dl8eaukidygw3', 'u5ilhtdcn9ycti9tbmc', 'Lektion gelöscht: "DML: Daten einfügen, ändern und löschen"', 'ID: lnkwasucdkd01fjc57u, Fach: Datenbanken (SQL)', '2026-05-15 14:34:24');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp8hx8u2001fl8eaxeqa5wbx', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-16 15:23:22');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp8hx98g001hl8ea00ayk22u', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-16 15:23:23');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmp8tx30c001jl8eafvedtpbb', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-16 20:59:10');
@@ -9316,581 +8503,107 @@ INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpa6qu
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpawv8vj0009gcidgli584q5', 'u5ilhtdcn9ycti9tbmc', 'LOGIN', 'Erfolgreich angemeldet', '2026-05-18 07:57:15');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpawv8xd000bgcidq9xfhhsh', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 07:57:15');
 INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpawv8zg000dgcidkwluspjo', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 07:57:15');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpawvgwy000fgcids9mzpjsy', 'u5ilhtdcn9ycti9tbmc', 'Datenbank-Backup via SQL-Export heruntergeladen (backup_2026-05-18_07-57-26.sql).', 'Größe: 522316 Bytes', '2026-05-18 07:57:26');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpaxkoqj000hgcid6hb7atyk', 'u5ilhtdcn9ycti9tbmc', 'LOGOUT', 'Sitzung beendet', '2026-05-18 08:17:02');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpaxkqu0000jgcidzuf6wdmi', 'u5ilhtdcn9ycti9tbmc', 'LOGIN', 'Erfolgreich angemeldet', '2026-05-18 08:17:05');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpaxkqvy000lgcidcm01ecbp', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 08:17:05');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpaxkqy6000ngcidfj91vi2a', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 08:17:05');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpaxkudk000pgcide12joo03', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 08:17:10');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpazak4f00012y5we7dfryv6', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:05:09');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpazqxec0001eff672xpoldh', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:17:53');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpazqyk10003eff61s6n9hyi', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:17:54');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpazr1md0005eff6yvxs37bx', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:17:58');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpazr9is0007eff64mfac4hp', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:18:08');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpazshig00012m4qg1h57jiu', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:19:05');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpazsoly00032m4qlw9ccvv9', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:19:15');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb0a28h000113hhvz2f8c2s', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:32:45');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb0cpck000313hhmgbwx0nf', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:34:49');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb0ct8a000513hhjddlzn7s', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Datenmodellierung: Das Entity-Relationship-Modell (ERM)"', '2026-05-18 09:34:54');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb0cw9t000713hhatvokkte', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:34:58');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb0esnd000913hhqu96z09r', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 09:36:26');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3g9dy0002ypx8tv7i2jdi', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:01:33');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3gb7a0004ypx8cnxxydhq', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:01:36');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3gkoc0006ypx81jotuyhc', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:01:48');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3hh6h0008ypx8xu7dt3zu', 'u5ilhtdcn9ycti9tbmc', 'Datenbank-Backup via SQL-Export heruntergeladen (backup_2026-05-18_11-02-30.sql).', 'Größe: 484412 Bytes', '2026-05-18 11:02:30');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3qap000013na6hhg5brvc', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:09:22');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3qg9a00033na6b73cbnk9', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Datenbanktheorie & Grundlagen"', '2026-05-18 11:09:29');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3qjqu00053na6za9w485n', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Datenbanktheorie & Grundlagen"', '2026-05-18 11:09:33');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3qlls00073na6lt3a3r2p', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Normalisierung"', '2026-05-18 11:09:36');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3u0ol00093na6quycbqe5', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:12:15');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3u29y000b3na66xb4zyqh', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Grundlagen 2: Arrays & Schleifen"', '2026-05-18 11:12:17');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3ubaz000d3na6a2bvd1rl', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "SQL: DQL (Abfragen)"', '2026-05-18 11:12:29');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3wgn80001q0s9u9vlk225', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:14:09');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3wr440003q0s9evj03627', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Datenbanktheorie & Grundlagen"', '2026-05-18 11:14:23');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3xaky0005q0s9tof9v0nh', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:14:48');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3yhcc0007q0s9jhi3luqr', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:15:44');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3z33s0009q0s9gfma91eh', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:16:12');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb3z44m000bq0s9lz9llh46', 'u5ilhtdcn9ycti9tbmc', 'LOGOUT', 'Sitzung beendet', '2026-05-18 11:16:13');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb4sxy7000dq0s9k1f82v38', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:39:25');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb4t1sf000fq0s9zokjsdj1', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 11:39:30');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb4tcyn000hq0s9vqko92bs', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "SQL: DDL & DML"', '2026-05-18 11:39:44');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb6c9k6000jq0s9kelna50u', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 12:22:26');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpb6cgdm000lq0s9btekmcrm', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Datenbanktheorie & Grundlagen"', '2026-05-18 12:22:35');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbb073v000nq0s90lydtkiy', 'ubdbfowdpbr1hcolcxx', 'LOGIN', 'Erfolgreich angemeldet', '2026-05-18 14:33:01');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbb075e000pq0s9ockvt2ml', 'ubdbfowdpbr1hcolcxx', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 14:33:01');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbb0775000rq0s9tkbk6kid', 'ubdbfowdpbr1hcolcxx', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 14:33:01');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbflm2t000tq0s9ajfzxovu', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 16:41:39');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbflw77000vq0s9fxlqifpx', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 16:41:52');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbfmbos000xq0s9dakrrwic', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 16:42:12');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbfmssk000zq0s999iw8nx9', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 16:42:34');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbhu3af0011q0s9wrzquwo0', 'up764f99o00pcq1v0xo', 'LOGIN', 'Erfolgreich angemeldet', '2026-05-18 17:44:13');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbhu3cs0013q0s9iaq3h1zk', 'up764f99o00pcq1v0xo', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 17:44:13');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbhu3e00015q0s9h9c29t0p', 'up764f99o00pcq1v0xo', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 17:44:13');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpbhu3fs0017q0s9zrdo49lq', 'up764f99o00pcq1v0xo', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-18 17:44:14');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcdi6ak001aq0s9q79i66x1', 'u5ilhtdcn9ycti9tbmc', 'LOGIN', 'Erfolgreich angemeldet', '2026-05-19 08:30:45');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcdi6dl001cq0s94yofzlwr', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 08:30:45');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcdi6ie001eq0s9lbx3z6lu', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 08:30:45');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcdid3a001gq0s9mr9xmfhs', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Modellierung"', '2026-05-19 08:30:54');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpce8ug1001iq0s9fqep1yyr', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "Modellierung"', '2026-05-19 08:51:29');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcjo3he0001zzeaytv0i3p0', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:23:19');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcjqj300003zzea2cifiywb', 'up764f99o00pcq1v0xo', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:25:13');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcjud3d0005zzea7skhxfo6', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:28:11');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcjul7n0007zzeacbdi2yrq', 'u5ilhtdcn9ycti9tbmc', 'VIEW_LESSON', 'Lektion geöffnet: "SQL: DQL (Abfragen)"', '2026-05-19 11:28:22');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcjunm80009zzeadzn7nlep', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:28:25');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcjzp2x000bzzeak0fj9mdd', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:32:20');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckcb1l000dzzeai2pqjppa', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:42:09');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckntav000fzzeaxumskufi', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:51:06');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckp2mz000izzea8sv6sjzz', 'cmpckovvq000gzzeaj7rnx3xd', 'LOGIN', 'Erfolgreich angemeldet', '2026-05-19 11:52:04');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckp2q8000kzzea6413xhqo', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:52:04');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckp2sr000mzzea7xuv0ujd', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:52:04');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckqrw8000ozzeab43iy8ch', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 1"', '2026-05-19 11:53:24');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckr1k0000qzzeaszsnp4rv', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:53:36');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcks1xq000szzeasbsrmi5w', 'cmpckovvq000gzzeaj7rnx3xd', 'COMPLETED_QUIZ', 'Lektion: "Quiz: S4F10 - Kapitel 1" (Ergebnis: 100%)', '2026-05-19 11:54:23');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcks1y0000uzzeadd0dr669', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 1"', '2026-05-19 11:54:23');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckshjj000wzzeaywvmbs3f', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:54:44');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcktmhv000zzzeasqcey94e', 'cmpckth8b000xzzeafc2ym700', 'LOGIN', 'Erfolgreich angemeldet', '2026-05-19 11:55:37');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcktmj40011zzeacndsr59t', 'cmpckth8b000xzzeafc2ym700', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:55:37');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcktml60013zzeatw1mg4ff', 'cmpckth8b000xzzeafc2ym700', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:55:37');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckueof0015zzeasc6skqkc', 'cmpckth8b000xzzeafc2ym700', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 11:56:13');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckwtzb0017zzeap0gqaaa3', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 7"', '2026-05-19 11:58:06');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckx3uy0019zzeayc5i0cwp', 'cmpckovvq000gzzeaj7rnx3xd', 'COMPLETED_QUIZ', 'Lektion: "Quiz: S4F10 - Kapitel 7" (Ergebnis: 33%)', '2026-05-19 11:58:19');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckx3vc001bzzeajth2jdyc', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 7"', '2026-05-19 11:58:19');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckxaby001dzzea8xro4ln5', 'cmpckovvq000gzzeaj7rnx3xd', 'COMPLETED_QUIZ', 'Lektion: "Quiz: S4F10 - Kapitel 7" (Ergebnis: 67%)', '2026-05-19 11:58:27');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckxac8001fzzeayhaamoef', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 7"', '2026-05-19 11:58:27');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckxl3p001hzzeaea3mcrdw', 'cmpckovvq000gzzeaj7rnx3xd', 'COMPLETED_QUIZ', 'Lektion: "Quiz: S4F10 - Kapitel 7" (Ergebnis: 67%)', '2026-05-19 11:58:41');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckxl42001jzzea3n6x5cib', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 7"', '2026-05-19 11:58:41');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckxq8x001lzzeapv04d3t3', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 7"', '2026-05-19 11:58:48');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpckxthz001nzzeav7oypi2d', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 8"', '2026-05-19 11:58:52');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcky4qa001pzzeayqnac3ds', 'cmpckovvq000gzzeaj7rnx3xd', 'COMPLETED_QUIZ', 'Lektion: "Quiz: S4F10 - Kapitel 8" (Ergebnis: 67%)', '2026-05-19 11:59:07');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcky4qp001rzzea7uccnm50', 'cmpckovvq000gzzeaj7rnx3xd', 'VIEW_LESSON', 'Lektion geöffnet: "Quiz: S4F10 - Kapitel 8"', '2026-05-19 11:59:07');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcl25nn001tzzeafdpz7nd9', 'cmpckovvq000gzzeaj7rnx3xd', 'LOGOUT', 'Sitzung beendet', '2026-05-19 12:02:15');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcmkjq1001vzzeaym0i4bja', 'up764f99o00pcq1v0xo', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 12:44:32');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcp29vg001xzzearkkgexcf', 'u5ilhtdcn9ycti9tbmc', 'Benutzer gelöscht: "Admin" (admin@example.com)', 'Ziel-ID: user_admin_01', '2026-05-19 13:54:19');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcp2dc8001zzzealtuuxxhs', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 13:54:23');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcp2ijw0021zzeaxv8orrmb', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 13:54:30');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcp2v5h0023zzeal30lhgt6', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 13:54:46');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcp3tqt0025zzeav5e980vc', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 13:55:31');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcp3ztc0027zzeazkoqnatm', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 13:55:39');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcp50oy0029zzearjyz9uj8', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 13:56:27');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcp545z002bzzeado16djez', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 13:56:31');
+INSERT INTO audit_logs (id, userId, action, details, createdAt) VALUES ('cmpcpaw2r002dzzea54j1fvx9', 'u5ilhtdcn9ycti9tbmc', 'VIEW_DASHBOARD', 'Benutzer-Dashboard geöffnet', '2026-05-19 14:01:01');
 
 -- Table: system_settings
 DELETE FROM system_settings;
 INSERT INTO system_settings (settingKey, settingValue, updatedAt) VALUES ('ai_settings', '{"anthropicApiKey":"","geminiApiKey":"AIzaSyCe2xetSQb57nt7nLpnsBsooJxotSo2eiw"}', '2026-05-12 16:20:47');
 
 SET FOREIGN_KEY_CHECKS=1;
-
-
--- ==============================================================================
--- NEUE DATEN FÜR DAS FACH DATENBANKEN (aus insert_db.txt)
--- ==============================================================================
-
--- STREAMING_CHUNK: Initialisiere Dummy-Benutzer und Fach für referenzielle Integrität...
--- ------------------------------------------------------------------------------
--- Setup: User & Subject (Damit die Foreign Keys der Lessons funktionieren)
--- ------------------------------------------------------------------------------
-INSERT IGNORE INTO users (id, name, email, password, role) 
-VALUES ('user_admin_01', 'Admin', 'admin@example.com', 'hashed_pw_123', 'admin');
-
-INSERT IGNORE INTO subjects (id, userId, title, color, icon) 
-VALUES ('subj_db_01', 'user_admin_01', 'Datenbanken', '#8b5cf6', 'ph-database');
-
--- STREAMING_CHUNK: Füge Lektion 1 (Datenbanktheorie) in voller Länge ein...
--- ------------------------------------------------------------------------------
--- Lektion 1: Datenbanktheorie
--- ------------------------------------------------------------------------------
-INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
-VALUES (
-    'lesson_db_01',
-    'subj_db_01',
-    'user_admin_01',
-    'Datenbanktheorie & Grundlagen',
-    10,
-    'published',
-    'Rohdaten Datenbanktheorie...',
-    '<h3>1. Datenbanktheorie</h3>
-
-<h4>1.1. Redundanz</h4>
-<ul>
-  <li>Wiederholtes Speichern gleicher Daten aus verschiedenen Anwendungsprogrammen in verschiedenen Dateien.</li>
-  <li>Verschwendung von Speicher.</li>
-  <li>Erhöhter Verwaltungs- und Verarbeitungsaufwand.</li>
-  <li>Z.B. wenn Adresse und Name eines Kunden bei jeder Bestellung erneut erfasst werden, anstatt sie nur einmalig zu speichern und zu verknüpfen.</li>
-</ul>
-
-<hr>
-
-<h4>1.2. Konsistenz bzw. Inkonsistenz</h4>
-<ul>
-  <li><strong>Datenbankkonsistenz (Consistency):</strong> stellt sicher, dass Daten widerspruchsfrei sind und vordefinierten Regeln entsprechen.</li>
-  <li><strong>Datenbankinkonsistenz:</strong> bezeichnet widersprüchliche Datenzustände, bei denen Informationen auf Grund von Redundanzen nicht einheitlich aktualisiert wurden.</li>
-  <li>Z.B. verschiedene Adressen für denselben Kunden.</li>
-  <li>Dies entsteht oft durch fehlerhafte Transaktionen oder Anomalien (Einfüge-, Aktualisierungs- und Löschanomalie).</li>
-</ul>
-
-<hr>
-
-<h4>1.3. Primärschlüssel (Primary Key)</h4>
-<p>Primärschlüssel (PK) identifizieren Datensätze in einer Tabelle <strong>eindeutig</strong> (z. B. KundenID, SteuerId etc.). Ein PK muss einzigartig und darf nicht leer (NOT NULL) sein.</p>
-
-<hr>
-
-<h4>1.4. Fremdschlüssel (Foreign Key)</h4>
-<p>Ein Fremdschlüssel (FK) verweist auf diese PKs in anderen Tabellen, um Beziehungen herzustellen bzw. die Tabellen zu verknüpfen. Ein FK kann und darf mehrfach vorkommen und darf auch leer (NULL) sein.</p>
-
-<hr>
-
-<h4>1.5. Referentielle Integrität</h4>
-<p>Referentielle Integrität ist ein zentrales Konzept in relationalen Datenbanken und sichert die Konsistenz zwischen verknüpften Tabellen. Sie garantiert, dass Fremdschlüssel stets auf existierende Primärschlüssel verweisen, wodurch verwaiste Datensätze vermieden werden.</p>
-<blockquote>
-  <strong>Regel:</strong> Ein Fremdschlüsselwert muss entweder NULL sein oder in der referenzierten Tabelle als Primärschlüssel existieren.
-</blockquote>
-
-<hr>
-
-<h4>1.6. Datenbankmanagementsystem (DBMS)</h4>
-<p>Ein DBMS ist eine Software zur effizienten Erstellung, Verwaltung, Abfrage und Änderung von Daten in einer Datenbank. Es fungiert als Schnittstelle zwischen Nutzern/Anwendungen und den physischen Daten.</p>
-<p>Dabei gewährleistet es unter anderem Datensicherheit, Integrität und Mehrbenutzerbetrieb.</p>
-<blockquote>
-  <strong>Achtung:</strong> Ein DBMS und die dazugehörige(n) Datenbank(en) (die Datenbasis) bilden zusammen das <strong>Datenbanksystem (DBS)</strong>!
-</blockquote>
-
-<h5>Aufgaben eines DBMS & Anforderung an ein DBS:</h5>
-<ul>
-  <li><strong>Datenintegrität und Konsistenz:</strong> Gewährleistung korrekter Daten, oft durch ACID-Prinzipien.</li>
-  <li><strong>Redundanzarmut:</strong> Vermeidung mehrfacher Speicherung gleicher Daten (Normalisierung).</li>
-  <li><strong>Datensicherheit und Zugriffsschutz:</strong> Schutz vor unberechtigtem Zugriff und Datenverlust (Backup-Mechanismen).</li>
-  <li><strong>Mehrbenutzerfähigkeit (Concurrency):</strong> Gleichzeitiger Zugriff mehrerer Benutzer ohne Datenkonflikte.</li>
-  <li><strong>Datenunabhängigkeit:</strong> Trennung von Datenstruktur und Anwendungsprogrammen.</li>
-  <li><strong>Organisation der Daten:</strong> Organisation der Daten auf Basis des Datenmodells (z.B. Tabellen).</li>
-  <li><strong>Protokollierung und Überwachung:</strong> Das DBMS führt ein Protokoll, das alle Änderungen an der Datenbank aufzeichnet. So können Sicherheitsvorfälle oder Leistungsprobleme identifiziert werden.</li>
-</ul>
-
-<hr>
-
-<h4>1.7. Transaktion</h4>
-<p>SQL-Transaktionen sind Folgen von Datenbankoperationen (INSERT, UPDATE, DELETE), die als eine einzige, unteilbare Arbeitseinheit ausgeführt werden.</p>
-<ul>
-  <li>Sie garantieren Datenintegrität und Datenkonsistenz nach dem ACID-Prinzip.</li>
-  <li>Änderungen werden entweder vollständig übernommen (COMMIT) oder bei Fehlern komplett rückgängig gemacht (ROLLBACK).</li>
-  <li>Wenn bereits eine einzige Anweisung fehlschlägt, schlägt die komplette Transaktion fehl.</li>
-</ul>
-
-<hr>
-
-<h4>1.8. ACID - Prinzip</h4>
-<p>Das ACID-Prinzip ist ein grundlegendes Konzept, das die Zuverlässigkeit von Datenbanktransaktionen garantiert. ACID stellt sicher, dass Datentransaktionen sicher, konsistent und fehlerfrei verarbeitet werden, oft genutzt in Banken oder E-Commerce-Systemen.</p>
-<ul>
-  <li><strong>A - Atomicity (Atomarität):</strong> Eine Transaktion wird entweder vollständig ausgeführt oder gar nicht. Bei einem Fehler wird die gesamte Aktion rückgängig gemacht (All-or-Nothing-Prinzip).</li>
-  <li><strong>C - Consistency (Konsistenz):</strong> Die Datenbank wechselt durch die Transaktion von einem gültigen Zustand in den nächsten. Datenintegritätsregeln werden eingehalten.</li>
-  <li><strong>I - Isolation (Isolation):</strong> Gleichzeitige Transaktionen beeinflussen sich nicht gegenseitig. Sie laufen so ab, als ob sie nacheinander ausgeführt würden.</li>
-  <li><strong>D - Durability (Dauerhaftigkeit):</strong> Nach erfolgreichem Abschluss sind die Daten dauerhaft gespeichert und gehen auch bei Systemausfällen nicht verloren.</li>
-</ul>
-
-<hr>
-
-<h4>1.9. Datenbanktypen</h4>
-<div class="overflow-x-auto my-4">
-  <table class="w-full text-sm text-left border border-border rounded-lg">
-    <thead class="text-xs uppercase bg-surface">
-      <tr>
-        <th class="px-4 py-3">Datenbanktyp</th>
-        <th class="px-4 py-3">Vorteile</th>
-        <th class="px-4 py-3">Nachteile</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-border">
-      <tr>
-        <td class="px-4 py-3 font-bold">Relationale Datenbanken</td>
-        <td class="px-4 py-3"><ul><li>Mathematisch fundiertes Modell (relationale Algebra)</li><li>Leicht programmierbar und weit verbreitet</li><li>Änderungen am Schema meist gut möglich</li></ul></td>
-        <td class="px-4 py-3"><ul><li>Komplexe Abfragen (z. B. viele Joins) können langsam sein</li><li>Bei sehr großen Datenmengen schwer horizontal zu skalieren</li></ul></td>
-      </tr>
-      <tr>
-        <td class="px-4 py-3 font-bold">Objektorientierte Datenbanken</td>
-        <td class="px-4 py-3"><ul><li>Daten können direkt als Objekte gespeichert werden</li><li>Gut geeignet für objektorientierte Programmiersprachen</li><li>Teilweise kompatibel zu relationalen Datenbanken</li></ul></td>
-        <td class="px-4 py-3"><ul><li>Geringere Verbreitung</li><li>Weniger Standardisierung</li><li>Teilweise komplexe Struktur und schwierige Integration mit bestehenden Systemen</li></ul></td>
-      </tr>
-      <tr>
-        <td class="px-4 py-3 font-bold">Hierarchische / Netzwerk-Datenbanken</td>
-        <td class="px-4 py-3"><ul><li>Sehr schnelle Zugriffe bei klaren Strukturen</li><li>Geringe Redundanz möglich</li></ul></td>
-        <td class="px-4 py-3"><ul><li>Struktur schwer zu ändern</li><li>Komplizierte Programmierung</li><li>Wenig flexibel</li></ul></td>
-      </tr>
-      <tr>
-        <td class="px-4 py-3 font-bold">NoSQL-Datenbanken</td>
-        <td class="px-4 py-3"><ul><li>Sehr gute horizontale Skalierbarkeit möglich</li><li>Flexible Datenmodelle</li><li>Hohe Geschwindigkeit bei großen Datenmengen</li></ul></td>
-        <td class="px-4 py-3"><ul><li>Fehlende Standardisierung</li><li>Teilweise keine vollständige Konsistenz der Daten</li></ul></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<hr>
-
-<h4>1.10. Anomalien</h4>
-<p>Anomalien in Datenbanken sind unerwünschte Zustände, die meist durch Datenredundanz bei schlechter Modellierung (fehlende Normalisierung) entstehen. Sie verursachen Inkonsistenzen bei Dateneingabe, -änderung oder -löschung.</p>
-
-<ul>
-  <li><strong>Einfügeanomalie (Insertion Anomaly):</strong> Daten können nicht eingefügt werden, weil notwendige Teilinformationen (z. B. Primärschlüssel) fehlen.</li>
-  <li><strong>Änderungsanomalie (Update Anomaly):</strong> Eine Information ist mehrfach gespeichert, wird aber nur an einer Stelle aktualisiert, was zu Widersprüchen führt.</li>
-  <li><strong>Löschanomalie (Delete Anomaly):</strong> Beim Löschen eines Datensatzes werden unbeabsichtigt andere, noch benötigte Daten mit entfernt.</li>
-</ul>'
-);
-
--- STREAMING_CHUNK: Füge Lektion 2 (Normalisierung) mit allen Tabellenbeispielen ein...
--- ------------------------------------------------------------------------------
--- Lektion 2: Normalisierung
--- ------------------------------------------------------------------------------
-INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
-VALUES (
-    'lesson_db_02',
-    'subj_db_01',
-    'user_admin_01',
-    'Normalisierung',
-    20,
-    'published',
-    'Rohdaten Normalisierung...',
-    '<h3>2. Normalisierung</h3>
-<p>Das Verfahren der Normalisierung ist eine formalisierte Vorgehensweise zur Vermeidung von Redundanzen, die zu Inkonsistenz führen können. Sie verhindert unerwünschte Seiteneffekte beim Ändern und Löschen (Anomalien). Dazu wurden mehrere Normalform-Regeln formuliert, die aufeinander aufbauen.</p>
-
-<span class="inline-flex items-center rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-black uppercase tracking-wider mt-4">Grundlage</span>
-<h4>2.1. 1 Normalform (1NF)</h4>
-<p>Eine Tabelle befindet sich in der 1. Normalform, wenn alle Attribute nur einfache Attributwerte aufweisen (<strong>atomar sind</strong>) und jede Tabelle über einen Primärschlüssel verfügt.</p>
-<blockquote>
-  <strong>Achtung - Funktionale Abhängigkeit:</strong> B ist von A funktional abhängig, wenn zu einem bestimmten Wert von A höchstens ein Wert von B gehört. Der Wert eines Attributs (oder einer Attributkombination) bestimmt eindeutig den Wert eines anderen Attributs.
-</blockquote>
-
-<hr>
-
-<span class="inline-flex items-center rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-black uppercase tracking-wider mt-4">Erweiterung</span>
-<h4>2.2. 2 Normalform (2NF)</h4>
-<p>Eine Tabelle befindet sich in der 2. Normalform, wenn sie schon in der 1. Normalform ist und <strong>jedes nicht zum Primärschlüssel gehörende Attribut voll vom Primärschlüssel abhängig ist</strong>.</p>
-<ul>
-  <li><strong>Volle Abhängigkeit:</strong> B ist von der Attributkombination A voll abhängig, wenn:</li>
-  <li>B vom gesamten Primärschlüssel abhängig ist.</li>
-  <li>B nicht bereits von einem Teil des Primärschlüssels abhängt.</li>
-  <li>A aus mindestens zwei Attributen besteht und den Primärschlüssel bildet.</li>
-</ul>
-
-<hr>
-
-<span class="inline-flex items-center rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-black uppercase tracking-wider mt-4">Ziel</span>
-<h4>2.3. 3 Normalform (3NF)</h4>
-<p>Eine Tabelle befindet sich in der 3. Normalform, wenn sie schon in der 2. Normalform ist und <strong>kein Nicht-Schlüsselattribut vom Primärschlüssel transitiv abhängig ist</strong>.</p>
-<ul>
-  <li><strong>Transitive Abhängigkeit:</strong> C ist von A transitiv abhängig, wenn:</li>
-  <li>A den Primärschlüssel bildet und B kein Schlüsselattribut ist.</li>
-  <li>C von B funktional abhängig ist.</li>
-  <li>B von A funktional abhängig ist.</li>
-  <li>C somit indirekt von A abhängig ist.</li>
-</ul>
-<p class="mt-2">Ein Attribut ist von einem anderen Attribut abhängig, das wiederum von einem Schlüsselattribut abhängig ist.</p>
-
-<hr>
-
-<h4>2.4. Beispiel für Normalisierung (0 - 3 NF)</h4>
-
-<h5>0. Normalform (Ausgangslage)</h5>
-<div class="overflow-x-auto my-2 border border-border rounded-lg">
-<table class="w-full text-xs text-left whitespace-nowrap">
-  <thead class="bg-surface"><tr><th class="px-2 py-1">PNr</th><th class="px-2 py-1">Name</th><th class="px-2 py-1">Skillschlüssel</th><th class="px-2 py-1">Fähigkeit</th><th class="px-2 py-1">Kostenstelle</th><th class="px-2 py-1">Abteilung</th></tr></thead>
-  <tbody class="divide-y divide-border">
-    <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1 text-red-500 font-bold">201,211</td><td class="px-2 py-1 text-red-500 font-bold">Cobol, C++</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-    <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1 text-red-500 font-bold">201,2</td><td class="px-2 py-1 text-red-500 font-bold">Cobol, Java</td><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
-    <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1 text-red-500 font-bold">223,229,241</td><td class="px-2 py-1 text-red-500 font-bold">Pascal, Basic, ABAP</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-  </tbody>
-</table>
-</div>
-
-<h5>1. Normalform (Atomare Werte)</h5>
-<div class="overflow-x-auto my-2 border border-border rounded-lg">
-<table class="w-full text-xs text-left whitespace-nowrap">
-  <thead class="bg-surface"><tr><th class="px-2 py-1">PNr</th><th class="px-2 py-1">Name</th><th class="px-2 py-1">Skillschlüssel</th><th class="px-2 py-1">Fähigkeit</th><th class="px-2 py-1">Kostenstelle</th><th class="px-2 py-1">Abteilung</th></tr></thead>
-  <tbody class="divide-y divide-border">
-    <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1">201</td><td class="px-2 py-1">Cobol</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-    <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1">211</td><td class="px-2 py-1">C++</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-    <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1">201</td><td class="px-2 py-1">Cobol</td><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
-    <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1">200</td><td class="px-2 py-1">Java</td><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
-    <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">223</td><td class="px-2 py-1">Pascal</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-    <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">229</td><td class="px-2 py-1">Basic</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-    <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">241</td><td class="px-2 py-1">ABAP</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-  </tbody>
-</table>
-</div>
-
-<h5>2. Normalform (Aufteilung nach voller Abhängigkeit)</h5>
-<div class="flex gap-4">
-  <div class="overflow-x-auto my-2 border border-border rounded-lg flex-1">
-    <table class="w-full text-xs text-left whitespace-nowrap">
-      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>PNr</u></th><th class="px-2 py-1">Name</th><th class="px-2 py-1">Kostenstelle</th><th class="px-2 py-1">Abteilung</th></tr></thead>
-      <tbody class="divide-y divide-border">
-        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
-        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="overflow-x-auto my-2 border border-border rounded-lg flex-1">
-    <table class="w-full text-xs text-left whitespace-nowrap">
-      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>PNr</u></th><th class="px-2 py-1"><u>Skillschlüssel</u></th></tr></thead>
-      <tbody class="divide-y divide-border">
-        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">201</td></tr>
-        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">211</td></tr>
-        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">201</td></tr>
-        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">200</td></tr>
-        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">223</td></tr>
-        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">229</td></tr>
-        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">241</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="overflow-x-auto my-2 border border-border rounded-lg flex-1">
-    <table class="w-full text-xs text-left whitespace-nowrap">
-      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>Skillschlüssel</u></th><th class="px-2 py-1">Fähigkeit</th></tr></thead>
-      <tbody class="divide-y divide-border">
-        <tr><td class="px-2 py-1">201</td><td class="px-2 py-1">Cobol</td></tr>
-        <tr><td class="px-2 py-1">211</td><td class="px-2 py-1">C++</td></tr>
-        <tr><td class="px-2 py-1">200</td><td class="px-2 py-1">Java</td></tr>
-        <tr><td class="px-2 py-1">223</td><td class="px-2 py-1">Pascal</td></tr>
-        <tr><td class="px-2 py-1">229</td><td class="px-2 py-1">Basic</td></tr>
-        <tr><td class="px-2 py-1">241</td><td class="px-2 py-1">ABAP</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<h5>3. Normalform (Auflösung transitiver Abhängigkeiten)</h5>
-<div class="flex flex-wrap gap-4">
-  <div class="overflow-x-auto my-2 border border-border rounded-lg w-[48%]">
-    <table class="w-full text-xs text-left whitespace-nowrap">
-      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>PNr</u></th><th class="px-2 py-1">Name</th><th class="px-2 py-1"><em>Kostenstelle</em></th></tr></thead>
-      <tbody class="divide-y divide-border">
-        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">Meier</td><td class="px-2 py-1">5311</td></tr>
-        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">Müller</td><td class="px-2 py-1">5313</td></tr>
-        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">Schmitt</td><td class="px-2 py-1">5311</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="overflow-x-auto my-2 border border-border rounded-lg w-[48%]">
-    <table class="w-full text-xs text-left whitespace-nowrap">
-      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>Kostenstelle</u></th><th class="px-2 py-1">Abteilung</th></tr></thead>
-      <tbody class="divide-y divide-border">
-        <tr><td class="px-2 py-1">5311</td><td class="px-2 py-1">ANW1</td></tr>
-        <tr><td class="px-2 py-1">5313</td><td class="px-2 py-1">ANW2</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="overflow-x-auto my-2 border border-border rounded-lg w-[48%]">
-    <table class="w-full text-xs text-left whitespace-nowrap">
-      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>PNr</u></th><th class="px-2 py-1"><u>Skillschlüssel</u></th></tr></thead>
-      <tbody class="divide-y divide-border">
-        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">201</td></tr>
-        <tr><td class="px-2 py-1">30001</td><td class="px-2 py-1">211</td></tr>
-        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">201</td></tr>
-        <tr><td class="px-2 py-1">30002</td><td class="px-2 py-1">200</td></tr>
-        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">223</td></tr>
-        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">229</td></tr>
-        <tr><td class="px-2 py-1">30003</td><td class="px-2 py-1">241</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <div class="overflow-x-auto my-2 border border-border rounded-lg w-[48%]">
-    <table class="w-full text-xs text-left whitespace-nowrap">
-      <thead class="bg-surface"><tr><th class="px-2 py-1"><u>Skillschlüssel</u></th><th class="px-2 py-1">Fähigkeit</th></tr></thead>
-      <tbody class="divide-y divide-border">
-        <tr><td class="px-2 py-1">201</td><td class="px-2 py-1">Cobol</td></tr>
-        <tr><td class="px-2 py-1">211</td><td class="px-2 py-1">C++</td></tr>
-        <tr><td class="px-2 py-1">200</td><td class="px-2 py-1">Java</td></tr>
-        <tr><td class="px-2 py-1">223</td><td class="px-2 py-1">Pascal</td></tr>
-        <tr><td class="px-2 py-1">229</td><td class="px-2 py-1">Basic</td></tr>
-        <tr><td class="px-2 py-1">241</td><td class="px-2 py-1">ABAP</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>'
-);
-
--- STREAMING_CHUNK: Füge Lektion 3 (Modellierung) ein...
--- ------------------------------------------------------------------------------
--- Lektion 3: Modellierung (ERM)
--- ------------------------------------------------------------------------------
-INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
-VALUES (
-    'lesson_db_03',
-    'subj_db_01',
-    'user_admin_01',
-    'Modellierung',
-    30,
-    'published',
-    'Rohdaten Modellierung...',
-    '<h3>3. Modellierung</h3>
-
-<h4>3.1. Entity - Relationship - Modell (ERM)</h4>
-<p>Ein Entity-Relationship-Modell (ERM) ist ein konzeptionelles Datenmodell. Ein ER-Modell besteht aus dem ER-Diagramm und einer ergänzenden Beschreibung der Entitäten, Attribute und Schlüssel (Relationenschreibweise).</p>
-
-<ul>
-  <li><strong>Entität (Entity):</strong> Ein abstraktes Objekt der realen Welt, über das Daten gespeichert werden (z. B. Kunde, Produkt, Projekt etc.). Wird im ERD als <strong>Rechteck</strong> dargestellt.</li>
-  <li><strong>Attribut:</strong> Eigenschaften, die einen Entitätstyp näher beschreiben (z. B. Name, Preis, Bezeichnung etc.). Ein Attribut wird oft als Primärschlüssel (z. B. Kundennummer) zur eindeutigen Identifikation unterstrichen. Wird im ERD als <strong>Oval</strong> dargestellt.</li>
-  <li><strong>Beziehung (Relationship):</strong> Verbindung zwischen Entitätstypen, oft durch Verben ausgedrückt (z. B. Kunde kauft Produkt). Wird im ERD als <strong>Raute</strong> dargestellt.</li>
-</ul>
-
-<hr>
-
-<h4>3.2. Kardinalitäten (Chen - Notation)</h4>
-<p>Beziehungen werden durch Kardinalitäten spezifiziert, die angeben, wie viele Datensätze an einer Beziehung beteiligt sind.</p>
-
-<h5>1:1 ([0 oder 1] zu [1 oder 0])</h5>
-<p>Ein Schüler (kann) einen Schülerausweis besitzen und jeder Ausweis gehört zu genau einem Schüler.</p>
-
-<h5>1:n ([0 oder 1] zu beliebig vielen)</h5>
-<p>Eine Klasse hat viele (N) Schüler, aber ein Schüler ist in einer (1) Klasse.</p>
-
-<h5>m:n (beliebig viele zu beliebig vielen)</h5>
-<p>Ein Schüler kann viele (M) AGs besuchen, und eine AG wird von vielen (N) Schülern besucht.</p>
-
-<hr>
-
-<h4>3.2.1. Modifizierte Chen - Notation (MC - Notation)</h4>
-<div class="overflow-x-auto my-4">
-  <table class="w-full text-sm text-left border border-border rounded-lg">
-    <thead class="text-xs uppercase bg-surface">
-      <tr><th class="px-4 py-3">Kardinalität</th><th class="px-4 py-3">Beschreibung</th></tr>
-    </thead>
-    <tbody class="divide-y divide-border">
-      <tr><td class="px-4 py-3 font-medium">1</td><td class="px-4 py-3">Genau ein</td></tr>
-      <tr><td class="px-4 py-3 font-medium">c</td><td class="px-4 py-3">Kein oder ein (höchstens ein)</td></tr>
-      <tr><td class="px-4 py-3 font-medium">m</td><td class="px-4 py-3">Ein oder mehrere (mindestens ein)</td></tr>
-      <tr><td class="px-4 py-3 font-medium">mc</td><td class="px-4 py-3">Kein, ein oder mehrere (beliebig viele)</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<hr>
-
-<h4>3.3. Relationenschreibweise</h4>
-<p>Die Relationenschreibweise ist eine kompakte Notation zur Darstellung von Datenbankstrukturen. Sie beschreibt jede Tabelle (Relation) mit ihren Attributen, Primärschlüsseln und Fremdschlüsseln.</p>
-<ul>
-  <li>Primärschlüssel werden in der Regel durchgehend unterstrichen.</li>
-  <li>Fremdschlüssel werden in der Regel gestrichelt unterstrichen (oder kursiv markiert).</li>
-</ul>
-
-<div class="bg-surface border border-border rounded-xl p-4 flex gap-3 my-4">
-  <span class="text-xl">💡</span>
-  <div>
-    <h4 class="font-bold m-0 text-sm">Allgemeine Schreibweise</h4>
-    <p class="text-xs text-muted m-0 mt-1">Tabellenname (<u>Schlüsselattribut</u>, Attribut1, Attribut2, ..., <em>Fremdschlüssel</em>)</p>
-  </div>
-</div>
-
-<h4>3.4. Beispiele</h4>
-<p><strong>Relationenschreibweise (Beispiel für Ort, Kunde, Artikel, Bestellung)</strong></p>
-<p>
-Ort (<u>OrtsId</u>, Plz, Name)<br>
-Kunde (<u>KundenId</u>, Vorname, Nachname, <em>OrtsId</em>)<br>
-Artikel (<u>ArtikelId</u>, Name, Preis)<br>
-Bestellung (<u>BestellId</u>, <em>KundenId</em>, <em>ArtikelId</em>, Datum)
-</p>'
-);
-
--- STREAMING_CHUNK: Füge Lektion 4 (SQL DDL & DML) ein...
--- ------------------------------------------------------------------------------
--- Lektion 4: SQL DDL & DML
--- ------------------------------------------------------------------------------
-INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
-VALUES (
-    'lesson_db_04',
-    'subj_db_01',
-    'user_admin_01',
-    'SQL: DDL & DML',
-    40,
-    'published',
-    'Rohdaten SQL DDL DML...',
-    '<h3>4. SQL (Structured Query Language)</h3>
-<p>SQL ist eine standardisierte Datenbanksprache, die zur Verwaltung und Manipulation von relationalen Datenbanken verwendet wird.</p>
-
-<h4>4.1. DDL (Data Definition Language)</h4>
-<p>DDL wird verwendet, um die Struktur einer Datenbank zu erstellen oder zu ändern. Damit werden Datenbanken, Tabellen, Spalten oder Schlüssel (Primär - und Fremdschlüssel) festgelegt.</p>
-<p><strong>DDL beschreibt und verändert die Struktur der Datenbank.</strong></p>
-
-<ul>
-  <li><strong>CREATE:</strong> Erstellt eine neue Datenbank bzw. eine neue Tabelle mit dem angegeben Namen und Attributen.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">CREATE DATABASE [IF NOT EXISTS] datenbankname;</code>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">CREATE TABLE tabellenname (<br>  attribut1 Datentyp [zusätzliche Parameter],<br>  ...<br>);</code>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">CREATE TABLE kunde (<br>  kundenId INTEGER PRIMARY KEY AUTO_INCREMENT,<br>  vorname VARCHAR(50),<br>  nachname VARCHAR(50) NOT NULL,<br>  eMail VARCHAR(50) UNIQUE<br>);</code>
-  </li>
-  
-  <li><strong>DROP:</strong> Löscht eine Datenbank bzw. Tabelle mit dem angegebenen Namen.<br>
-    <blockquote><strong>Achtung:</strong> Es gehen natürlich auch alle gespeicherten Daten(sätze) verloren!</blockquote>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">DROP DATABASE IF EXISTS datenbankname;</code>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">DROP TABLE tabellenname;</code>
-  </li>
-  
-  <li><strong>ALTER TABLE:</strong> Ändert die Struktur einer bestehenden Tabelle. Es können z.B. neue Attribute (Spalten) hinzugefügt, bestehenden Attribute geändert oder gelöscht werden. Es können auch (nachträglich) Fremdschlüsselbeziehungen definiert werden.<br>
-    <ul class="mt-2 text-sm">
-      <li><strong>Neues Attribut hinzufügen:</strong> Fügt eine neue Spalte „plz“ nach der Spalte „eMail“ vom Datentyp Integer ein.<br>
-        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden ADD COLUMN plz INTEGER NOT NULL AFTER eMail;</code></li>
-      <li><strong>Datentyp eines Attributs ändern:</strong> Ändert den Datentyp von „plz“ in eine Zeichenkette. Beim Ändern des Datentyps muss darauf geachtet werden, dass die Datensätze mit dem neuen Datentyp kompatibel sind!<br>
-        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden MODIFY plz VARCHAR(50) NOT NULL;</code></li>
-      <li><strong>Namen eines Attributs ändern:</strong> Ändert den Namen der Spalte „plz“ in „postleitzahl“ mit dem Datentyp VARCHAR(50).<br>
-        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden CHANGE COLUMN plz postleitzahl VARCHAR(50);</code></li>
-      <li><strong>Fremdschlüssel hinzufügen:</strong> Fügt einen Fremdschlüssel (plz) zwischen „kunden“ und „orte“ hinzu. Dabei muss die Tabelle Orte bereits erstellt worden sein. Auch das Attribut „plz“ muss zuvor in der Tabelle „kunden“ erstellt / definiert worden sein.<br>
-        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden ADD FOREIGN KEY (plz) REFERENCES orte (plz);</code></li>
-      <li><strong>Attribut löschen:</strong> Löscht die Spalte „postleitzahl“ aus der Tabelle.<br>
-        <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block">ALTER TABLE kunden DROP COLUMN postleitzahl;</code></li>
-    </ul>
-  </li>
-</ul>
-
-<hr>
-
-<h4>4.2. DML (Data Manipulation Language)</h4>
-<p>DML wird verwendet, um Daten in Tabellen zu verändern (hinzufügen, ändern und löschen). <strong>DML ändert die gespeicherten Daten in einer Datenbank.</strong></p>
-
-<ul>
-  <li><strong>INSERT INTO:</strong> Fügt neue Datensätze in eine bestehende Tabelle ein.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block mt-1">INSERT INTO kunden (kundenId, vorname, nachname, eMail)<br>VALUES<br>(1, ''Max'', ''Mustermann'', ''max.mustermann@gmx.de''),<br>(2, ''Maria'', ''Musterfrau'', ''maria.musterfrau@web.de'');</code>
-  </li>
-  <li><strong>UPDATE:</strong> Aktualisiert bestehende Datensätze. Die „Where“ - Klausel ist notwendig, da sonst alle Datensätze in einer Tabelle aktualisiert werden würden. Es können auch mehrere Attributwerte in einem Befehl aktualisiert werden.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block mt-1">UPDATE kunden SET nachname = ''Kobel'' WHERE kundenId = 3;</code><br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block mt-1">UPDATE kunden SET nachname = ''Kobel'', eMail = ''kobel@web.de'' WHERE kundenId = 3;</code>
-  </li>
-  <li><strong>DELETE:</strong> Löscht Datensätze. Auch hier ist die „Where“ - Klausel unbedingt notwendig, da ansonsten ALLE Datensätze gelöscht werden.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block mt-1">DELETE FROM kunden WHERE kNr = 1;</code>
-  </li>
-</ul>'
-);
-
--- STREAMING_CHUNK: Füge Lektion 5 (SQL DQL) ein...
--- ------------------------------------------------------------------------------
--- Lektion 5: SQL DQL (Data Query Language)
--- ------------------------------------------------------------------------------
-INSERT INTO lessons (id, subjectId, authorId, title, sortOrder, status, contentRaw, content)
-VALUES (
-    'lesson_db_05',
-    'subj_db_01',
-    'user_admin_01',
-    'SQL: DQL (Abfragen)',
-    50,
-    'published',
-    'Rohdaten SQL DQL...',
-    '<h3>4.3. DQL (Data Query Language)</h3>
-<p>DQL dient dazu, Daten aus einer Datenbank abzufragen. Man kann die Daten dabei (logisch) aufbereiten. <strong>DQL liest Daten aus der Datenbank.</strong></p>
-
-<h4>Die grundlegende SELECT-Struktur</h4>
-<div class="bg-surface border border-border rounded-xl p-4 flex gap-3 my-4">
-  <span class="text-xl">💡</span>
-  <div>
-    <h4 class="font-bold m-0 text-sm">Aufbau</h4>
-    <p class="text-xs text-muted m-0 mt-1">
-      SELECT [DISTINCT] Spalte1 [, Spalte2, ...]<br>
-      FROM Tabelle1<br>
-      JOIN Tabelle2 ON Tabelle1.Attribut = Tabelle2.Attribut<br>
-      WHERE Bedingung<br>
-      GROUP BY Spaltenname<br>
-      HAVING Bedingung<br>
-      ORDER BY Spaltenname [ASC | DESC]<br>
-      [LIMIT]<br>
-      [OFFSET];
-    </p>
-  </div>
-</div>
-
-<ul>
-  <li><strong>SELECT:</strong> Bestimmt welche Spalten (Attribute) ausgegeben werden sollen. Ein „*“ gibt alle Spalten (Attribute) aus.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT name, preis FROM produkte;</code> Zeigt die Spalten „name“ und „preis“ aus der Tabelle „produkte“.</li>
-  <li><strong>DISTINCT:</strong> Entfernt doppelte Werte aus dem Ergebnis.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT DISTINCT stadt FROM kunden;</code> Jede Stadt wird nur einmal angezeigt.</li>
-  <li><strong>FROM:</strong> Legt fest, aus welcher Tabelle die Daten gelesen werden. Hier wird eine „Basisrelation“ ausgewählt.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT name FROM kunden;</code> Daten kommen aus der Tabelle „kunden“.</li>
-</ul>
-
-<hr>
-
-<h4>[INNER | LEFT | RIGHT] JOIN</h4>
-<p>Verbindet mehrere Tabellen (logisch) miteinander.</p>
-<ul>
-  <li><strong>INNER JOIN:</strong> Bei einem (Inner) Join enthält die Ergebnistabelle nur die Schnittmenge beider Tabellen T1 und T2. Es werden nur Datensätze angezeigt, bei denen es in beiden Tabellen übereinstimmende Werte gibt.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT k.name, b.datum FROM kunden AS k INNER JOIN bestellungen AS b ON k.kundenId = b.kundenId;</code><br>Es werden nur Kunden angezeigt, die auch mindestens eine Bestellung getätigt haben.</li>
-  <li><strong>LEFT JOIN:</strong> Bei einem Left Join enthält die Ergebnistabelle die Schnittmenge beider Tabellen T1 und T2 sowie alle Tupel der linken Tabelle T1. Gibt es keine Schnittmenge, werden die Spalten von T2 mit [NULL] - Werten aufgefüllt.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT k.name, b.datum FROM kunden AS k LEFT JOIN bestellungen AS b ON k.kundenId = b.kundenId;</code><br>Es werden ALLE Kunden angezeigt, und die jeweilige Bestellung, falls der Kunde mindestens schon eine aufgegeben hat. Sind keine Bestellungen vorhanden, wird der Kunde dennoch namentlich angezeigt und das Datum mit „Null“ - Werten aufgefüllt.</li>
-  <li><strong>RIGHT JOIN:</strong> Bei einem Right Join enthält die Ergebnistabelle die Schnittmenge beider Tabellen T1 und T2 sowie alle Tupel der rechten Tabelle T2. Gibt es keine Schnittmenge, werden die Spalten von T1 mit [NULL] - Werten aufgefüllt.</li>
-</ul>
-
-<hr>
-
-<h4>Weitere Klauseln</h4>
-<ul>
-  <li><strong>WHERE:</strong> Filtert Zeilen nach einer Bedingung. Die Filterung findet vor einem GROUP BY statt (bevor eine Aggregatfunktion angewendet wird).<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT name FROM kunden WHERE stadt = ''Berlin'';</code> Es werden nur Kunden (Namen) angezeigt, die aus Berlin kommen.</li>
-  <li><strong>GROUP BY:</strong> Gruppiert Datensätze, z. B. für Aggregatfunktionen (COUNT, SUM, AVG).<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT stadt, COUNT(kundenId) FROM kunden GROUP BY stadt;</code> Gibt die Anzahl der Kunden pro Stadt zurück.</li>
-  <li><strong>HAVING:</strong> Filtert Gruppen (nach GROUP BY). HAVING wird nach GROUP BY angewendet (nachdem eine Aggregatfunktion angewendet wurde).<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT stadt, COUNT(kundenId) FROM kunden GROUP BY stadt HAVING COUNT(*) > 5;</code> Zeigt nur Städte mit mehr als 5 Kunden.</li>
-  <li><strong>ORDER BY:</strong> Sortiert das Ergebnis. ASC (aufsteigend → A - Z oder Klein - Groß), DESC (absteigend → Z - A oder Groß - Klein).<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT name, preis FROM produkte ORDER BY preis DESC;</code> Gibt die Produkte absteigend nach dem Preis sortiert aus.</li>
-  <li><strong>LIMIT:</strong> Begrenzt die Anzahl der ausgegebenen Zeilen.<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT * FROM produkte LIMIT 5;</code> Zeigt nur die ersten 5 Datensätze des Ergebnisses an.</li>
-  <li><strong>OFFSET:</strong> Überspringt eine bestimmte Anzahl von Zeilen (oft für Pagination).<br>
-    <code class="bg-border/40 px-1.5 py-0.5 rounded text-xs block my-1">SELECT * FROM produkte LIMIT 5 OFFSET 10;</code> Zeigt 5 Datensätze ab dem 11. Datensatz.</li>
-</ul>
-
-<hr>
-
-<h4>4.3.2. Aggregatfunktionen</h4>
-<div class="overflow-x-auto my-4">
-  <table class="w-full text-sm text-left border border-border rounded-lg">
-    <thead class="text-xs uppercase bg-surface">
-      <tr><th class="px-4 py-3">Operator</th><th class="px-4 py-3">Erklärung</th></tr>
-    </thead>
-    <tbody class="divide-y divide-border">
-      <tr><td class="px-4 py-3 font-bold">MAX(...)</td><td class="px-4 py-3">Gibt den größten Wert zurück</td></tr>
-      <tr><td class="px-4 py-3 font-bold">MIN(...)</td><td class="px-4 py-3">Gibt den kleinsten Wert zurück</td></tr>
-      <tr><td class="px-4 py-3 font-bold">AVG(...)</td><td class="px-4 py-3">Berechnet den Mittelwert und gibt ihn zurück</td></tr>
-      <tr><td class="px-4 py-3 font-bold">SUM(...)</td><td class="px-4 py-3">Summiert alle Werte auf</td></tr>
-      <tr><td class="px-4 py-3 font-bold">COUNT(...)</td><td class="px-4 py-3">Zählt alle Zeilen zusammen, die den Bedingungen entsprechen</td></tr>
-    </tbody>
-  </table>
-</div>'
-);
