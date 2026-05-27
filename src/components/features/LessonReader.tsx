@@ -6,11 +6,21 @@ import Link from "next/link"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize"
 import { Playground } from "@/components/features/Playground"
 import { completeLesson, undoCompleteLesson } from "@/lib/actions/progress"
 import { toggleBookmark, saveLessonNote } from "@/lib/actions/learning"
 import { useToast } from "@/context/ToastContext"
 import { TutorChatWindow } from "@/components/features/TutorChatWindow"
+
+const playgroundSanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), "playground"],
+  attributes: {
+    ...defaultSchema.attributes,
+    playground: ["html", "css", "js", "title"],
+  },
+}
 
 interface LessonReaderProps {
   lesson: {
@@ -409,7 +419,7 @@ export function LessonReader({
                         <h2 className="text-2xl font-black text-foreground mt-1 mb-0">{lesson.title}</h2>
                       </div>
 
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw, rehypeSanitize]}>
                         {summary}
                       </ReactMarkdown>
                     </div>
@@ -422,7 +432,7 @@ export function LessonReader({
             ) : (
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
-                rehypePlugins={[rehypeRaw]}
+                rehypePlugins={[rehypeRaw, [rehypeSanitize, playgroundSanitizeSchema]]}
                 components={{
                   h2: ({ children }: any) => {
                     const text = String(children)

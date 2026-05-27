@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
+import rehypeSanitize from "rehype-sanitize"
 import { useToast } from "@/context/ToastContext"
 
 interface TutorChatWindowProps {
@@ -182,7 +183,7 @@ export function TutorChatWindow({
                     <div className="max-w-none text-foreground dark:text-slate-200 text-xs leading-relaxed space-y-1">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeRaw]}
+                        rehypePlugins={[rehypeRaw, rehypeSanitize]}
                         components={{
                           p: ({ children }) => (
                             <p className="text-xs text-foreground/95 dark:text-slate-300 leading-relaxed font-medium">

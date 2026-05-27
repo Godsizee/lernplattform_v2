@@ -46,6 +46,25 @@ async function checkAdminAuth() {
 }
 
 /**
+ * CSRF-Schutz: Prüft, ob der Origin-Header mit dem Host-Header übereinstimmt.
+ */
+function validateCsrf(req: NextRequest): boolean {
+  const origin = req.headers.get("origin")
+  const host = req.headers.get("host")
+  if (origin) {
+    try {
+      const originUrl = new URL(origin)
+      if (originUrl.host !== host) {
+        return false
+      }
+    } catch {
+      return false
+    }
+  }
+  return true
+}
+
+/**
  * GET: Abfrage von Tabellen-Metadaten oder konkreten Datensätzen
  */
 export async function GET(req: NextRequest) {
@@ -156,6 +175,9 @@ export async function GET(req: NextRequest) {
  * DELETE: Batch Delete von Datensätzen
  */
 export async function DELETE(req: NextRequest) {
+  if (!validateCsrf(req)) {
+    return NextResponse.json({ error: "CSRF-Verifizierungsfehler" }, { status: 403 })
+  }
   const authCheck = await checkAdminAuth()
   if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
@@ -226,6 +248,9 @@ export async function DELETE(req: NextRequest) {
  * POST: Batch Insert (JSON oder SQL-Statements)
  */
 export async function POST(req: NextRequest) {
+  if (!validateCsrf(req)) {
+    return NextResponse.json({ error: "CSRF-Verifizierungsfehler" }, { status: 403 })
+  }
   const authCheck = await checkAdminAuth()
   if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })
@@ -331,6 +356,9 @@ export async function POST(req: NextRequest) {
  * PUT: Raw SQL Console
  */
 export async function PUT(req: NextRequest) {
+  if (!validateCsrf(req)) {
+    return NextResponse.json({ error: "CSRF-Verifizierungsfehler" }, { status: 403 })
+  }
   const authCheck = await checkAdminAuth()
   if (!authCheck.authorized) {
     return NextResponse.json({ error: authCheck.error }, { status: authCheck.status })

@@ -7,6 +7,16 @@ import { createSubject } from "@/lib/actions/admin"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeRaw from "rehype-raw"
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize"
+
+const playgroundSanitizeSchema = {
+  ...defaultSchema,
+  tagNames: [...(defaultSchema.tagNames || []), "playground"],
+  attributes: {
+    ...defaultSchema.attributes,
+    playground: ["html", "css", "js", "title"],
+  },
+}
 
 interface Subject {
   id: string
@@ -340,7 +350,7 @@ export function LessonEditor({ subjects, initialLesson }: LessonEditorProps) {
                 {type === "article" ? (
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeRaw]}
+                    rehypePlugins={[rehypeRaw, [rehypeSanitize, playgroundSanitizeSchema]]}
                     components={{
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       h2: ({ children }: any) => (

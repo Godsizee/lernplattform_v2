@@ -3,11 +3,16 @@ import { auth } from '@/lib/auth'
 import prisma from '@/db/client'
 import { deleteFile } from '@/lib/adaptive/storage-adapter'
 import { deleteDocumentChunks } from '@/lib/adaptive/rag-adapter'
+import { verifyCsrf, csrfErrorResponse } from '@/lib/csrf'
 
 export async function DELETE(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!verifyCsrf(req)) {
+    return csrfErrorResponse()
+  }
+
   const session = await auth()
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
