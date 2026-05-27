@@ -6,6 +6,7 @@ import { authConfig } from "./auth.config"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
+  useSecureCookies: process.env.NODE_ENV === "production",
   session: {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 Tage
@@ -60,6 +61,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
         
         if (!user || !user.password) return null;
+
+        // Brute-Force-Schutz: Sperre nach 5 Fehlversuchen in den letzten 15 Minuten
+        const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+        const failedAttempts = await prisma.auditLog.count({
+          where: {
+            userId: user.id,
+            action: "FAILED_LOGIN",
+            createdAt: { gte: fifteenMinutesAgo }
+          }
+        });
+
+        if (failedAttempts >= 5) {
+          throw new Error("Konto vorübergehend gesperrt. Zu viele Fehlversuche. Bitte versuche es in 15 Minuten erneut.");
+        }
         
         const passwordsMatch = await bcrypt.compare(
           credentials.password as string,
@@ -74,6 +89,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             role: user.role 
           };
         }
+
+        // Protokolliere fehlgeschlagenen Anmeldeversuch
+        await prisma.auditLog.create({
+          data: {
+            userId: user.id,
+            action: "FAILED_LOGIN",
+            details: "Anmeldung mit falschem Passwort"
+          }
+        }).catch(console.error);
+
         return null;
       }
     })
