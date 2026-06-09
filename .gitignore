@@ -42,3 +42,19 @@ next-env.d.ts
 
 # docker compose with sensitive credentials
 /docker-compose.yml
+
+# Backups
+*.sql
+!prisma/**/*.sql
+backup_*.sql
+
+# Temp/Scratch files
+/scratch/
+insert_db.txt
+zusammenfassung.ps1
+
+# Agent & Planning files
+AGENTS.md
+CLAUDE.md
+CRITICAL_FIX_PLAN.md
+MIGRATION_PLAN.md
