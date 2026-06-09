@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Adaptive Lernplattform v2
 
-## Getting Started
+Eine moderne, KI-gestützte Lernplattform, die auf individuellen Lernfortschritt und adaptive Wissensvermittlung ausgelegt ist. Entwickelt mit Next.js, integriert die Plattform fortgeschrittene RAG-Konzepte (Retrieval-Augmented Generation) und dynamische Wissensgraphen für ein personalisiertes Lernerlebnis.
 
-First, run the development server:
+## ✨ Hauptfunktionen
+
+*   **KI-gestütztes Adaptives Lernen:** Automatische Generierung von Lernpfaden, Concept-Nodes und gezielte Analyse von Schwachstellen.
+*   **Intelligenter Tutor-Chat:** Ein integrierter KI-Assistent beantwortet Fragen, liefert Erklärungen und hilft bei der Prüfungsvorbereitung.
+*   **Dokumentenverarbeitung & RAG:** Automatisierte Extraktion und Strukturierung von Lernmaterialien (PDFs, Dokumente).
+*   **Quiz-Engine & Prüfungsmodus:** Dynamische Generierung von Fragen zur Wissensüberprüfung basierend auf dem aktuellen Kenntnisstand.
+*   **Fortschrittstracking:** Visualisierung des Lernfortschritts inklusive Streaks und detaillierten Analysen.
+*   **Umfangreiches Admin-Dashboard:** Verwaltung von Nutzern, Inhalten, Datenbank und KI-Einstellungen.
+
+## 🛠️ Tech-Stack
+
+*   **Framework:** [Next.js](https://nextjs.org/) (App Router)
+*   **Datenbank:** Relationale Datenbank (via [Prisma ORM](https://www.prisma.io/))
+*   **Authentifizierung:** [NextAuth.js](https://next-auth.js.org/)
+*   **KI & LLM:** Integration diverser LLM-Schnittstellen (Langchain/Custom) für RAG und Chat-Funktionalitäten.
+*   **Deployment & Infrastruktur:** Docker-Unterstützung für einfache Containerisierung.
+
+## 🚀 Erste Schritte
+
+### Voraussetzungen
+
+*   Node.js (ab v18 empfohlen)
+*   Laufende Datenbank (kompatibel mit Prisma)
+*   Ggf. Docker für das Container-Deployment
+
+### Installation
+
+1.  **Repository klonen**
+    ```bash
+    git clone <repository-url>
+    cd lernplattform_v2
+    ```
+
+2.  **Abhängigkeiten installieren**
+    ```bash
+    npm install
+    # oder
+    yarn install
+    ```
+
+3.  **Umgebungsvariablen konfigurieren**
+    Erstelle eine `.env`-Datei im Hauptverzeichnis (siehe `.env.example` falls vorhanden) und hinterlege die benötigten Variablen (Datenbank-URL, NextAuth-Secrets, KI-API-Keys etc.).
+
+4.  **Datenbank initialisieren**
+    ```bash
+    npx prisma generate
+    npx prisma db push
+    # Für initiale Testdaten (falls vorhanden):
+    # npx prisma db seed
+    ```
+
+5.  **Entwicklungsserver starten**
+    ```bash
+    npm run dev
+    ```
+    Die Anwendung ist nun unter [http://localhost:3000](http://localhost:3000) erreichbar.
+
+## 📦 Docker Deployment
+
+Die Plattform beinhaltet ein Dockerfile sowie optional Docker Compose Support für ein schnelles, isoliertes Deployment.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker build -t lernplattform .
+docker run -p 3000:3000 lernplattform
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📜 Skripte
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+*   `npm run dev` - Startet den Entwicklungsserver
+*   `npm run build` - Erstellt den Produktions-Build
+*   `npm run start` - Startet die produktive Instanz
+*   `npm run lint` - Führt Code-Analysen durch
