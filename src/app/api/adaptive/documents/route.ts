@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
-import { auth } from '@/lib/auth'
+import { getTenantContext } from '@/lib/get-tenant-context'
 import prisma from '@/db/client'
 import { uploadFile } from '@/lib/adaptive/storage-adapter'
 
@@ -12,8 +12,8 @@ const ALLOWED_TYPES: Record<string, string> = {
 }
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const ctx = await getTenantContext()
+  if (!ctx) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
@@ -39,7 +39,7 @@ export async function POST(req: Request) {
 
   if (subjectId) {
     const subject = await prisma.subject.findFirst({
-      where: { id: subjectId, userId: session.user.id },
+      where: { id: subjectId, userId: ctx.userId },
     })
     if (!subject) {
       return NextResponse.json({ error: 'Ungültiges Fach' }, { status: 400 })
@@ -47,13 +47,14 @@ export async function POST(req: Request) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer())
-  const storagePath = `${session.user.id}/${uuidv4()}.${ext}`
+  const storagePath = `${ctx.userId}/${uuidv4()}.${ext}`
 
   await uploadFile(buffer, storagePath, file.type)
 
   const document = await prisma.document.create({
     data: {
-      userId: session.user.id,
+      userId: ctx.userId,
+      tenantId: ctx.tenantId,
       filename: file.name,
       storagePath,
       status: 'uploaded',
@@ -65,13 +66,13 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const ctx = await getTenantContext()
+  if (!ctx) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
   const documents = await prisma.document.findMany({
-    where: { userId: session.user.id },
+    where: { userId: ctx.userId },
     select: { id: true, filename: true, uploadedAt: true, status: true },
     orderBy: { uploadedAt: 'desc' },
   })

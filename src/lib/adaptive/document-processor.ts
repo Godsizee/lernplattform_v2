@@ -7,6 +7,7 @@ import path from 'path'
 import fs from 'fs/promises'
 import { extractGraph, extractExamGraph } from '@/lib/adaptive/llm-adapter'
 import { indexDocumentChunks } from '@/lib/adaptive/rag-adapter'
+import { vectorStore } from '@/infrastructure/vector-store/qdrant-vector-store.adapter'
 import prisma from '@/db/client'
 import type { ExtractedGraph } from '@/types/learning'
 import { LOCAL_UPLOAD_DIR, useSupabaseStorage } from '@/lib/adaptive/storage-adapter'
@@ -60,7 +61,7 @@ async function bufferToText(buffer: Buffer, storagePath: string): Promise<string
 // Haupt-Funktion: Dokument verarbeiten
 // ---------------------------------------------------------------------------
 
-export async function processDocument(documentId: string, userId: string): Promise<void> {
+export async function processDocument(documentId: string, userId: string, tenantId?: string): Promise<void> {
   const document = await prisma.document.findUnique({
     where: { id: documentId },
   })
@@ -82,7 +83,19 @@ export async function processDocument(documentId: string, userId: string): Promi
   }
 
   // RAG: Chunks einbetten und in Qdrant speichern (fire-and-forget)
-  indexDocumentChunks(document.id, document.userId, text).catch(() => {})
+  // Neuer VectorStore (lumadiq_chunks_v1) wenn tenantId bekannt, sonst Legacy-Adapter
+  if (tenantId) {
+    vectorStore.indexDocument({
+      tenantId,
+      documentId: document.id,
+      text,
+      subjectId: document.subjectId ?? undefined,
+      ownerUserId: userId,
+      sourceType: 'PERSONAL_DOCUMENT',
+    }).catch(() => {})
+  } else {
+    indexDocumentChunks(document.id, document.userId, text).catch(() => {})
+  }
 
   // Graph extrahieren (mit Retry)
   const graph: ExtractedGraph = await extractGraph(text)
@@ -102,6 +115,7 @@ export async function processDocument(documentId: string, userId: string): Promi
         tx.conceptNode.create({
           data: {
             userId,
+            tenantId: tenantId ?? null,
             documentId,
             title: node.title.trim().slice(0, 60),
             description: typeof node.description === 'string' ? node.description : '',
@@ -135,10 +149,10 @@ export async function processDocument(documentId: string, userId: string): Promi
       })
     }
 
-    // Status auf 'processed' setzen
+    // Status auf 'processed' setzen + tenantId persistieren
     await tx.document.update({
       where: { id: documentId },
-      data: { status: 'processed' },
+      data: { status: 'processed', tenantId: tenantId ?? null },
     })
   })
 }
@@ -151,7 +165,7 @@ export async function processDocument(documentId: string, userId: string): Promi
  * Verarbeitet eine Übungsklausur: extrahiert Konzeptgraph UND legt
  * echte Klausurfragen direkt als CachedTask-Einträge an.
  */
-export async function processExamDocument(documentId: string, userId: string): Promise<void> {
+export async function processExamDocument(documentId: string, userId: string, tenantId?: string): Promise<void> {
   const document = await prisma.document.findUnique({ where: { id: documentId } })
 
   if (!document || document.userId !== userId) {
@@ -183,6 +197,7 @@ export async function processExamDocument(documentId: string, userId: string): P
       const node = await tx.conceptNode.create({
         data: {
           userId,
+          tenantId: tenantId ?? null,
           documentId,
           title: q.title,
           description: q.description,
@@ -200,7 +215,7 @@ export async function processExamDocument(documentId: string, userId: string): P
 
     await tx.document.update({
       where: { id: documentId },
-      data: { status: 'processed' },
+      data: { status: 'processed', tenantId: tenantId ?? null },
     })
   })
 }

@@ -1,20 +1,21 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getTenantContext } from '@/lib/get-tenant-context'
 import prisma from '@/db/client'
 import { Prisma } from '@prisma/client'
 import { deleteDocumentChunks } from '@/lib/adaptive/rag-adapter'
+import { vectorStore } from '@/infrastructure/vector-store/qdrant-vector-store.adapter'
 
 export async function PATCH(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const ctx = await getTenantContext()
+  if (!ctx) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
   const { id } = await params
-  const userId = session.user.id
+  const userId = ctx.userId
 
   const subject = await prisma.subject.findFirst({ where: { id, userId } })
   if (!subject) {
@@ -59,25 +60,30 @@ export async function DELETE(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const ctx = await getTenantContext()
+  if (!ctx) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
   const { id } = await params
-  const userId = session.user.id
+  const userId = ctx.userId
 
   const subject = await prisma.subject.findFirst({ where: { id, userId } })
   if (!subject) {
     return NextResponse.json({ error: 'Fach nicht gefunden' }, { status: 404 })
   }
 
-  // Qdrant-Chunks aller Dokumente dieses Fachs löschen
+  // Qdrant-Chunks aller Dokumente dieses Fachs löschen (beide Collections)
   const docs = await prisma.document.findMany({
     where: { subjectId: id },
     select: { id: true },
   })
-  await Promise.all(docs.map((d) => deleteDocumentChunks(d.id)))
+  await Promise.all(
+    docs.flatMap((d) => [
+      vectorStore.deleteDocument({ documentId: d.id }),
+      deleteDocumentChunks(d.id),
+    ])
+  )
 
   // Dokumente löschen (kaskadiert zu ConceptNodes, Tasks, Exams)
   await prisma.document.deleteMany({ where: { subjectId: id } })

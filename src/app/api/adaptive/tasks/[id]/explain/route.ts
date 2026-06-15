@@ -1,26 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getTenantContext } from '@/lib/get-tenant-context'
 import prisma from '@/db/client'
 import { generateDeepExplanation } from '@/lib/adaptive/llm-adapter'
-import { searchChunks } from '@/lib/adaptive/rag-adapter'
+import { vectorStore } from '@/infrastructure/vector-store/qdrant-vector-store.adapter'
 import { checkRateLimit } from '@/lib/adaptive/rate-limit'
 
-/**
- * POST /api/tasks/[id]/explain
- * Body: { userAnswer: string, previousExplanation: string }
- *
- * Generiert eine tiefergehende Erklärung für eine Aufgabe.
- */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const ctx = await getTenantContext()
+  if (!ctx) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
-  if (!checkRateLimit(`explain:${session.user.id}`, 20, 60 * 60 * 1000)) {
+  if (!checkRateLimit(`explain:${ctx.userId}`, 20, 60 * 60 * 1000)) {
     return NextResponse.json({ error: 'Zu viele Anfragen. Bitte warte kurz.' }, { status: 429 })
   }
 
@@ -43,18 +37,22 @@ export async function POST(
     include: { node: { select: { userId: true, title: true, documentId: true } } },
   })
 
-  if (!task || task.node.userId !== session.user.id) {
+  if (!task || task.node.userId !== ctx.userId) {
     return NextResponse.json({ error: 'Aufgabe nicht gefunden' }, { status: 404 })
   }
 
   const userProfile = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: ctx.userId },
     select: { occupation: true },
   })
   const occupation = userProfile?.occupation ?? undefined
 
-  const ragChunks = await searchChunks(task.node.title, session.user.id, task.node.documentId)
-  const ragContext = ragChunks.length > 0 ? ragChunks.join('\n\n---\n\n') : undefined
+  const results = await vectorStore.search({
+    tenantId: ctx.tenantId,
+    query: task.node.title,
+    documentId: task.node.documentId,
+  })
+  const ragContext = results.length > 0 ? results.map((r) => r.text).join('\n\n---\n\n') : undefined
 
   let explanation
   try {

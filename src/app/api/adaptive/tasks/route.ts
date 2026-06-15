@@ -1,22 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getTenantContext } from '@/lib/get-tenant-context'
 import prisma from '@/db/client'
 import { generateTask } from '@/lib/adaptive/llm-adapter'
-import { searchChunks } from '@/lib/adaptive/rag-adapter'
+import { vectorStore } from '@/infrastructure/vector-store/qdrant-vector-store.adapter'
 import { LLMAdapterError } from '@/types/learning'
 
-/**
- * GET /api/tasks?nodeId={id}[&variant=true]
- *
- * Liefert eine Aufgabe für den Konzeptknoten:
- * - Ohne variant: gecachte Aufgabe zurückgeben, wenn vorhanden; sonst neu generieren
- * - Mit variant=true: immer neu generieren (andere context_variant)
- *
- * Fallback: wenn LLM nicht verfügbar → älteste gecachte Aufgabe mit meta.fallback=true
- */
 export async function GET(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const ctx = await getTenantContext()
+  if (!ctx) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
@@ -27,31 +18,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'nodeId fehlt' }, { status: 400 })
   }
 
-  // Knoten holen + Eigentümer-Check
   const node = await prisma.conceptNode.findUnique({
     where: { id: nodeId },
     select: { id: true, userId: true, title: true, description: true, documentId: true },
   })
 
-  if (!node || node.userId !== session.user.id) {
+  if (!node || node.userId !== ctx.userId) {
     return NextResponse.json({ error: 'Knoten nicht gefunden' }, { status: 404 })
   }
 
-  // User-Occupation für Prompt-Kontext laden
   const userProfile = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: ctx.userId },
     select: { occupation: true },
   })
   const occupation = userProfile?.occupation ?? undefined
 
-  // Gecachte Aufgaben für diesen Knoten
   const cached = await prisma.cachedTask.findMany({
     where: { nodeId },
     orderBy: { createdAt: 'desc' },
     select: { id: true, taskContent: true, contextVariant: true, createdAt: true },
   })
 
-  // Ohne variant + Cache vorhanden → direkt zurückgeben
   if (!wantVariant && cached.length > 0) {
     const task = cached[0]
     return NextResponse.json({
@@ -63,13 +50,15 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  // Neue context_variant bestimmen
   const nextVariant = cached.length > 0 ? Math.max(...cached.map((c) => c.contextVariant)) + 1 : 1
 
-  // LLM-Generierung versuchen
   try {
-    const ragChunks = await searchChunks(node.title, session.user.id, node.documentId)
-    const ragContext = ragChunks.length > 0 ? ragChunks.join('\n\n---\n\n') : undefined
+    const results = await vectorStore.search({
+      tenantId: ctx.tenantId,
+      query: node.title,
+      documentId: node.documentId,
+    })
+    const ragContext = results.length > 0 ? results.map((r) => r.text).join('\n\n---\n\n') : undefined
 
     const generated = await generateTask(node.title, node.description, occupation, ragContext)
 
@@ -91,9 +80,8 @@ export async function GET(req: NextRequest) {
       meta: { cached: false, fallback: false },
     })
   } catch (err) {
-    // LLM-Ausfall: gecachte Aufgabe als Fallback
     if (cached.length > 0) {
-      const fallback = cached[cached.length - 1] // älteste Variante
+      const fallback = cached[cached.length - 1]
       return NextResponse.json({
         id: fallback.id,
         nodeId,

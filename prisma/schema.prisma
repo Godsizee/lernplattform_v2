@@ -49,6 +49,7 @@ model User {
 model Subject {
   id                 String   @id @default(cuid())
   userId             String?
+  tenantId           String?
   title              String
   color              String   @default("#3b82f6")
   icon               String   @default("ph-book")
@@ -60,6 +61,7 @@ model Subject {
   subjectAssessments SubjectAssessment[]
 
   @@unique([userId, title])
+  @@index([tenantId])
   @@map("subjects")
 }
 
@@ -296,6 +298,7 @@ model SubjectAssessment {
 model Document {
   id          String   @id @default(cuid())
   userId      String
+  tenantId    String?
   filename    String
   storagePath String
   status      String   @default("uploaded") // 'uploaded', 'processing', 'processed', 'error'
@@ -307,12 +310,14 @@ model Document {
   conceptNodes ConceptNode[]
   exams        Exam[]        @relation("ExamDocuments")
 
+  @@index([tenantId])
   @@map("documents")
 }
 
 model ConceptNode {
   id          String   @id @default(cuid())
   userId      String
+  tenantId    String?
   documentId  String
   title       String
   description String   @db.Text

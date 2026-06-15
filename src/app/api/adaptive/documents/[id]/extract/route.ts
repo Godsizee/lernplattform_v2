@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@/lib/auth'
+import { getTenantContext } from '@/lib/get-tenant-context'
 import prisma from '@/db/client'
 import { processDocument, processExamDocument } from '@/lib/adaptive/document-processor'
 import { LLMAdapterError } from '@/types/learning'
@@ -9,40 +9,34 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth()
-  if (!session?.user?.id) {
+  const ctx = await getTenantContext()
+  if (!ctx) {
     return NextResponse.json({ error: 'Nicht authentifiziert' }, { status: 401 })
   }
 
   const { id } = await params
-  const userId = session.user.id
   const mode = new URL(req.url).searchParams.get('mode')
 
   try {
     if (mode === 'exam') {
-      await processExamDocument(id, userId)
+      await processExamDocument(id, ctx.userId, ctx.tenantId)
     } else {
-      await processDocument(id, userId)
+      await processDocument(id, ctx.userId, ctx.tenantId)
     }
 
-    // Neu extrahierte Knoten dieses Dokuments
     const newNodes = await prisma.conceptNode.findMany({
       where: { documentId: id },
       select: { id: true, title: true },
     })
 
-    // Alle anderen Knoten des Nutzers (aus anderen Dokumenten)
     const existingNodes = await prisma.conceptNode.findMany({
-      where: { userId, documentId: { not: id } },
+      where: { userId: ctx.userId, documentId: { not: id } },
       select: { id: true, title: true },
     })
 
     const duplicates = findDuplicates(newNodes, existingNodes)
 
-    return NextResponse.json({
-      nodeCount: newNodes.length,
-      duplicates,
-    })
+    return NextResponse.json({ nodeCount: newNodes.length, duplicates })
   } catch (err) {
     console.error('[extract] Fehler:', err instanceof Error ? err.message : String(err))
     if (err instanceof LLMAdapterError) {
