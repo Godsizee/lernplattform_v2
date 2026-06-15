@@ -32,6 +32,7 @@ model User {
   notes         LessonNote[]
   auditLogs     AuditLog[]
   lessons       Lesson[]    @relation("AuthoredLessons")
+  memberships   Membership[]
 
   // Adaptive Lernplattform Relationen
   documents          Document[]
@@ -141,6 +142,134 @@ model SystemSetting {
   updatedAt    DateTime @updatedAt
 
   @@map("system_settings")
+}
+
+// --- Mandantenfähigkeit (PR3) ---
+
+enum TenantRole {
+  OWNER
+  ADMIN
+  INSTRUCTOR
+  MEMBER
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum ContentScope {
+  GLOBAL
+  TENANT
+  PERSONAL
+}
+
+model Tenant {
+  id        String       @id @default(cuid())
+  name      String
+  slug      String       @unique
+  status    TenantStatus @default(ACTIVE)
+  createdAt DateTime     @default(now())
+
+  memberships   Membership[]
+  subscriptions Subscription[]
+  usageEvents   UsageEvent[]
+
+  @@map("tenants")
+}
+
+model Membership {
+  tenantId  String
+  userId    String
+  role      TenantRole @default(MEMBER)
+  createdAt DateTime   @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([tenantId, userId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+// --- Tarife & Abrechnung (PR9 Vorbereitung) ---
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELED
+  PAST_DUE
+  TRIALING
+}
+
+model Plan {
+  id                 String  @id @default(cuid())
+  code               String  @unique
+  name               String
+  maxMembers         Int
+  maxDocuments       Int
+  maxStorageBytes    BigInt
+  maxMonthlyLlmCalls Int
+  lumadiqEnabled     Boolean @default(false)
+  customBranding     Boolean @default(false)
+
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id       String             @id @default(cuid())
+  tenantId String
+  planId   String
+  status   SubscriptionStatus
+  startsAt DateTime
+  endsAt   DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+  plan   Plan   @relation(fields: [planId], references: [id])
+
+  @@index([tenantId])
+  @@map("subscriptions")
+}
+
+model UsageEvent {
+  id         String   @id @default(cuid())
+  tenantId   String
+  type       String
+  quantity   Int
+  metadata   Json?
+  occurredAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, occurredAt])
+  @@map("usage_events")
+}
+
+// --- Dokumentstatus (PR7 Vorbereitung) ---
+
+enum DocumentStatus {
+  UPLOADED
+  QUEUED
+  PROCESSING
+  INDEXING
+  READY
+  FAILED
+}
+
+model DocumentProcessingAttempt {
+  id          String    @id @default(cuid())
+  tenantId    String
+  documentId  String
+  jobType     String
+  status      String
+  error       String?   @db.Text
+  startedAt   DateTime  @default(now())
+  finishedAt  DateTime?
+
+  @@index([tenantId, documentId])
+  @@map("document_processing_attempts")
 }
 
 // --- Adaptive Lernplattform Modelle ---
